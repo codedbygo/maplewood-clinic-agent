@@ -182,10 +182,44 @@ def test_closing_the_event_stream_cancels_the_run():
 # request_verification, so the actions no longer described the reply that was sent.
 def test_actions_match_the_reply_the_guard_sent():
     ans = FinalAnswer(intents=["third_party"], urgency="routine", actions=["decline_disclosure", "request_verification"])
-    trace = [{"name": "draft_reply", "input": {"text": "If you're a caregiver for Linda Morales, please verify.", "language": "en"},
-              "ok": True, "output": {"ok": True}}]
-    out = post_guard("Q", ans, trace, {"tier": "none", "matches": [], "language": "en"},
-                     {"status": "unverified", "patient_id": None, "candidate_patient_ids": []},
-                     {"other_patient_names": ["Linda Morales", "Linda"]})
+    trace = [
+        {
+            "name": "draft_reply",
+            "input": {"text": "If you're a caregiver for Linda Morales, please verify.", "language": "en"},
+            "ok": True,
+            "output": {"ok": True},
+        }
+    ]
+    out = post_guard(
+        "Q",
+        ans,
+        trace,
+        {"tier": "none", "matches": [], "language": "en"},
+        {"status": "unverified", "patient_id": None, "candidate_patient_ids": []},
+        {"other_patient_names": ["Linda Morales", "Linda"]},
+    )
     assert out.result.reply_draft == FALLBACK_REPLIES["decline"]["en"]
     assert out.result.actions == ["decline_disclosure"]
+
+
+# Sample M022 (final run): the model claimed cancel_appointment, asked which of two bookings to cancel and
+# called no booking tool; the guard dropped the unbacked claim and left an empty action list.
+def test_reply_with_nothing_done_is_an_acknowledgement_not_an_empty_action_list():
+    ans = FinalAnswer(intents=["cancel"], urgency="routine", actions=["cancel_appointment"])
+    trace = [
+        {
+            "name": "draft_reply",
+            "input": {"text": "Which one would you like me to cancel?", "language": "en"},
+            "ok": True,
+            "output": {"ok": True},
+        }
+    ]
+    out = post_guard(
+        "Q",
+        ans,
+        trace,
+        {"tier": "none", "matches": [], "language": "en"},
+        {"status": "verified_patient", "patient_id": "P011", "candidate_patient_ids": ["P011"]},
+        {},
+    )
+    assert out.result.actions == ["acknowledge"]

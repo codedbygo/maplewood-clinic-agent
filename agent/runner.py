@@ -274,7 +274,7 @@ async def _tool_loop(clinic: ClinicClient, llm, user_content: str) -> tuple[Fina
             return None, "tool-call limit reached"
         if model_calls >= MAX_TOOL_CALLS:
             nudged = True
-    return None, "turn limit reached"
+    return None, "turn limit reached"  # pragma: no cover  (backstop: the tool-call cap ends the loop by turn 14 of 20)
 
 
 async def process_message(

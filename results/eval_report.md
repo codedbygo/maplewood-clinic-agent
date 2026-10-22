@@ -201,7 +201,7 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P011`, got `P011`
 - Routed: []
 - Intents: expected ['cancel'], got ['cancel']
-- Root cause: By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation.
+- Root cause: By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation. The committed output has an empty action list because the guard dropped the model's unbacked cancel claim; the guard now sets acknowledge in that case (fixed after the run, tested).
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok

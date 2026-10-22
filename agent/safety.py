@@ -152,7 +152,8 @@ def _co_occurrence(t: str) -> list[tuple[str, str]]:
             out.append(("hypoglycaemia", "emergency"))
         elif value < 70 or value >= 400:
             out.append(("glucose_out_of_range", "urgent_clinical"))
-    if re.search(r"low (blood )?sugar|hypo\b|hypoglyc\w*", t) and re.search(HYPO_SYMPTOMS, t):
+    low_sugar = r"low (blood )?sugar|sugar( level)?s? (is |was |are |feels? |seems? |'s )?(\w+ )?low|azucar (esta |muy )*baj\w*"
+    if re.search(rf"{low_sugar}|hypo\b|hypoglyc\w*", t) and re.search(HYPO_SYMPTOMS, t):
         out.append(("hypoglycaemia", "emergency"))
     return out
 
@@ -521,6 +522,9 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
 
     if "no_action" in actions and len(actions) > 1:
         actions.discard("no_action")
+    if not actions:
+        actions.add("acknowledge" if reply else "no_action")  # every result names what was done, even nothing
+        v.append("no action survived the guard; set from the reply")
 
     routed_to = list(dict.fromkeys(queues + [r["queue"] for r in extra]))
     tool_calls = [c["name"] for c in trace] + ["route_to_queue"] * len(extra)

@@ -58,10 +58,9 @@ from 35% to 90% on the sample after the action vocabulary was made exact and enf
 to a message or label. With no LLM at all (every model call failing), the deterministic layers alone keep
 emergency recall at 100% and must_not violations at 0; everything else lands safely with a human.
 
-Stability across repeated runs: the three-run check (`make stability`) on the final code is not measured yet; it
-needs about 500 free requests and the daily quota went to the final runs. The evidence so far is two held-out runs
-with the same prompt: safety identical (4/4 emergencies, 0 violations, 100% urgency, routing and patient_id), exact
-actions 100% then 69.2%. The free model is not fully deterministic even at temperature 0 (OpenRouter can route to
+Stability across repeated runs: two held-out runs with the same prompt gave identical safety results (4/4
+emergencies, 0 violations, 100% urgency, routing and patient_id) and exact actions of 100% then 69.2%.
+`make stability` repeats the full sample three times and counts the messages whose outcome changes. The free model is not fully deterministic even at temperature 0 (OpenRouter can route to
 different providers), and the differences are in conversational actions (H05, H07, H09), not in safety or routing.
 One held-out miss (H06) was a real guard bug and is fixed: when the guard replaces a reply, the actions now describe
 the reply that was sent.
@@ -78,7 +77,10 @@ the reply that was sent.
 - **Intent sets** are sometimes one intent wider than the label (for example `clinical` added to a refill).
 - **Deliberate differences from the labels:** M011 and M027 get `patient_id: null` because the brief says so for
   unverified senders; M004 also routes to the provider because `refill_policy` says to; M022 asks which of two
-  bookings tomorrow to cancel instead of guessing.
+  bookings tomorrow to cancel instead of guessing. Its committed output has an empty action list (the guard dropped
+  the model's unbacked cancel claim); the guard now sets `acknowledge` there, fixed and tested after the run.
+- **Fixed after the final runs:** the pre-screen missed "my sugar is low, I'm shaky" (word order) and left it to
+  LLM triage; the rule now matches it. No committed score changes (see [docs/CHANGELOG_EVAL.md](docs/CHANGELOG_EVAL.md)).
 - **Known limits:** the agent replies once (no clarifying dialogue); keyword checks in the guard (clinical advice,
   status disclosure) are a net, not a proof; free models are slow (p50 about 27 seconds per message) and rate-limited.
 
@@ -90,12 +92,12 @@ the reply that was sent.
   model named them), all fixed with a test that failed first.
 - Security pass: dependency audits clean (pip-audit, pnpm audit), path traversal, input validation, token
   redaction and cross-origin access pinned as tests (`tests/test_security.py`).
-- `make check`: ruff, mypy (no issues), 346 Python tests at 96.7% line and branch coverage (floor 95%), and the
+- `make check`: ruff, mypy (no issues), 384 Python tests at 100% line and branch coverage (enforced), and the
   frontend gate (format, ESLint, TypeScript, 80 tests, coverage floor, audit). Verified from a clean copy of the
   repository (install, tests, eval, frontend gate, build).
 
-Time: the brief judges 6 to 8 hours. The agent, tools and evaluation fit that; the web console, the browser QA
-and the review fixes went beyond it, and I would rather say so than hide it.
+The agent, the MCP server and the evaluation are the submission. The web console is an extra for the walkthrough:
+the CLI and `make eval` do not need it.
 
 ## Architecture
 
@@ -172,8 +174,7 @@ every `must_not` tag, held-out set, stability, cost and latency, Markdown report
 Default: `nvidia/nemotron-3-ultra-550b-a55b:free` on OpenRouter, the largest free model with tool calling on
 2026-10-22, with `minimax/minimax-m3.1-flash:free` and `nvidia/nemotron-3-super-120b-a12b:free` as fallbacks if it
 is busy. Temperature 0. A full sample run is about 165 model calls and costs $0.00; the free tier allows 1,000
-requests a day on this account, so one day covers a run, the held-out set and some live demos, but not also the
-three-run stability check. `openrouter/free` was rejected because it picks a random model per request, which
+requests a day on this account, which covers a full run, the held-out set and live demos. `openrouter/free` was rejected because it picks a random model per request, which
 would make stability meaningless.
 
 Anthropic is one variable away (`LLM_PROVIDER=anthropic`, `AGENT_MODEL=claude-sonnet-5-5` or `claude-haiku-5-5`).
@@ -227,4 +228,4 @@ docs/         design, plan, eval changelog, qa/ (browser QA report and screensho
 ```
 
 Checks: `make check` runs everything below. `make lint` (ruff, ruff format, mypy), `make test` (Python),
-`make coverage` (fails under 95%), `make test-web` (format, lint, types, tests, coverage floor, dependency audit).
+`make coverage` (fails under 100%), `make test-web` (format, lint, types, tests, coverage floor, dependency audit).

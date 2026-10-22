@@ -61,8 +61,8 @@ lint: ## Python lint, format and type checks (ruff, mypy)
 
 check: lint coverage test-web ## Every gate: lint, types, tests with coverage floor, frontend gate
 
-coverage: ## Python tests with line+branch coverage; fails under 95%
-	uv run pytest -q --cov --cov-report=term-missing --cov-fail-under=95
+coverage: ## Python tests with line+branch coverage; fails under 100%
+	uv run pytest -q --cov --cov-report=term-missing --cov-fail-under=100
 
 test-web: ## Frontend gate: format, lint, types, tests, coverage, audit
 	cd web && $(MAKE) --no-print-directory check
