@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.superpowers/
+brief.pdf
+results/runs/
+.gstack/
+.bearing/
+web/coverage/
+.coverage

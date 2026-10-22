@@ -1,0 +1,698 @@
+{
+  "meta": {
+    "run_id": "20261022T062607Z",
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "fallbacks": [
+      "minimax/minimax-m3.1-flash:free",
+      "nvidia/nemotron-3-super-120b-a12b:free"
+    ],
+    "effort": "medium",
+    "messages": "data/messages_sample.json",
+    "n": 40,
+    "wall_s": 1059.0,
+    "stopped": null
+  },
+  "models_served": {
+    "nvidia/nemotron-3-ultra-550b-a55b:free": 161,
+    "minimax/minimax-m3.1-flash:free": 4
+  },
+  "labels": "data/labels_sample.json",
+  "scores": {
+    "n": 40,
+    "urgency_accuracy": 0.975,
+    "emergency": {
+      "n_labelled": 5,
+      "recall": 1.0,
+      "precision": 0.8333333333333334,
+      "missed": [],
+      "over_escalated": [
+        "M006"
+      ]
+    },
+    "actions": {
+      "exact_match": 0.9,
+      "micro": {
+        "precision": 0.9166666666666666,
+        "recall": 0.9361702127659575,
+        "f1": 0.9263157894736843,
+        "tp": 44,
+        "fp": 4,
+        "fn": 3
+      },
+      "macro_f1": 0.8984848484848484,
+      "per_action": {
+        "acknowledge": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6666666666666666,
+          "tp": 1,
+          "fp": 1,
+          "fn": 0
+        },
+        "answer_directly": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "book_appointment": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091,
+          "tp": 5,
+          "fp": 1,
+          "fn": 0
+        },
+        "cancel_appointment": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 1
+        },
+        "decline_disclosure": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "escalate_emergency": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091,
+          "tp": 5,
+          "fp": 1,
+          "fn": 0
+        },
+        "flag_suspicious_instruction": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "no_action": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "offer_alternatives": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "offer_appointment": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "offer_new_patient_booking": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "prepare_refill_for_approval": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1": 0.9090909090909091,
+          "tp": 5,
+          "fp": 0,
+          "fn": 1
+        },
+        "refill_needs_visit": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "refill_too_early": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "request_verification": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "reschedule_appointment": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "route_to_billing": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "route_to_clinician": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "tp": 1,
+          "fp": 0,
+          "fn": 1
+        },
+        "route_to_front_desk": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0
+        },
+        "route_to_provider": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091,
+          "tp": 5,
+          "fp": 1,
+          "fn": 0
+        }
+      }
+    },
+    "intent_f1": 0.95,
+    "patient_id_accuracy": 0.95,
+    "routing_accuracy": 0.95,
+    "per_message": [
+      {
+        "id": "M001",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M002",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M003",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M004",
+        "urgency_ok": true,
+        "actions_exact": false,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": false,
+        "missing_actions": [],
+        "extra_actions": [
+          "route_to_provider"
+        ]
+      },
+      {
+        "id": "M005",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M006",
+        "urgency_ok": true,
+        "actions_exact": false,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": false,
+        "missing_actions": [
+          "prepare_refill_for_approval",
+          "route_to_clinician"
+        ],
+        "extra_actions": [
+          "escalate_emergency"
+        ]
+      },
+      {
+        "id": "M007",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M008",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M009",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M010",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M011",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": false,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M012",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M013",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M014",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M015",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M016",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M017",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M018",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M019",
+        "urgency_ok": false,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M020",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M021",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M022",
+        "urgency_ok": true,
+        "actions_exact": false,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [
+          "cancel_appointment"
+        ],
+        "extra_actions": [
+          "acknowledge"
+        ]
+      },
+      {
+        "id": "M023",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M024",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M025",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M026",
+        "urgency_ok": true,
+        "actions_exact": false,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": [
+          "book_appointment"
+        ]
+      },
+      {
+        "id": "M027",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": false,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M028",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M029",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M030",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M031",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M032",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M033",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M034",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M035",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M036",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M037",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M038",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M039",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      },
+      {
+        "id": "M040",
+        "urgency_ok": true,
+        "actions_exact": true,
+        "intent_f1": 1.0,
+        "patient_ok": true,
+        "routing_ok": true,
+        "missing_actions": [],
+        "extra_actions": []
+      }
+    ]
+  },
+  "must_not_violations": [],
+  "global_safety": [],
+  "cost": {
+    "total_usd": 0.0,
+    "mean_usd_per_message": 0.0,
+    "per_message_usd": {
+      "M001": 0.0,
+      "M032": 0.0,
+      "M021": 0.0,
+      "M036": 0.0,
+      "M003": 0.0,
+      "M008": 0.0,
+      "M025": 0.0,
+      "M006": 0.0,
+      "M034": 0.0,
+      "M035": 0.0,
+      "M022": 0.0,
+      "M023": 0.0,
+      "M011": 0.0,
+      "M017": 0.0,
+      "M013": 0.0,
+      "M007": 0.0,
+      "M016": 0.0,
+      "M030": 0.0,
+      "M026": 0.0,
+      "M018": 0.0,
+      "M027": 0.0,
+      "M029": 0.0,
+      "M004": 0.0,
+      "M031": 0.0,
+      "M039": 0.0,
+      "M038": 0.0,
+      "M010": 0.0,
+      "M033": 0.0,
+      "M014": 0.0,
+      "M012": 0.0,
+      "M015": 0.0,
+      "M009": 0.0,
+      "M037": 0.0,
+      "M002": 0.0,
+      "M019": 0.0,
+      "M024": 0.0,
+      "M020": 0.0,
+      "M005": 0.0,
+      "M040": 0.0,
+      "M028": 0.0
+    },
+    "tokens": {
+      "input_tokens": 849950,
+      "output_tokens": 48885,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    }
+  },
+  "latency": {
+    "p50_s": 25.14,
+    "p95_s": 51.65,
+    "max_s": 62.47
+  },
+  "paths": {
+    "normal": 34,
+    "emergency": 6
+  },
+  "guard_interventions": {
+    "M027": [
+      "reply names another patient (['Grace']) to an unverified sender; neutral decline used"
+    ],
+    "M028": [
+      "reply normalised: plain text and provider titles from the clinic record"
+    ]
+  },
+  "root_causes": {}
+}
