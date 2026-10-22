@@ -5,6 +5,9 @@ import { lazy } from "react";
 export const InboxPage = lazy(() =>
   import("@/features/inbox/components/InboxPage").then((m) => ({ default: m.InboxPage })),
 );
+export const MessagePage = lazy(() =>
+  import("@/features/inbox/components/MessagePage").then((m) => ({ default: m.MessagePage })),
+);
 export const QueuesPage = lazy(() =>
   import("@/features/queues/components/QueuesPage").then((m) => ({ default: m.QueuesPage })),
 );

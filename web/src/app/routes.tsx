@@ -3,11 +3,12 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  redirect,
   type RouterHistory,
 } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { EvalPage, InboxPage, QueuesPage, SchedulePage } from "@/app/lazyPages";
+import { EvalPage, InboxPage, MessagePage, QueuesPage, SchedulePage } from "@/app/lazyPages";
 import { NotFound } from "@/app/NotFound";
 import { RootLayout } from "@/app/RootLayout";
 import { RouteError } from "@/app/RouteError";
@@ -27,18 +28,38 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
   notFoundComponent: NotFound,
 });
 
-const liveRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: LivePage });
+// ?replay=M006&dataset=sample pre-fills the form with a graded message, to run it again live.
+const liveSearch = z.object({
+  replay: z.string().trim().min(1).max(32).optional().catch(undefined),
+  dataset: datasetIdSchema.optional().catch(undefined),
+});
+
+const liveRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  validateSearch: (raw) => liveSearch.parse(raw),
+  component: function LiveRoute() {
+    const { replay, dataset } = liveRoute.useSearch();
+    return <LivePage replay={replay ? { id: replay, dataset: dataset ?? "sample" } : undefined} />;
+  },
+});
 
 const inboxSearch = z.object({
   dataset: datasetIdSchema.catch("sample"),
-  id: z.string().trim().min(1).max(32).optional().catch(undefined),
   filter: z.enum(["all", "attention", "emergency"]).catch("all"),
 });
+
+// ?id= is the old single-page link (bookmarks, earlier reports); it now opens the message page.
+const legacyId = z.object({ id: z.string().trim().min(1).max(32).optional().catch(undefined) });
 
 const inboxRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/inbox",
   validateSearch: (raw) => inboxSearch.parse(raw),
+  beforeLoad: ({ location, search }) => {
+    const { id } = legacyId.parse(location.search);
+    if (id) redirect({ to: "/inbox/$messageId", params: { messageId: id }, search, throw: true });
+  },
   component: function InboxRoute() {
     const search = inboxRoute.useSearch();
     const navigate = inboxRoute.useNavigate();
@@ -50,6 +71,17 @@ const inboxRoute = createRoute({
         }
       />
     );
+  },
+});
+
+const messageRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/inbox/$messageId",
+  validateSearch: (raw) => inboxSearch.parse(raw),
+  component: function MessageRoute() {
+    const { messageId } = messageRoute.useParams();
+    const { dataset, filter } = messageRoute.useSearch();
+    return <MessagePage messageId={messageId} dataset={dataset} filter={filter} />;
   },
 });
 
@@ -118,6 +150,7 @@ const evalRoute = createRoute({
 export const routeTree = rootRoute.addChildren([
   liveRoute,
   inboxRoute,
+  messageRoute,
   queuesRoute,
   scheduleRoute,
   evalRoute,

@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { PageHeader } from "@/components/PageHeader";
@@ -7,10 +6,12 @@ import { Segmented } from "@/components/Segmented";
 import { StatTile } from "@/components/StatTile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DatasetId } from "@/features/inbox/schemas";
-import { actionLabel, pct, seconds, usd } from "@/lib/format";
+import { pct, seconds, usd } from "@/lib/format";
 
 import { useEvalReport, useStability } from "../hooks";
-import { EmergencyList, PerActionTable, SafetyList } from "./EvalTables";
+import { differs } from "../rootCause";
+import { ActionsBelowFull, Differences, Generalisation } from "./EvalInsights";
+import { EmergencyList, SafetyList } from "./EvalTables";
 import { StabilityCard } from "./StabilityCard";
 
 const DATASETS: { value: DatasetId; label: string }[] = [
@@ -59,24 +60,20 @@ export function EvalPage({
   else {
     const r = report.data;
     const s = r.scores;
-    const wrong = s.per_message.filter(
-      (m) =>
-        !(m.urgency_ok && m.actions_exact && m.patient_ok && m.routing_ok && m.intent_f1 === 1),
-    );
+    const wrong = s.per_message.filter(differs);
+    // Calls the provider served from a fallback model, so the run line never hides them.
+    const others = Object.entries(r.models_served ?? {})
+      .filter(([m]) => m !== r.meta.model)
+      .map(([m, n]) => `${m} (${String(n)} calls)`);
     body = (
       <div className="space-y-6">
-        <p className="text-sm text-muted-foreground">
-          Run {r.meta.run_id} · {r.meta.model} (effort {r.meta.effort ?? "default"}) · {r.meta.n}{" "}
-          messages in {seconds(r.meta.wall_s)}
-          {r.models_served && Object.keys(r.models_served).length > 0 && (
-            <>
-              {" "}
-              · served by{" "}
-              {Object.entries(r.models_served)
-                .map(([m, n]) => `${m} (${String(n)} calls)`)
-                .join(", ")}
-            </>
-          )}
+        <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <span>Run {r.meta.run_id}</span>
+          <span>{r.meta.model}</span>
+          <span>
+            {r.meta.n} messages in {seconds(r.meta.wall_s)}
+          </span>
+          {others.length > 0 && <span>also served by {others.join(", ")}</span>}
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile
@@ -108,74 +105,43 @@ export function EvalPage({
             hint={`${usd(r.cost.mean_usd_per_message)}/message · p50 ${seconds(r.latency.p50_s)} · p95 ${seconds(r.latency.p95_s)}`}
           />
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-3">
           <Section title="Emergencies">
             <EmergencyList report={r} />
           </Section>
-          <Section title="Stability across repeated runs">
-            {stability.isSuccess ? (
-              <StabilityCard stability={stability.data} model={r.meta.model} />
-            ) : (
-              <p className="text-sm text-muted-foreground">Not measured yet. Run make stability.</p>
-            )}
+          <Section title="must_not violations">
+            <SafetyList
+              title="must_not violations"
+              okText="None. Every must_not tag in the labels was checked against the reply, the tool trace and the final store."
+              rows={r.must_not_violations.map((v) => ({
+                id: v.id,
+                what: v.tag,
+                evidence: v.evidence,
+              }))}
+            />
+          </Section>
+          <Section title="Global safety checks (every message)">
+            <SafetyList
+              title="Global safety findings"
+              okText="None: no invalid bookings, approvals, non-template emergency replies, advice keywords or PHI to unverified senders."
+              rows={r.global_safety.map((g) => ({ id: g.id, what: g.check, evidence: g.evidence }))}
+            />
           </Section>
         </div>
-        <Section title="must_not violations">
-          <SafetyList
-            title="must_not violations"
-            okText="None. Every must_not tag in the labels was checked against the reply, the tool trace and the final store."
-            rows={r.must_not_violations.map((v) => ({
-              id: v.id,
-              what: v.tag,
-              evidence: v.evidence,
-            }))}
-          />
+        {stability.isSuccess && (
+          <Section title="Stability across repeated runs">
+            <StabilityCard stability={stability.data} model={r.meta.model} />
+          </Section>
+        )}
+        <Section title={`Where the ${String(wrong.length)} differences from the label come from`}>
+          <Differences report={r} dataset={dataset} />
         </Section>
-        <Section title="Global safety checks (every message)">
-          <SafetyList
-            title="Global safety findings"
-            okText="None: no invalid bookings, approvals, non-template emergency replies, advice keywords or PHI to unverified senders."
-            rows={r.global_safety.map((g) => ({ id: g.id, what: g.check, evidence: g.evidence }))}
-          />
-        </Section>
-        <Section title={`Cases that differ from the label (${String(wrong.length)})`}>
-          {wrong.length === 0 ? (
-            <p className="text-sm text-muted-foreground">None.</p>
-          ) : (
-            <ul className="divide-y text-sm">
-              {wrong.map((m) => (
-                <li key={m.id} className="space-y-1 py-2">
-                  <p className="flex flex-wrap items-center gap-2">
-                    <Link
-                      to="/inbox"
-                      search={{ dataset, id: m.id, filter: "all" }}
-                      className="font-mono font-medium text-primary hover:underline"
-                    >
-                      {m.id}
-                    </Link>
-                    {!m.urgency_ok && <span className="text-destructive">urgency</span>}
-                    {!m.patient_ok && <span className="text-destructive">patient_id</span>}
-                    {!m.routing_ok && <span className="text-destructive">routing</span>}
-                    {m.missing_actions.length > 0 && (
-                      <span>missing {m.missing_actions.map(actionLabel).join(", ")}</span>
-                    )}
-                    {m.extra_actions.length > 0 && (
-                      <span className="text-muted-foreground">
-                        extra {m.extra_actions.map(actionLabel).join(", ")}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {r.root_causes[m.id] ?? "Root cause not yet analysed."}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Section>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Section title="Per-action results">
-            <PerActionTable perAction={s.actions.per_action} />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Section title="Generalisation: sample and held-out">
+            <Generalisation />
+          </Section>
+          <Section title="Actions below 100%">
+            <ActionsBelowFull perAction={s.actions.per_action} />
           </Section>
           <Section title="Post-guard interventions">
             {Object.keys(r.guard_interventions).length === 0 ? (

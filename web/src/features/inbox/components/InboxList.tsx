@@ -1,72 +1,106 @@
-import { CheckCircle2, CircleDashed, Siren, XCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { XCircle } from "lucide-react";
 
-import { UrgencyBadge } from "@/components/UrgencyBadge";
-import { clockTime } from "@/lib/format";
+import { clockTime, queueLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-import type { InboxItem } from "../schemas";
-import { isCorrect } from "../verdict";
+import type { DatasetId, InboxItem } from "../schemas";
+import { isCorrect, type InboxFilter } from "../verdict";
 
-function Verdict({ item }: { item: InboxItem }) {
-  const ok = isCorrect(item);
-  if (ok === null)
-    return <CircleDashed aria-label="Not scored" className="size-4 text-muted-foreground" />;
-  return ok ? (
-    <CheckCircle2 aria-label="Matches label" className="size-4 text-success" />
-  ) : (
-    <XCircle aria-label="Differs from label" className="size-4 text-destructive" />
-  );
-}
+const DOT = {
+  emergency: "bg-destructive",
+  urgent: "bg-warning",
+  routine: "bg-transparent",
+} as const;
+const ROW = "grid grid-cols-12 items-center gap-x-4 gap-y-1 px-4";
 
-interface Props {
+/** InboxList: one full-width row per message, like a mail client. Colour only for emergency, urgent and "differs". */
+export function InboxList({
+  items,
+  dataset,
+  filter,
+}: {
   items: InboxItem[];
-  selectedId: string | undefined;
-  onSelect: (id: string) => void;
-}
-
-/** InboxList: messages in arrival order, emergencies marked, each with its verdict against the label. */
-export function InboxList({ items, selectedId, onSelect }: Props) {
+  dataset: DatasetId;
+  filter: InboxFilter;
+}) {
   return (
-    <ul aria-label="Messages" className="divide-y overflow-hidden rounded-lg border">
-      {items.map((item) => {
-        const r = item.result;
-        const emergency = r?.actions.includes("escalate_emergency") ?? false;
-        const selected = item.message.id === selectedId;
-        return (
-          <li key={item.message.id}>
-            <button
-              type="button"
-              aria-current={selected ? "true" : undefined}
-              onClick={() => {
-                onSelect(item.message.id);
-              }}
-              className={cn(
-                "flex w-full flex-col gap-1 px-3 py-2.5 text-left transition-colors hover:bg-accent/50 focus-visible:bg-accent focus-visible:outline-none",
-                selected && "bg-accent",
-                emergency && "border-l-4 border-l-destructive",
-              )}
-            >
-              <span className="flex items-center gap-2 text-sm">
-                <span className="font-mono text-xs text-muted-foreground">{item.message.id}</span>
-                <span className="truncate font-medium">{item.message.from_name}</span>
-                {emergency && (
-                  <Siren aria-label="Emergency" className="size-4 shrink-0 text-destructive" />
+    <div className="overflow-hidden rounded-xl border bg-card">
+      <div
+        aria-hidden
+        className={cn(
+          ROW,
+          "hidden border-b bg-muted/40 py-2 text-xs text-muted-foreground md:grid",
+        )}
+      >
+        <span className="col-span-1">Time</span>
+        <span className="col-span-2">From</span>
+        <span className="col-span-5">Message</span>
+        <span className="col-span-1">Urgency</span>
+        <span className="col-span-2">Routed to</span>
+        <span className="col-span-1 text-right">Result</span>
+      </div>
+      <ul aria-label="Messages" className="divide-y">
+        {items.map((item) => {
+          const r = item.result;
+          const ok = isCorrect(item);
+          return (
+            <li key={item.message.id}>
+              <Link
+                to="/inbox/$messageId"
+                params={{ messageId: item.message.id }}
+                search={{ dataset, filter }}
+                className={cn(
+                  ROW,
+                  "py-3 text-sm transition-colors hover:bg-accent/50 focus-visible:bg-accent focus-visible:outline-none",
                 )}
-                <span className="ml-auto flex shrink-0 items-center gap-2">
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {clockTime(item.message.received_at)}
-                  </span>
-                  <Verdict item={item} />
+              >
+                <span className="col-span-3 flex items-center gap-2 text-xs text-muted-foreground tabular-nums md:col-span-1">
+                  <span
+                    aria-hidden
+                    className={cn("size-2 shrink-0 rounded-full", r && DOT[r.urgency])}
+                  />
+                  {clockTime(item.message.received_at)}
                 </span>
-              </span>
-              <span className="line-clamp-1 text-sm text-muted-foreground">
-                {item.message.body}
-              </span>
-              {r && <UrgencyBadge urgency={r.urgency} className="w-fit" />}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+                <span className="col-span-9 truncate font-medium md:col-span-2">
+                  {item.message.from_name}
+                  <span className="ml-2 font-mono text-xs font-normal text-muted-foreground">
+                    {item.message.id}
+                  </span>
+                </span>
+                <span className="col-span-12 truncate text-muted-foreground md:col-span-5">
+                  {item.message.body}
+                </span>
+                <span
+                  className={cn(
+                    "col-span-4 text-xs capitalize md:col-span-1",
+                    r?.urgency === "emergency" && "font-medium text-destructive",
+                    r?.urgency === "urgent" && "font-medium",
+                    r?.urgency === "routine" && "text-muted-foreground",
+                  )}
+                >
+                  {r?.urgency ?? "not run"}
+                </span>
+                <span className="col-span-5 truncate text-xs text-muted-foreground md:col-span-2">
+                  {r ? r.routed_to.map(queueLabel).join(", ") || "No queue" : ""}
+                </span>
+                <span className="col-span-3 flex justify-end text-xs md:col-span-1">
+                  {ok === null ? (
+                    <span className="text-muted-foreground">not scored</span>
+                  ) : ok ? (
+                    <span className="sr-only">Matches label</span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-destructive">
+                      <XCircle aria-hidden className="size-3.5" />
+                      differs
+                    </span>
+                  )}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

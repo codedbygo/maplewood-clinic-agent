@@ -1,4 +1,4 @@
-.PHONY: check lint coverage help install backend backend-stop ui ui-build ui-dev server run eval holdout stability demo test test-web
+.PHONY: check lint coverage help install backend backend-stop ui ui-build ui-dev server run eval eval-holdout holdout stability demo test test-web
 .DEFAULT_GOAL := help
 PORT ?= 8000
 
@@ -41,6 +41,9 @@ run: ## Process all 40 sample messages
 
 eval: ## Score the sample run: results/eval_report.md
 	uv run python -m eval.harness --results results/results_sample.json --labels data/labels_sample.json --out results/eval_report
+
+eval-holdout: ## Score the held-out run again without calling the model: results/eval_report_holdout.md
+	uv run python -m eval.harness --results results/results_holdout.json --labels eval/holdout_labels.json --out results/eval_report_holdout
 
 holdout: ## Run and score the 13 held-out messages
 	uv run python -m agent.cli run --messages eval/holdout_messages.json --out results/results_holdout.json

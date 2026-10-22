@@ -108,7 +108,34 @@ of the 40 messages is about 165 model calls and costs **$0.00**. The same token 
 $0.11 (Haiku 5.5) or $2.12 (Sonnet 5.5) per run; switching is one environment variable. A free model reaching 100%
 emergency recall shows the safety comes from the architecture, not an expensive model.
 
-# Before this touches real patient data
+## With another week
+
+**Real channels, human in control**
+
+- SMS through Twilio and email through SendGrid inbound webhooks, plus a portal message API, all converted to the
+  same message format and sent through the same runner. Webhook signatures are verified, so forged messages are
+  rejected.
+- An outbox where staff approve, edit or reject each draft before it is sent, with delivery status tracked per
+  channel. Staff edits are saved as labelled examples for the next evaluation.
+- Emergency paging: a message routed to `clinician_urgent` pages the on-call clinician (Twilio voice or PagerDuty)
+  and escalates again if nobody acknowledges it within minutes. A queue dashboard shows waiting times for every queue.
+
+**Clinic systems**
+
+- Read patients, medications and appointments through FHIR (Patient, MedicationRequest, Appointment) instead of JSON
+  files, behind the same MCP tools, so the agent and its policies do not change.
+- Conversation threads: the agent remembers the earlier messages from a sender and asks a clarifying question when a
+  request is ambiguous (M022: which of two bookings to cancel), then acts on the answer.
+
+**Proving it works**
+
+- A few hundred labelled messages written by front-desk staff, with clinician sign-off on the labels.
+- Compare models (free, Haiku, Sonnet) on accuracy, stability and cost, and run the evaluation in CI on every prompt
+  or rule change, failing the build if emergency recall drops below 100% or any `must_not` check fails.
+- A red-team set for prompt injection and identity spoofing, and a small recall-tuned classifier in front of the
+  keyword pre-screen, keeping the rules as a floor.
+
+## Before this touches real patient data
 
 - A HIPAA Business Associate Agreement and zero data retention with the LLM vendor; no free endpoints.
 - Authentication and authorisation on the console and the MCP server.

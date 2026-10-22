@@ -16,7 +16,7 @@ describe("EvalPage", () => {
     expect(screen.getByText(/No missed emergencies \(5 of 5 escalated\)/)).toBeInTheDocument();
     expect(screen.getByText(/None. Every must_not tag/)).toBeInTheDocument();
     expect(
-      screen.getByText(/served by nvidia\/nemotron-3-ultra-550b-a55b:free \(180 calls\)/),
+      screen.getByText(/also served by nvidia\/nemotron-3-ultra-550b-a55b:free \(180 calls\)/),
     ).toBeInTheDocument();
   });
 
@@ -28,7 +28,8 @@ describe("EvalPage", () => {
       screen.getByText("Policy says route to provider; the label omits it."),
     ).toBeInTheDocument();
     await userEvent.click(link);
-    expect(await screen.findByRole("heading", { name: "Inbox" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Back to inbox" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Robert Chen" })).toBeInTheDocument();
   });
 
   it("shows violations and missed emergencies plainly", async () => {
@@ -64,6 +65,43 @@ describe("EvalPage", () => {
     );
     renderRoute("/eval");
     expect(await screen.findByText(/changed outcome across 3 runs/)).toBeInTheDocument();
+  });
+
+  it("groups differences by root cause and filters to one group", async () => {
+    const ev = fixtureEval();
+    const base = ev.scores.per_message[0]!;
+    ev.scores.per_message = [
+      { ...base, id: "M004" },
+      { ...base, id: "M019", urgency_ok: false, missing_actions: [], extra_actions: [] },
+    ];
+    ev.root_causes = { M004: "By design: policy says so.", M019: "Judgement: rated urgent." };
+    server.use(http.get("*/api/datasets/:name/eval", () => HttpResponse.json(ev)));
+    renderRoute("/eval");
+    const list = await screen.findByRole("list", { name: "Cases that differ" });
+    expect(list).toHaveTextContent("policy says so.");
+    await userEvent.click(screen.getByRole("button", { name: /Judgement 1/ }));
+    expect(list).not.toHaveTextContent("policy says so.");
+    expect(list).toHaveTextContent("rated urgent.");
+    expect(screen.getByRole("button", { name: /Judgement 1/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await userEvent.click(screen.getByRole("button", { name: /All 2/ }));
+    expect(list).toHaveTextContent("policy says so.");
+  });
+
+  it("lists only the actions below 100% and compares sample with held-out", async () => {
+    renderRoute("/eval");
+    expect(await screen.findByRole("table", { name: "Actions below 100%" })).toBeInTheDocument();
+    expect(screen.getByText(/Needs both runs/)).toBeInTheDocument();
+  });
+
+  it("puts the held-out numbers beside the sample", async () => {
+    server.use(http.get("*/api/datasets/:name/eval", () => HttpResponse.json(fixtureEval())));
+    renderRoute("/eval");
+    const table = await screen.findByRole("table", { name: "Sample and held-out" });
+    expect(table).toHaveTextContent("Emergency recall");
+    expect(table).toHaveTextContent("must_not violations");
   });
 
   it("explains how to create a missing evaluation", async () => {

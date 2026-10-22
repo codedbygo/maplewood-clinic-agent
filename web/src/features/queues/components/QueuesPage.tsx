@@ -25,9 +25,11 @@ function RouteCard({ route, patient }: { route: QueueRoute; patient: string | un
       )}
     >
       <div className="mb-1 flex items-center gap-2">
-        <Badge variant="outline" className={cn("capitalize", PRIORITY_STYLE[route.priority])}>
-          {route.priority}
-        </Badge>
+        {route.priority !== "routine" && (
+          <Badge variant="outline" className={cn("capitalize", PRIORITY_STYLE[route.priority])}>
+            {route.priority}
+          </Badge>
+        )}
         {route.message_id && (
           <span className="font-mono text-xs whitespace-nowrap text-muted-foreground">
             {route.message_id}

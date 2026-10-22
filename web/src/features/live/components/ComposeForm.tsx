@@ -31,11 +31,14 @@ function isChannel(value: string): value is ComposeValues["channel"] {
 export function ComposeForm({
   running,
   onSubmit,
+  initial,
 }: {
   running: boolean;
   onSubmit: (payload: ComposePayload) => void;
+  /** Pre-filled values (a replayed message); the parent remounts the form with a key to apply new ones. */
+  initial?: ComposeValues | undefined;
 }) {
-  const [values, setValues] = useState<ComposeValues>(EMPTY);
+  const [values, setValues] = useState<ComposeValues>(initial ?? EMPTY);
   const [errors, setErrors] = useState<Errors>({});
 
   function set<K extends keyof ComposeValues>(key: K, value: ComposeValues[K]) {
