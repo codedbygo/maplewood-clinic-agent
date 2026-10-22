@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import itertools
 import json
-import os
 from contextlib import AsyncExitStack, asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -19,13 +18,34 @@ from agent.llm import LLM
 from agent.runner import ROOT, open_clinic, process_message
 
 DATASETS = {
-    "sample": {"label": "Sample messages", "messages": "data/messages_sample.json", "labels": "data/labels_sample.json",
-               "results": "results_sample.json", "eval": "eval_report.json"},
-    "holdout": {"label": "Held-out messages", "messages": "eval/holdout_messages.json", "labels": "eval/holdout_labels.json",
-                "results": "results_holdout.json", "eval": "eval_report_holdout.json"},
+    "sample": {
+        "label": "Sample messages",
+        "messages": "data/messages_sample.json",
+        "labels": "data/labels_sample.json",
+        "results": "results_sample.json",
+        "eval": "eval_report.json",
+    },
+    "holdout": {
+        "label": "Held-out messages",
+        "messages": "eval/holdout_messages.json",
+        "labels": "eval/holdout_labels.json",
+        "results": "results_holdout.json",
+        "eval": "eval_report_holdout.json",
+    },
 }
-LOG_FIELDS = ("path", "error", "screen", "triage", "verification", "trace", "final_answer", "guard_violations",
-              "extra_routes", "latency_s", "llm_calls")
+LOG_FIELDS = (
+    "path",
+    "error",
+    "screen",
+    "triage",
+    "verification",
+    "trace",
+    "final_answer",
+    "guard_violations",
+    "extra_routes",
+    "latency_s",
+    "llm_calls",
+)
 
 
 class LiveMessage(BaseModel):
@@ -95,14 +115,28 @@ def create_app(results_dir: Path = ROOT / "results", static_dir: Path | None = R
 
     async def health(request: Request):
         llm = request.app.state.llm
-        return _json({"ok": True, "provider": getattr(llm, "provider", None), "model": getattr(llm, "model", None),
-                      "effort": getattr(llm, "effort", None), "llm_configured": bool(getattr(llm, "configured", False))})
+        return _json(
+            {
+                "ok": True,
+                "provider": getattr(llm, "provider", None),
+                "model": getattr(llm, "model", None),
+                "effort": getattr(llm, "effort", None),
+                "llm_configured": bool(getattr(llm, "configured", False)),
+            }
+        )
 
     async def datasets(request: Request):
         out = []
         for name, ds in DATASETS.items():
-            out.append({"id": name, "label": ds["label"], "messages": len(json.loads((ROOT / ds["messages"]).read_text())),
-                        "has_results": (results_dir / ds["results"]).exists(), "has_eval": (results_dir / ds["eval"]).exists()})
+            out.append(
+                {
+                    "id": name,
+                    "label": ds["label"],
+                    "messages": len(json.loads((ROOT / ds["messages"]).read_text())),
+                    "has_results": (results_dir / ds["results"]).exists(),
+                    "has_eval": (results_dir / ds["eval"]).exists(),
+                }
+            )
         return _json(out)
 
     async def inbox(request: Request):
@@ -110,7 +144,7 @@ def create_app(results_dir: Path = ROOT / "results", static_dir: Path | None = R
         if ds is None:
             return _json({"error": "unknown dataset"}, 404)
         messages = json.loads((ROOT / ds["messages"]).read_text())
-        labels = {l["id"]: l for l in json.loads((ROOT / ds["labels"]).read_text())}
+        labels = {label["id"]: label for label in json.loads((ROOT / ds["labels"]).read_text())}
         results = {r["id"]: r for r in (_read(results_dir / ds["results"]) or [])}
         rd = run_dir(ds) if results else None
         report = _read(results_dir / ds["eval"]) or {}
@@ -118,9 +152,16 @@ def create_app(results_dir: Path = ROOT / "results", static_dir: Path | None = R
         items = []
         for m in sorted(messages, key=lambda m: m.get("received_at", "")):
             log = _read(rd / f"{m['id']}.json") if rd else None
-            items.append({"message": m, "label": labels.get(m["id"]), "result": results.get(m["id"]),
-                          "log": {k: log.get(k) for k in LOG_FIELDS} if log else None,
-                          "score": per_msg.get(m["id"]), "root_cause": report.get("root_causes", {}).get(m["id"])})
+            items.append(
+                {
+                    "message": m,
+                    "label": labels.get(m["id"]),
+                    "result": results.get(m["id"]),
+                    "log": {k: log.get(k) for k in LOG_FIELDS} if log else None,
+                    "score": per_msg.get(m["id"]),
+                    "root_cause": report.get("root_causes", {}).get(m["id"]),
+                }
+            )
         return _json({"dataset": request.path_params["name"], "run": _read(rd / "meta.json") if rd else None, "items": items})
 
     async def eval_report(request: Request):
@@ -135,8 +176,12 @@ def create_app(results_dir: Path = ROOT / "results", static_dir: Path | None = R
         return _json(state) if state is not None else _json({"error": "no run yet"}, 404)
 
     async def clinic(request: Request):
-        return _json({"clinic": clinic_json,
-                      "patients": [{"id": p["id"], "name": p["name"], "primary_provider": p["primary_provider"]} for p in patients]})
+        return _json(
+            {
+                "clinic": clinic_json,
+                "patients": [{"id": p["id"], "name": p["name"], "primary_provider": p["primary_provider"]} for p in patients],
+            }
+        )
 
     async def stability(request: Request):
         rep = _read(results_dir / "stability.json")
@@ -158,13 +203,19 @@ def create_app(results_dir: Path = ROOT / "results", static_dir: Path | None = R
         except (ValidationError, ValueError) as e:
             detail = e.errors(include_url=False) if isinstance(e, ValidationError) else str(e)
             return _json({"error": "invalid message", "detail": detail}, 422)
-        msg = {"id": f"LIVE-{next(counter)}", "channel": body.channel, "from_name": body.from_name,
-               "from_contact": body.from_contact, "body": body.body.strip(),
-               "received_at": body.received_at.isoformat() if body.received_at else f"{clinic_json['today']}T09:00:00-06:00"}
+        msg = {
+            "id": f"LIVE-{next(counter)}",
+            "channel": body.channel,
+            "from_name": body.from_name,
+            "from_contact": body.from_contact,
+            "body": body.body.strip(),
+            "received_at": body.received_at.isoformat() if body.received_at else f"{clinic_json['today']}T09:00:00-06:00",
+        }
         if body.stated_dob:
             msg["stated_dob"] = body.stated_dob
-        return StreamingResponse(live_events(msg, app.state.clinic, app.state.llm, lock), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache"})
+        return StreamingResponse(
+            live_events(msg, app.state.clinic, app.state.llm, lock), media_type="text/event-stream", headers={"Cache-Control": "no-cache"}
+        )
 
     async def api_not_found(request: Request):
         return _json({"error": "not found"}, 404)

@@ -16,68 +16,110 @@ import re
 import unicodedata
 
 EMERGENCY_TEMPLATE = {
-    "en": "Please call 911 now or go to the nearest emergency department. "
-    "Our clinical team has been alerted to your message.",
+    "en": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.",
     "es": "Por favor, llame al 911 ahora o vaya al departamento de emergencias más cercano. "
     "Nuestro equipo clínico ha sido alertado sobre su mensaje.",
 }
 
 
 def normalise(text: str) -> str:
-    text = unicodedata.normalize("NFKD", (text or "").lower().replace("’", "'"))
+    text = unicodedata.normalize("NFKD", (text or "").lower().replace("\u2019", "'"))
     text = "".join(c for c in text if not unicodedata.combining(c))
     text = text.replace("'", "")
     return re.sub(r"\s+", " ", text)
 
 
 IDIOMS = [
-    r"dying (to|for)\b", r"to die for", r"\b(is|are|was|were|s) killing me", r"killed it",
-    r"dead (tired|on my feet)", r"could (have )?die(d)? of \w+", r"g[ai]ve me a heart attack",
-    r"\b(fell|fall|falling) (behind|asleep)", r"bleeding me dry",
+    r"dying (to|for)\b",
+    r"to die for",
+    r"\b(is|are|was|were|s) killing me",
+    r"killed it",
+    r"dead (tired|on my feet)",
+    r"could (have )?die(d)? of \w+",
+    r"g[ai]ve me a heart attack",
+    r"\b(fell|fall|falling) (behind|asleep)",
+    r"bleeding me dry",
 ]
 
-ANTICOAGULANTS = (r"warfarin|coumadin|jantoven|eliquis|apixaban|xarelto|rivaroxaban|pradaxa|dabigatran|heparin|"
-                  r"enoxaparin|lovenox|blood thinner|anticoagul\w*|clopidogrel|plavix")
+ANTICOAGULANTS = (
+    r"warfarin|coumadin|jantoven|eliquis|apixaban|xarelto|rivaroxaban|pradaxa|dabigatran|heparin|"
+    r"enoxaparin|lovenox|blood thinner|anticoagul\w*|clopidogrel|plavix"
+)
 
 # (name, tier, pattern). Co-occurrence rules are functions below.
 RULES: list[tuple[str, str, str]] = [
-    ("chest_pain", "emergency",
-     r"\bchest\b.{0,30}\b(pain\w*|pressure|tight\w*|crush\w*|heav\w*|hurt\w*|squeez\w*|ache|aching)\b"
-     r"|\b(crush\w*|heavy|tight\w*|squeez\w*|sharp|pressure)\b.{0,20}\bchest\b|\bheart attack\b"
-     r"|dolor (de|en el) pecho|presion en el pecho|duele\w*\s+(mucho\s+)?(el\s+)?pecho|pecho\b.{0,20}\bduele"),
-    ("breathing", "emergency",
-     r"\b(cant|cannot|can not|unable to|struggling to|hard to|trouble|difficulty|difficult to) "
-     r"(breathe|breathing|catch (my|his|her|their) breath)\b|short(ness)? of breath|\bcant finish (a |my )?sentences?"
-     r"|\bgasping\b|\b(not|stopped) breathing\b|no puedo respirar|me falta (el )?aire|\b(lips|face) (are |is )?(turning )?blue\b|\bchoking\b"),
-    ("severe_asthma", "emergency", r"wheez\w*.{0,60}(not helping|isnt helping|isnt working|not working|cant|worse|severe)"
-     r"|(not helping|isnt helping|isnt working|not working).{0,60}wheez"),
-    ("stroke_signs", "emergency",
-     r"\b(face|smile) (is )?(\w+ )?droop\w*|\bdroop\w* (face|smile)|slurr\w* (speech|words)|(speech|words) (are |is )?slurr\w*"
-     r"|\bslurring\b|\bstroke\b|sudden(ly)? (\w+ ){0,2}(numb\w*|weak\w*|confus\w*|vision|blind\w*|cant (speak|talk|see|move))"
-     r"|\bcant (move|feel) (my |his |her )?(arm|leg|face|side)|worst headache"),
-    ("unresponsive_or_seizure", "emergency",
-     r"\bunresponsive|unconscious|pass(es|ed)? out|faint(ed|ing)?\b|seizure|convuls\w*|(wont|cant|not) wak\w*|no responde|desmay\w*"),
-    ("severe_bleeding", "emergency",
-     r"(vomit\w*|cough\w*|throw\w*) (up )?blood|blood in (my |his |her )?(stool|poop|vomit)|bloody (stool|poop|vomit)"
-     r"|(black|dark|tarry) (stool|poop)s?|\btarry\b|(wont|doesnt|cant|will not) stop bleeding|bleeding (wont|doesnt|will not) stop"
-     r"|bleeding heavily|heavy bleeding|bleeding a lot|a lot of blood"),
-    ("anaphylaxis", "emergency",
-     r"(throat|tongue|lips?|face|mouth) (is |are |feels? )?(\w+ )?(swell\w*|swollen|closing)|swell\w* (of )?(my |the |his |her )?(throat|tongue|lips?)"
-     r"|throat (is |feels )?(tight\w*|closing)|anaphyla\w*|epi ?pen|(allergic reaction|hives).{0,60}(breath|throat|swell|wheez|dizz|faint)"),
-    ("self_harm", "emergency",
-     r"\bkill\w* (my ?self|myself)|suicid\w*|end (my life|it all)|take my (own )?life|want(ed)? to die|wish i (was|were) dead"
-     r"|better off (dead|without me)|better off if i (was|were|wasnt|werent) (dead|gone|here|around)"
-     r"|(dont|do not) want to (be here|live|be alive|wake up)|no reason to (live|go on)"
-     r"|(hurt\w*|harm\w*|cut|cutting|burn\w*) (my ?self|myself)|self[- ]?harm|overdos\w*"
-     r"|took (all|a bunch|too many|a whole bottle|a handful)( of)?( my)? (pills|meds|tablets|medication)"
-     r"|quiero morir|matarme|quitarme la vida|no quiero vivir|hacerme dano|no (tengo )?ganas de vivir"),
-    ("low_mood", "urgent_clinical",
-     r"dont see the point|no point (in|to) (anything|living|life|going on)|hopeless\w*"
-     r"|(feel\w*|felt) (\w+ ){0,2}(low|down|depressed|empty|worthless|hopeless)|\bdepress(ed|ion)\b|cant (cope|go on)|worthless"
-     r"|deprimid\w*|sin esperanza|panic attack"),
+    (
+        "chest_pain",
+        "emergency",
+        r"\bchest\b.{0,30}\b(pain\w*|pressure|tight\w*|crush\w*|heav\w*|hurt\w*|squeez\w*|ache|aching)\b"
+        r"|\b(crush\w*|heavy|tight\w*|squeez\w*|sharp|pressure)\b.{0,20}\bchest\b|\bheart attack\b"
+        r"|dolor (de|en el) pecho|presion en el pecho|duele\w*\s+(mucho\s+)?(el\s+)?pecho|pecho\b.{0,20}\bduele",
+    ),
+    (
+        "breathing",
+        "emergency",
+        r"\b(cant|cannot|can not|unable to|struggling to|hard to|trouble|difficulty|difficult to) "
+        r"(breathe|breathing|catch (my|his|her|their) breath)\b|short(ness)? of breath|\bcant finish (a |my )?sentences?"
+        r"|\bgasping\b|\b(not|stopped) breathing\b|no puedo respirar|me falta (el )?aire"
+        r"|\b(lips|face) (are |is )?(turning )?blue\b|\bchoking\b",
+    ),
+    (
+        "severe_asthma",
+        "emergency",
+        r"wheez\w*.{0,60}(not helping|isnt helping|isnt working|not working|cant|worse|severe)"
+        r"|(not helping|isnt helping|isnt working|not working).{0,60}wheez",
+    ),
+    (
+        "stroke_signs",
+        "emergency",
+        r"\b(face|smile) (is )?(\w+ )?droop\w*|\bdroop\w* (face|smile)|slurr\w* (speech|words)|(speech|words) (are |is )?slurr\w*"
+        r"|\bslurring\b|\bstroke\b|sudden(ly)? (\w+ ){0,2}(numb\w*|weak\w*|confus\w*|vision|blind\w*|cant (speak|talk|see|move))"
+        r"|\bcant (move|feel) (my |his |her )?(arm|leg|face|side)|worst headache",
+    ),
+    (
+        "unresponsive_or_seizure",
+        "emergency",
+        r"\bunresponsive|unconscious|pass(es|ed)? out|faint(ed|ing)?\b|seizure|convuls\w*|(wont|cant|not) wak\w*|no responde|desmay\w*",
+    ),
+    (
+        "severe_bleeding",
+        "emergency",
+        r"(vomit\w*|cough\w*|throw\w*) (up )?blood|blood in (my |his |her )?(stool|poop|vomit)|bloody (stool|poop|vomit)"
+        r"|(black|dark|tarry) (stool|poop)s?|\btarry\b|(wont|doesnt|cant|will not) stop bleeding|bleeding (wont|doesnt|will not) stop"
+        r"|bleeding heavily|heavy bleeding|bleeding a lot|a lot of blood",
+    ),
+    (
+        "anaphylaxis",
+        "emergency",
+        r"(throat|tongue|lips?|face|mouth) (is |are |feels? )?(\w+ )?(swell\w*|swollen|closing)"
+        r"|swell\w* (of )?(my |the |his |her )?(throat|tongue|lips?)"
+        r"|throat (is |feels )?(tight\w*|closing)|anaphyla\w*|epi ?pen"
+        r"|(allergic reaction|hives).{0,60}(breath|throat|swell|wheez|dizz|faint)",
+    ),
+    (
+        "self_harm",
+        "emergency",
+        r"\bkill\w* (my ?self|myself)|suicid\w*|end (my life|it all)|take my (own )?life|want(ed)? to die|wish i (was|were) dead"
+        r"|better off (dead|without me)|better off if i (was|were|wasnt|werent) (dead|gone|here|around)"
+        r"|(dont|do not) want to (be here|live|be alive|wake up)|no reason to (live|go on)"
+        r"|(hurt\w*|harm\w*|cut|cutting|burn\w*) (my ?self|myself)|self[- ]?harm|overdos\w*"
+        r"|took (all|a bunch|too many|a whole bottle|a handful)( of)?( my)? (pills|meds|tablets|medication)"
+        r"|quiero morir|matarme|quitarme la vida|no quiero vivir|hacerme dano|no (tengo )?ganas de vivir",
+    ),
+    (
+        "low_mood",
+        "urgent_clinical",
+        r"dont see the point|no point (in|to) (anything|living|life|going on)|hopeless\w*"
+        r"|(feel\w*|felt) (\w+ ){0,2}(low|down|depressed|empty|worthless|hopeless)|\bdepress(ed|ion)\b|cant (cope|go on)|worthless"
+        r"|deprimid\w*|sin esperanza|panic attack",
+    ),
     ("fever", "urgent_clinical", r"\bfever\w*|temperature of|\bfiebre\b"),
     ("wheezing", "urgent_clinical", r"wheez\w*"),
-    ("head_bump", "urgent_clinical", r"\b(hit|bump\w*|bang\w*|struck|injur\w*) (\w+ ){0,2}head|head (injury|trauma)|\bfell\b|\bfall\b|concussion|se cayo"),
+    (
+        "head_bump",
+        "urgent_clinical",
+        r"\b(hit|bump\w*|bang\w*|struck|injur\w*) (\w+ ){0,2}head|head (injury|trauma)|\bfell\b|\bfall\b|concussion|se cayo",
+    ),
     ("bleeding", "urgent_clinical", r"\bbleed\w*|\bbled\b|sangr\w*"),
     ("allergic_reaction", "urgent_clinical", r"allergic reaction|reaccion alergica|\bhives\b"),
     ("new_confusion", "urgent_clinical", r"\b(seems?|is|was|became|getting|acting|very|new) confus\w*"),
@@ -93,10 +135,14 @@ SUGAR = re.compile(r"\b(blood sugar|sugars?|glucose|bg|bs|azucar|glucosa)\b[^0-9
 
 def _co_occurrence(t: str) -> list[tuple[str, str]]:
     out = []
-    head = re.search(r"\b(hit|bump\w*|bang\w*|struck|injur\w*) (\w+ ){0,2}head|head (injury|trauma)|\bfell\b|\bfall\b|concussion|se cayo", t)
+    head = re.search(
+        r"\b(hit|bump\w*|bang\w*|struck|injur\w*) (\w+ ){0,2}head|head (injury|trauma)|\bfell\b|\bfall\b|concussion|se cayo", t
+    )
     if head and re.search(r"confus\w*|vomit\w*|throw\w* up|disoriented|not making sense|drows\w*|confundid\w*", t):
         out.append(("head_injury_with_confusion", "emergency"))
-    if re.search(ANTICOAGULANTS, t) and re.search(r"\bbleed\w*|\bbled\b|\bblood\b(?! (pressure|sugar|test|work|draw))|bruis\w*|sangr\w*", t):
+    if re.search(ANTICOAGULANTS, t) and re.search(
+        r"\bbleed\w*|\bbled\b|\bblood\b(?! (pressure|sugar|test|work|draw))|bruis\w*|sangr\w*", t
+    ):
         out.append(("bleeding_on_anticoagulant", "emergency"))
     if re.search(r"pregnan\w*|embarazada", t) and re.search(r"\bbleed\w*|cramp\w*|severe pain|sangr\w*", t):
         out.append(("pregnancy_bleeding", "emergency"))
@@ -111,10 +157,55 @@ def _co_occurrence(t: str) -> list[tuple[str, str]]:
     return out
 
 
-SPANISH_WORDS = {"hola", "necesito", "por", "favor", "tengo", "una", "cita", "para", "mi", "que", "el", "la", "los", "las",
-                 "de", "con", "gracias", "quiero", "tienen", "algo", "proxima", "semana", "dolor", "mas", "puedo", "estoy",
-                 "muy", "es", "y", "mama", "hijo", "hija", "receta", "medicina", "manana", "ayuda", "buenos", "dias", "usted",
-                 "duele", "mucho", "pecho", "brazo", "izquierdo", "derecho", "desde", "anoche", "hola", "necesito"}
+SPANISH_WORDS = {
+    "hola",
+    "necesito",
+    "por",
+    "favor",
+    "tengo",
+    "una",
+    "cita",
+    "para",
+    "mi",
+    "que",
+    "el",
+    "la",
+    "los",
+    "las",
+    "de",
+    "con",
+    "gracias",
+    "quiero",
+    "tienen",
+    "algo",
+    "proxima",
+    "semana",
+    "dolor",
+    "mas",
+    "puedo",
+    "estoy",
+    "muy",
+    "es",
+    "y",
+    "mama",
+    "hijo",
+    "hija",
+    "receta",
+    "medicina",
+    "manana",
+    "ayuda",
+    "buenos",
+    "dias",
+    "usted",
+    "duele",
+    "mucho",
+    "pecho",
+    "brazo",
+    "izquierdo",
+    "derecho",
+    "desde",
+    "anoche",
+}
 
 
 def detect_language(text: str) -> str:
@@ -157,8 +248,16 @@ def prescreen(text: str) -> dict:
 from dataclasses import dataclass, field  # noqa: E402
 
 from agent.schema import (  # noqa: E402
-    ACTIONS, CONVERSATIONAL_ACTIONS, DECISION_TO_ACTION, DECISIONS_NEEDING_PROVIDER, INTENTS, QUEUE_TO_ACTION,
-    TOOL_ACTIONS, URGENCIES, AgentResult, FinalAnswer,
+    ACTIONS,
+    CONVERSATIONAL_ACTIONS,
+    DECISION_TO_ACTION,
+    DECISIONS_NEEDING_PROVIDER,
+    INTENTS,
+    QUEUE_TO_ACTION,
+    TOOL_ACTIONS,
+    URGENCIES,
+    AgentResult,
+    FinalAnswer,
 )
 
 FALLBACK_REPLIES = {
@@ -168,26 +267,26 @@ FALLBACK_REPLIES = {
     },
     "verify": {
         "en": "Thank you for your message. Before we can share or act on any personal health information, we need to "
-              "verify your identity. Please reply with the patient's full name and date of birth, or contact us from "
-              "the phone number or email we have on file.",
+        "verify your identity. Please reply with the patient's full name and date of birth, or contact us from "
+        "the phone number or email we have on file.",
         "es": "Gracias por su mensaje. Antes de compartir o gestionar información de salud personal, necesitamos "
-              "verificar su identidad. Responda con el nombre completo y la fecha de nacimiento del paciente, o "
-              "contáctenos desde el teléfono o correo electrónico que tenemos registrado.",
+        "verificar su identidad. Responda con el nombre completo y la fecha de nacimiento del paciente, o "
+        "contáctenos desde el teléfono o correo electrónico que tenemos registrado.",
     },
     "clinician": {
         "en": "Thank you for your message. We have passed it to our clinical team, who will follow up with you. "
-              "If your symptoms get worse or you think this is an emergency, call 911 or go to the nearest emergency department.",
+        "If your symptoms get worse or you think this is an emergency, call 911 or go to the nearest emergency department.",
         "es": "Gracias por su mensaje. Lo hemos enviado a nuestro equipo clínico, que se comunicará con usted. "
-              "Si sus síntomas empeoran o cree que es una emergencia, llame al 911 o vaya al departamento de emergencias más cercano.",
+        "Si sus síntomas empeoran o cree que es una emergencia, llame al 911 o vaya al departamento de emergencias más cercano.",
     },
     # Names nobody, so it can never confirm that a person is a patient here.
     "decline": {
         "en": "Thank you for your message. To protect privacy, we can't share any information about another person, "
-              "including whether they are a patient with us. The person can contact us directly, or an authorised "
-              "caregiver on file can reach us from the phone number we have on record.",
+        "including whether they are a patient with us. The person can contact us directly, or an authorised "
+        "caregiver on file can reach us from the phone number we have on record.",
         "es": "Gracias por su mensaje. Para proteger la privacidad, no podemos compartir información sobre otra persona, "
-              "ni siquiera si es paciente nuestro. La persona puede comunicarse con nosotros directamente, o un cuidador "
-              "autorizado registrado puede contactarnos desde el teléfono que tenemos en el expediente.",
+        "ni siquiera si es paciente nuestro. La persona puede comunicarse con nosotros directamente, o un cuidador "
+        "autorizado registrado puede contactarnos desde el teléfono que tenemos en el expediente.",
     },
 }
 
@@ -226,6 +325,7 @@ def correct_provider_titles(reply: str, providers: list[str]) -> str:
         reply = re.sub(rf"\bDra?\.?\s+(?:{re.escape(first)}\s+)?{re.escape(last)}\b(?:,\s*NP\b)?", full, reply)
     return reply
 
+
 # Phrases that signal the reply is explaining or advising clinically. Narrow on purpose: routing,
 # booking and refill confirmations must not trip it.
 CLINICAL_ADVICE = re.compile(
@@ -253,8 +353,7 @@ def _max_urgency(a: str, b: str) -> str:
     return min(a, b, key=URGENCIES.index)
 
 
-def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: dict, verification: dict,
-               context: dict) -> GuardOutcome:
+def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: dict, verification: dict, context: dict) -> GuardOutcome:
     """Validate and correct the final result. Pure: side effects (extra routes) are returned to the runner."""
     v: list[str] = []
     extra: list[dict] = []
@@ -291,8 +390,15 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
 
     # 2. Refill policy outcomes that require a provider route and an offered visit.
     if any(d in DECISIONS_NEEDING_PROVIDER for d in decisions) and "provider_refills" not in [q for q, _ in explicit_routes]:
-        extra.append({"queue": "provider_refills", "priority": "routine", "summary": "Refill needs provider action (policy decision: "
-                      + ", ".join(sorted({d for d in decisions if d in DECISIONS_NEEDING_PROVIDER})) + ")."})
+        extra.append(
+            {
+                "queue": "provider_refills",
+                "priority": "routine",
+                "summary": "Refill needs provider action (policy decision: "
+                + ", ".join(sorted({d for d in decisions if d in DECISIONS_NEEDING_PROVIDER}))
+                + ").",
+            }
+        )
         actions.add("route_to_provider")
         v.append("refill decision required a provider route; added")
     if "needs_visit" in decisions:
@@ -313,11 +419,21 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
         if urgency != "emergency":
             v.append(f"urgency raised from '{urgency}' to emergency by safety floor")
         urgency = "emergency"
-        did_work = [c["name"] for c in ok_calls if c["name"] in ("prepare_refill_for_approval", "book_appointment", "reschedule_appointment", "cancel_appointment")]
+        did_work = [
+            c["name"]
+            for c in ok_calls
+            if c["name"] in ("prepare_refill_for_approval", "book_appointment", "reschedule_appointment", "cancel_appointment")
+        ]
         if did_work:
             v.append(f"clinical/admin work done on an emergency message: {did_work}")
         if ("clinician_urgent", "emergency") not in explicit_routes:
-            extra.append({"queue": "clinician_urgent", "priority": "emergency", "summary": "Possible emergency: " + ", ".join(screen.get("matches") or ["flagged by triage"])})
+            extra.append(
+                {
+                    "queue": "clinician_urgent",
+                    "priority": "emergency",
+                    "summary": "Possible emergency: " + ", ".join(screen.get("matches") or ["flagged by triage"]),
+                }
+            )
             v.append("emergency without clinician_urgent escalation; added")
         if reply not in EMERGENCY_TEMPLATE.values():
             if reply:
@@ -330,11 +446,18 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
         # 4. Urgent clinical concern must reach a clinician today (a same/next-business-day visit counts).
         if screen["tier"] == "urgent_clinical":
             soon = {context.get("today"), context.get("next_business_day")} - {None}
-            booked_soon = any(c["name"] in ("book_appointment", "reschedule_appointment") and c["output"].get("appointment", {}).get("date") in soon
-                              for c in ok_calls)
+            booked_soon = any(
+                c["name"] in ("book_appointment", "reschedule_appointment") and c["output"].get("appointment", {}).get("date") in soon
+                for c in ok_calls
+            )
             if ("clinician_urgent" not in [q for q, _ in explicit_routes]) and not booked_soon:
-                extra.append({"queue": "clinician_urgent", "priority": "urgent",
-                              "summary": "Clinical concern in message: " + ", ".join(screen.get("matches", []))})
+                extra.append(
+                    {
+                        "queue": "clinician_urgent",
+                        "priority": "urgent",
+                        "summary": "Clinical concern in message: " + ", ".join(screen.get("matches", [])),
+                    }
+                )
                 actions.add("route_to_clinician")
                 v.append("urgent clinical concern without a same-day clinician route; added")
 
@@ -342,11 +465,16 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
         if reply and CLINICAL_ADVICE.search(normalise(reply)):
             v.append("reply contained clinical explanation/advice; replaced and routed to a clinician")
             reply = FALLBACK_REPLIES["clinician"][lang]
-            actions.discard("answer_directly")
+            actions -= set(CONVERSATIONAL_ACTIONS)  # the model's conversational actions described a reply never sent
             if "route_to_clinician" not in actions:
                 actions.add("route_to_clinician")
-                extra.append({"queue": "clinician_routine" if urgency == "routine" else "clinician_urgent",
-                              "priority": urgency, "summary": "Clinical question needs a clinician."})
+                extra.append(
+                    {
+                        "queue": "clinician_routine" if urgency == "routine" else "clinician_urgent",
+                        "priority": urgency,
+                        "summary": "Clinical question needs a clinician.",
+                    }
+                )
 
         # 6. Privacy for unverified senders. First, specific details of a candidate patient (dates, times,
         #    medications) mean "verify first". Then any reply that names another patient or confirms someone's
@@ -358,15 +486,17 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
             if leaked:
                 v.append(f"possible PHI disclosed to unverified sender ({leaked}); reply replaced")
                 reply = FALLBACK_REPLIES["verify"][lang]
-                actions -= {"answer_directly", "book_appointment", "offer_appointment"}
+                actions -= set(CONVERSATIONAL_ACTIONS) | {"book_appointment"}
                 actions.add("request_verification" if verification.get("candidate_patient_ids") else "decline_disclosure")
         if patient_id is None and reply and reply not in templates:
             named = [n for n in context.get("other_patient_names", []) if re.search(rf"\b{re.escape(n)}\b", reply, re.IGNORECASE)]
             if named or STATUS_DISCLOSURE.search(reply):
-                v.append(f"reply names another patient or confirms patient status ({named or 'status'}) to an unverified "
-                         "sender; neutral decline used")
+                v.append(
+                    f"reply names another patient or confirms patient status ({named or 'status'}) to an unverified "
+                    "sender; neutral decline used"
+                )
                 reply = FALLBACK_REPLIES["decline"][lang]
-                actions -= {"answer_directly", "book_appointment", "offer_appointment", "offer_alternatives", "acknowledge"}
+                actions -= set(CONVERSATIONAL_ACTIONS) | {"book_appointment"}
                 actions.add("decline_disclosure")
 
         # 7. Always leave a reply and a human owner.
@@ -394,7 +524,16 @@ def post_guard(message_id: str, answer: FinalAnswer, trace: list[dict], screen: 
 
     routed_to = list(dict.fromkeys(queues + [r["queue"] for r in extra]))
     tool_calls = [c["name"] for c in trace] + ["route_to_queue"] * len(extra)
-    result = AgentResult(id=message_id, patient_id=patient_id, intents=list(dict.fromkeys(intents)) or ["other"],
-                         urgency=urgency, actions=_ordered(actions), routed_to=routed_to, tool_calls=tool_calls,
-                         reply_draft=reply)
+    result = AgentResult.model_validate(
+        {
+            "id": message_id,
+            "patient_id": patient_id,
+            "intents": list(dict.fromkeys(intents)) or ["other"],
+            "urgency": urgency,
+            "actions": _ordered(actions),
+            "routed_to": routed_to,
+            "tool_calls": tool_calls,
+            "reply_draft": reply,
+        }
+    )
     return GuardOutcome(result, v, extra)

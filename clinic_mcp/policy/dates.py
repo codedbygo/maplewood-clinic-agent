@@ -7,17 +7,68 @@ import unicodedata
 from datetime import date, timedelta
 
 WEEKDAYS = {
-    "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6,
-    "mon": 0, "tue": 1, "tues": 1, "wed": 2, "thu": 3, "thur": 3, "thurs": 3, "fri": 4, "sat": 5, "sun": 6,
-    "lunes": 0, "martes": 1, "miercoles": 2, "jueves": 3, "viernes": 4, "sabado": 5, "domingo": 6,
+    "monday": 0,
+    "tuesday": 1,
+    "wednesday": 2,
+    "thursday": 3,
+    "friday": 4,
+    "saturday": 5,
+    "sunday": 6,
+    "mon": 0,
+    "tue": 1,
+    "tues": 1,
+    "wed": 2,
+    "thu": 3,
+    "thur": 3,
+    "thurs": 3,
+    "fri": 4,
+    "sat": 5,
+    "sun": 6,
+    "lunes": 0,
+    "martes": 1,
+    "miercoles": 2,
+    "jueves": 3,
+    "viernes": 4,
+    "sabado": 5,
+    "domingo": 6,
 }
 MONTHS = {
-    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
-    "jul": 7, "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
-    "january": 1, "february": 2, "march": 3, "april": 4, "june": 6, "july": 7, "august": 8,
-    "september": 9, "october": 10, "november": 11, "december": 12,
-    "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6, "julio": 7,
-    "agosto": 8, "septiembre": 9, "octubre": 10, "noviembre": 11, "diciembre": 12,
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "sept": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+    "enero": 1,
+    "febrero": 2,
+    "marzo": 3,
+    "abril": 4,
+    "mayo": 5,
+    "junio": 6,
+    "julio": 7,
+    "agosto": 8,
+    "septiembre": 9,
+    "octubre": 10,
+    "noviembre": 11,
+    "diciembre": 12,
 }
 NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "a": 1, "dos": 2, "tres": 3}
 DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -38,7 +89,8 @@ def _hol(holidays) -> set[date]:
 
 def business_days(start: date, end: date, holidays) -> list[date]:
     hol = _hol(holidays)
-    out, d = [], start
+    out: list[date] = []
+    d = start
     while d <= end:
         if d.weekday() < 5 and d not in hol:
             out.append(d)
@@ -48,7 +100,8 @@ def business_days(start: date, end: date, holidays) -> list[date]:
 
 def next_business_days(start: date, n: int, holidays) -> list[date]:
     hol = _hol(holidays)
-    out, d = [], start
+    out: list[date] = []
+    d = start
     while len(out) < n:
         if d.weekday() < 5 and d not in hol:
             out.append(d)
@@ -118,9 +171,7 @@ def _parse(expr: str, today: date, anchor: date | None) -> tuple[date, date, str
         base = anchor or today
         mon = base - timedelta(days=base.weekday()) + timedelta(weeks=1)
         return (*_week(mon), "the following week")
-    if m := re.search(r"\bin (\d+|one|two|three|four|a|dos|tres) weeks?\b", t) or re.search(
-        r"\ben (\d+|dos|tres) semanas\b", t
-    ):
+    if m := re.search(r"\bin (\d+|one|two|three|four|a|dos|tres) weeks?\b", t) or re.search(r"\ben (\d+|dos|tres) semanas\b", t):
         n = int(m.group(1)) if m.group(1).isdigit() else NUMBERS[m.group(1)]
         return (*_week(this_monday + timedelta(weeks=n)), f"in {n} weeks")
     if re.search(r"\b(next week|proxima semana|semana que viene|semana proxima)\b", t):
@@ -171,9 +222,8 @@ def resolve_date(expr: str, today: date, holidays, anchor: date | None = None) -
     while d <= end:
         if d in hol:
             notes.append(f"{d.isoformat()} ({DAY_NAMES[d.weekday()]}) is a clinic holiday")
-        elif d.weekday() >= 5:
-            if start == end:
-                notes.append(f"{d.isoformat()} is a {DAY_NAMES[d.weekday()]}; the clinic is closed at weekends")
+        elif d.weekday() >= 5 and start == end:
+            notes.append(f"{d.isoformat()} is a {DAY_NAMES[d.weekday()]}; the clinic is closed at weekends")
         d += timedelta(days=1)
     if start < today:
         notes.append(f"{start.isoformat()} is in the past")
@@ -193,10 +243,14 @@ def resolve_date(expr: str, today: date, holidays, anchor: date | None = None) -
     }
 
 
-_WEEKDAY_WORDS = (r"monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
-                  r"lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo")
-_MONTH_WORDS = (r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|"
-                r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?")
+_WEEKDAY_WORDS = (
+    r"monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
+    r"lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo"
+)
+_MONTH_WORDS = (
+    r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|"
+    r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?"
+)
 # Most specific first; a later pattern never claims text an earlier one matched.
 _PHRASES = [
     r"(?:the\s+)?day\s+after\s+thanksgiving|thanksgiving",

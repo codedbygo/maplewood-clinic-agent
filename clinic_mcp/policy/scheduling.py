@@ -150,10 +150,23 @@ def book(store, patient_id: str, provider: str, visit_type: str, day: str, start
     if not check["ok"]:
         return {"ok": False, "violations": check["violations"], "reason": "Not booked. " + check["reason"]}
     end = _hhmm(_min(start) + store.clinic["visit_types"][visit_type])
-    appt = {"id": _next_id(store.appointments), "patient_id": patient_id, "provider": provider, "date": day,
-            "start": start, "end": end, "visit_type": visit_type, "status": "booked"}
+    appt = {
+        "id": _next_id(store.appointments),
+        "patient_id": patient_id,
+        "provider": provider,
+        "date": day,
+        "start": start,
+        "end": end,
+        "visit_type": visit_type,
+        "status": "booked",
+    }
     store.appointments.append(appt)
-    return {"ok": True, "violations": [], "appointment": appt, "reason": f"Booked {appt['id']}: {provider} {visit_type} {day} {start}-{end}."}
+    return {
+        "ok": True,
+        "violations": [],
+        "appointment": appt,
+        "reason": f"Booked {appt['id']}: {provider} {visit_type} {day} {start}-{end}.",
+    }
 
 
 def _find(store, appointment_id: str) -> dict | None:
@@ -165,15 +178,27 @@ def reschedule(store, appointment_id: str, day: str, start: str, provider: str |
     if appt is None or appt["status"] != "booked":
         return {"ok": False, "violations": ["not_found"], "reason": f"No active appointment {appointment_id}."}
     provider = provider or appt["provider"]
-    check = validate_slot(store.clinic, store.appointments, provider, appt["visit_type"], day, start,
-                          patient_id=appt["patient_id"], ignore_appointment_id=appointment_id, now=store.now)
+    check = validate_slot(
+        store.clinic,
+        store.appointments,
+        provider,
+        appt["visit_type"],
+        day,
+        start,
+        patient_id=appt["patient_id"],
+        ignore_appointment_id=appointment_id,
+        now=store.now,
+    )
     if not check["ok"]:
         return {"ok": False, "violations": check["violations"], "reason": "Not moved. " + check["reason"]}
     old = f"{appt['provider']} {appt['date']} {appt['start']}"
-    appt.update(provider=provider, date=day, start=start,
-                end=_hhmm(_min(start) + store.clinic["visit_types"][appt["visit_type"]]))
-    return {"ok": True, "violations": [], "appointment": dict(appt),
-            "reason": f"Moved {appointment_id} from {old} to {provider} {day} {start}-{appt['end']}."}
+    appt.update(provider=provider, date=day, start=start, end=_hhmm(_min(start) + store.clinic["visit_types"][appt["visit_type"]]))
+    return {
+        "ok": True,
+        "violations": [],
+        "appointment": dict(appt),
+        "reason": f"Moved {appointment_id} from {old} to {provider} {day} {start}-{appt['end']}.",
+    }
 
 
 def cancel(store, appointment_id: str) -> dict:
@@ -181,7 +206,12 @@ def cancel(store, appointment_id: str) -> dict:
     if appt is None or appt["status"] != "booked":
         return {"ok": False, "violations": ["not_found"], "reason": f"No active appointment {appointment_id}."}
     appt["status"] = "cancelled"
-    return {"ok": True, "violations": [], "appointment": dict(appt), "reason": f"Cancelled {appointment_id} ({appt['provider']} {appt['date']} {appt['start']})."}
+    return {
+        "ok": True,
+        "violations": [],
+        "appointment": dict(appt),
+        "reason": f"Cancelled {appointment_id} ({appt['provider']} {appt['date']} {appt['start']}).",
+    }
 
 
 def match_appointments(

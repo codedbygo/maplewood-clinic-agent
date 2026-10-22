@@ -33,8 +33,10 @@ def write_report(ev: dict, out_prefix: Path) -> str:
         f"Run `{m['run_id']}`, model `{m['model']}` (effort `{m['effort']}`), {m['n']} messages, wall time {m['wall_s']}s. "
         f"Labels: `{ev['labels']}`. Regenerate with `make eval`.",
         "",
-        "LLM calls served by: " + (", ".join(f"`{k}` ({v})" for k, v in sorted(ev.get("models_served", {}).items(), key=lambda kv: -kv[1])) or "none")
-        + ("" if not m.get("stopped") else f". **Run incomplete**: stopped at {m['stopped']['at']} ({m['stopped']['reason']})") + ".",
+        "LLM calls served by: "
+        + (", ".join(f"`{k}` ({v})" for k, v in sorted(ev.get("models_served", {}).items(), key=lambda kv: -kv[1])) or "none")
+        + ("" if not m.get("stopped") else f". **Run incomplete**: stopped at {m['stopped']['at']} ({m['stopped']['reason']})")
+        + ".",
         "",
         "## Summary",
         "",
@@ -46,7 +48,7 @@ def write_report(ev: dict, out_prefix: Path) -> str:
         f"| Global safety check findings | {len(ev['global_safety'])} |",
         f"| Urgency accuracy | {_p(s['urgency_accuracy'])} |",
         f"| Actions: exact set match | {_p(s['actions']['exact_match'])} |",
-        f"| Actions: micro P / R / F1 | {_p(s['actions']['micro']['precision'])} / {_p(s['actions']['micro']['recall'])} / {_p(s['actions']['micro']['f1'])} |",
+        "| Actions: micro P / R / F1 | " + " / ".join(_p(s["actions"]["micro"][k]) for k in ("precision", "recall", "f1")) + " |",
         f"| Actions: macro F1 | {_p(s['actions']['macro_f1'])} |",
         f"| Intent set F1 | {_p(s['intent_f1'])} |",
         f"| patient_id accuracy | {_p(s['patient_id_accuracy'])} |",
@@ -64,22 +66,34 @@ def write_report(ev: dict, out_prefix: Path) -> str:
     else:
         lines.append("Missed emergencies: **none**.")
     lines += ["", "| id | caught | caught by | reply is template |", "|---|---|---|---|"]
-    for mid, l in ev["_labels"].items():
-        if "escalate_emergency" in l["expected_actions"] and mid in ev["_results"]:
+    for mid, label in ev["_labels"].items():
+        if "escalate_emergency" in label["expected_actions"] and mid in ev["_results"]:
             r, log = ev["_results"][mid], ev["_logs"].get(mid, {})
-            by = "pre-screen" if log.get("screen", {}).get("tier") == "emergency" else ("LLM triage" if log.get("path") == "emergency" else "-")
-            lines.append(f"| {mid} | {'yes' if 'escalate_emergency' in r['actions'] else '**NO**'} | {by} | "
-                         f"{'yes' if r['reply_draft'] in EMERGENCY_TEMPLATE.values() else '**no**'} |")
+            by = (
+                "pre-screen"
+                if log.get("screen", {}).get("tier") == "emergency"
+                else ("LLM triage" if log.get("path") == "emergency" else "-")
+            )
+            lines.append(
+                f"| {mid} | {'yes' if 'escalate_emergency' in r['actions'] else '**NO**'} | {by} | "
+                f"{'yes' if r['reply_draft'] in EMERGENCY_TEMPLATE.values() else '**no**'} |"
+            )
     lines += ["", "## must_not violations", ""]
     if ev["must_not_violations"]:
-        lines += ["| id | tag | evidence |", "|---|---|---|"] + [f"| {v['id']} | {v['tag']} | {v['evidence']} |" for v in ev["must_not_violations"]]
+        lines += ["| id | tag | evidence |", "|---|---|---|"] + [
+            f"| {v['id']} | {v['tag']} | {v['evidence']} |" for v in ev["must_not_violations"]
+        ]
     else:
         lines.append("None. Every `must_not` tag in the labels was checked against the reply, the tool trace and the final store state.")
     lines += ["", "## Global safety checks (every message)", ""]
     if ev["global_safety"]:
-        lines += ["| id | check | evidence |", "|---|---|---|"] + [f"| {g['id']} | {g['check']} | {g['evidence']} |" for g in ev["global_safety"]]
+        lines += ["| id | check | evidence |", "|---|---|---|"] + [
+            f"| {g['id']} | {g['check']} | {g['evidence']} |" for g in ev["global_safety"]
+        ]
     else:
-        lines.append("None: no invalid bookings, approvals, non-template emergency replies, clinical-advice keywords or PHI to unverified senders.")
+        lines.append(
+            "None: no invalid bookings, approvals, non-template emergency replies, clinical-advice keywords or PHI to unverified senders."
+        )
     lines += ["", "## Per-action results", "", "| action | precision | recall | support |", "|---|---|---|---|"]
     for a, v in s["actions"]["per_action"].items():
         lines.append(f"| {a} | {_p(v['precision'])} | {_p(v['recall'])} | {v['tp'] + v['fn']} |")
@@ -87,28 +101,43 @@ def write_report(ev: dict, out_prefix: Path) -> str:
         lines += ["", "## Post-guard interventions", "", "The deterministic guard changed these results before they were emitted:", ""]
         lines += [f"- {mid}: {'; '.join(v)}" for mid, v in sorted(ev["guard_interventions"].items())]
     t = ev["cost"]["tokens"]
-    lines += ["", "## Cost and latency", "",
-              f"Tokens: {t['input_tokens']:,} input, {t['output_tokens']:,} output, {t['cache_read_input_tokens']:,} cache read, "
-              f"{t['cache_creation_input_tokens']:,} cache write. Total ${ev['cost']['total_usd']:.3f}; "
-              f"p50 {ev['latency']['p50_s']:.1f}s, p95 {ev['latency']['p95_s']:.1f}s, max {ev['latency']['max_s']:.1f}s per message."]
+    lines += [
+        "",
+        "## Cost and latency",
+        "",
+        f"Tokens: {t['input_tokens']:,} input, {t['output_tokens']:,} output, {t['cache_read_input_tokens']:,} cache read, "
+        f"{t['cache_creation_input_tokens']:,} cache write. Total ${ev['cost']['total_usd']:.3f}; "
+        f"p50 {ev['latency']['p50_s']:.1f}s, p95 {ev['latency']['p95_s']:.1f}s, max {ev['latency']['max_s']:.1f}s per message.",
+    ]
 
-    lines += ["", "## Every wrong case", "",
-              "A case is listed if any of urgency, the exact action set, patient_id, routing or intents differs from the label."]
-    wrong = [pm for pm in s["per_message"] if not (pm["urgency_ok"] and pm["actions_exact"] and pm["patient_ok"] and pm["routing_ok"] and pm["intent_f1"] == 1.0)]
+    lines += [
+        "",
+        "## Every wrong case",
+        "",
+        "A case is listed if any of urgency, the exact action set, patient_id, routing or intents differs from the label.",
+    ]
+    wrong = [
+        pm
+        for pm in s["per_message"]
+        if not (pm["urgency_ok"] and pm["actions_exact"] and pm["patient_ok"] and pm["routing_ok"] and pm["intent_f1"] == 1.0)
+    ]
     for pm in wrong:
         mid = pm["id"]
-        r, l, log = ev["_results"][mid], ev["_labels"][mid], ev["_logs"].get(mid, {})
-        lines += [f"### {mid}", "",
-                  f"- Message ({log.get('from_name')}): {log.get('body', '')!r}; path `{log.get('path')}`, "
-                  f"pre-screen `{log.get('screen', {}).get('tier')}`, sender `{log.get('verification', {}).get('status')}`",
-                  f"- Urgency: expected {l['accepted_urgency']}, got `{r['urgency']}`" + ("" if pm["urgency_ok"] else " **wrong**"),
-                  f"- Actions: expected {sorted(l['expected_actions'])}, got {r['actions']}"
-                  + (f" (missing {pm['missing_actions']}, extra {pm['extra_actions']})" if not pm["actions_exact"] else ""),
-                  f"- patient_id: expected `{l['patient_id']}`, got `{r['patient_id']}`" + ("" if pm["patient_ok"] else " **wrong**"),
-                  f"- Routed: {r['routed_to']}" + ("" if pm["routing_ok"] else " **routing wrong**"),
-                  f"- Intents: expected {l['intents']}, got {r['intents']}",
-                  f"- Root cause: {ev['root_causes'].get(mid, '_not yet analysed_')}",
-                  "- Trace:"]
+        r, label, log = ev["_results"][mid], ev["_labels"][mid], ev["_logs"].get(mid, {})
+        lines += [
+            f"### {mid}",
+            "",
+            f"- Message ({log.get('from_name')}): {log.get('body', '')!r}; path `{log.get('path')}`, "
+            f"pre-screen `{log.get('screen', {}).get('tier')}`, sender `{log.get('verification', {}).get('status')}`",
+            f"- Urgency: expected {label['accepted_urgency']}, got `{r['urgency']}`" + ("" if pm["urgency_ok"] else " **wrong**"),
+            f"- Actions: expected {sorted(label['expected_actions'])}, got {r['actions']}"
+            + (f" (missing {pm['missing_actions']}, extra {pm['extra_actions']})" if not pm["actions_exact"] else ""),
+            f"- patient_id: expected `{label['patient_id']}`, got `{r['patient_id']}`" + ("" if pm["patient_ok"] else " **wrong**"),
+            f"- Routed: {r['routed_to']}" + ("" if pm["routing_ok"] else " **routing wrong**"),
+            f"- Intents: expected {label['intents']}, got {r['intents']}",
+            f"- Root cause: {ev['root_causes'].get(mid, '_not yet analysed_')}",
+            "- Trace:",
+        ]
         lines += [f"  {i + 1}. {_trace_line(c)}" for i, c in enumerate(log.get("trace", []))]
         if log.get("guard_violations"):
             lines.append(f"- Guard: {'; '.join(log['guard_violations'])}")

@@ -51,13 +51,10 @@ def _result(status, patient_id=None, candidates=(), relationship=None, reason=""
     }
 
 
-def verify_sender(
-    patients: dict[str, dict], from_name: str, from_contact: str, stated_dob: str | None = None
-) -> dict:
+def verify_sender(patients: dict[str, dict], from_name: str, from_contact: str, stated_dob: str | None = None) -> dict:
     name_hits = [p for p in patients.values() if _name_eq(from_name, p["name"], False)]
     carer_name_hits = [
-        p for p in patients.values()
-        if p.get("authorised_caregiver") and _name_eq(from_name, p["authorised_caregiver"]["name"], False)
+        p for p in patients.values() if p.get("authorised_caregiver") and _name_eq(from_name, p["authorised_caregiver"]["name"], False)
     ]
 
     if stated_dob and name_hits:
@@ -73,29 +70,40 @@ def verify_sender(
             p = dob_hits[0]
             return _result("verified_patient", p["id"], [p["id"]], reason="Name and date of birth match the record.")
 
-    contact_patients = [p for p in patients.values() if _contact_eq(from_contact, p.get("phone")) or _contact_eq(from_contact, p.get("email"))]
+    contact_patients = [
+        p for p in patients.values() if _contact_eq(from_contact, p.get("phone")) or _contact_eq(from_contact, p.get("email"))
+    ]
     contact_carers = [
-        p for p in patients.values()
-        if p.get("authorised_caregiver") and _contact_eq(from_contact, p["authorised_caregiver"].get("phone"))
+        p for p in patients.values() if p.get("authorised_caregiver") and _contact_eq(from_contact, p["authorised_caregiver"].get("phone"))
     ]
 
     if contact_patients or contact_carers:
         named = [p for p in contact_patients if _name_eq(from_name, p["name"], True)]
         if len(named) == 1:
             p = named[0]
-            return _result("verified_patient", p["id"], [p["id"]], reason="Sender name matches and the contact is the patient's own phone/email on file.")
+            return _result(
+                "verified_patient",
+                p["id"],
+                [p["id"]],
+                reason="Sender name matches and the contact is the patient's own phone/email on file.",
+            )
         carers = [p for p in contact_carers if _name_eq(from_name, p["authorised_caregiver"]["name"], True)]
         if len(carers) == 1:
             p = carers[0]
             rel = p["authorised_caregiver"].get("relationship")
             return _result(
-                "verified_caregiver", p["id"], [p["id"]], rel,
+                "verified_caregiver",
+                p["id"],
+                [p["id"]],
+                rel,
                 reason=f"Sender is the authorised caregiver ({rel}) on file for this patient, writing from the caregiver phone on file.",
             )
         everyone = contact_patients + contact_carers
         if not _name(from_name) and len({p["id"] for p in contact_patients}) == 1 and not contact_carers:
             p = contact_patients[0]
-            return _result("verified_patient", p["id"], [p["id"]], reason="No name given; the contact is the patient's own phone/email on file.")
+            return _result(
+                "verified_patient", p["id"], [p["id"]], reason="No name given; the contact is the patient's own phone/email on file."
+            )
         return _result(
             "ambiguous",
             candidates=[p["id"] for p in everyone],

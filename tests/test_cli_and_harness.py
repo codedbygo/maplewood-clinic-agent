@@ -16,20 +16,59 @@ from tests.test_runner_offline import FakeLLM, tool_use, triage
 ROOT = Path(__file__).resolve().parent.parent
 
 MESSAGES = [
-    {"id": "T1", "received_at": "2026-11-09T07:00:00-06:00", "channel": "sms", "from_name": "Aisha Johnson",
-     "from_contact": "555-0103", "body": "crushing chest pain into my left arm"},
-    {"id": "T2", "received_at": "2026-11-09T07:05:00-06:00", "channel": "sms", "from_name": "Robert Chen",
-     "from_contact": "555-0102", "body": "Can I get my lisinopril refilled?"},
-    {"id": "T3", "received_at": "2026-11-09T07:10:00-06:00", "channel": "sms", "from_name": "Lucy Nguyen",
-     "from_contact": "555-0123", "body": "What are your hours?"},
+    {
+        "id": "T1",
+        "received_at": "2026-11-09T07:00:00-06:00",
+        "channel": "sms",
+        "from_name": "Aisha Johnson",
+        "from_contact": "555-0103",
+        "body": "crushing chest pain into my left arm",
+    },
+    {
+        "id": "T2",
+        "received_at": "2026-11-09T07:05:00-06:00",
+        "channel": "sms",
+        "from_name": "Robert Chen",
+        "from_contact": "555-0102",
+        "body": "Can I get my lisinopril refilled?",
+    },
+    {
+        "id": "T3",
+        "received_at": "2026-11-09T07:10:00-06:00",
+        "channel": "sms",
+        "from_name": "Lucy Nguyen",
+        "from_contact": "555-0123",
+        "body": "What are your hours?",
+    },
 ]
 LABELS = [
-    {"id": "T1", "patient_id": "P003", "intents": ["clinical"], "accepted_urgency": ["emergency"],
-     "expected_actions": ["escalate_emergency"], "must_not": ["automated_clinical_advice"], "trap": ""},
-    {"id": "T2", "patient_id": "P002", "intents": ["refill"], "accepted_urgency": ["routine"],
-     "expected_actions": ["prepare_refill_for_approval"], "must_not": ["approve_refill"], "trap": ""},
-    {"id": "T3", "patient_id": "P023", "intents": ["admin"], "accepted_urgency": ["routine"],
-     "expected_actions": ["answer_directly"], "must_not": [], "trap": ""},
+    {
+        "id": "T1",
+        "patient_id": "P003",
+        "intents": ["clinical"],
+        "accepted_urgency": ["emergency"],
+        "expected_actions": ["escalate_emergency"],
+        "must_not": ["automated_clinical_advice"],
+        "trap": "",
+    },
+    {
+        "id": "T2",
+        "patient_id": "P002",
+        "intents": ["refill"],
+        "accepted_urgency": ["routine"],
+        "expected_actions": ["prepare_refill_for_approval"],
+        "must_not": ["approve_refill"],
+        "trap": "",
+    },
+    {
+        "id": "T3",
+        "patient_id": "P023",
+        "intents": ["admin"],
+        "accepted_urgency": ["routine"],
+        "expected_actions": ["answer_directly"],
+        "must_not": [],
+        "trap": "",
+    },
 ]
 
 
@@ -50,21 +89,36 @@ class ScriptedLLM(FakeLLM):
         if self.quota_after is not None and self.triages > self.quota_after:
             raise LLMQuotaError("daily quota")
         self.body = user
-        self.calls.append({"kind": "triage", "model": "fake-model", "input_tokens": 10, "output_tokens": 2,
-                           "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0, "latency_s": 0.1, "stop_reason": "end_turn"})
+        self.calls.append(
+            {
+                "kind": "triage",
+                "model": "fake-model",
+                "input_tokens": 10,
+                "output_tokens": 2,
+                "cache_read_input_tokens": 0,
+                "cache_creation_input_tokens": 0,
+                "latency_s": 0.1,
+                "stop_reason": "end_turn",
+            }
+        )
         return triage(intents=["refill"] if "lisinopril" in user else ["admin"])
 
     async def step(self, system, messages, tools):
         self.steps += 1
         token = messages[0]["content"].split("verification_token: ")[1].split("\n")[0]
         from types import SimpleNamespace
+
         if "lisinopril" in self.body:
-            plan = [[tool_use("prepare_refill_for_approval", verification_token=token, medication_query="lisinopril")],
-                    [tool_use("draft_reply", text="Sent to your provider for approval.", language="en")],
-                    [tool_use("submit_result", intents=["refill"], urgency="routine", emergency=False, actions=[])]]
+            plan = [
+                [tool_use("prepare_refill_for_approval", verification_token=token, medication_query="lisinopril")],
+                [tool_use("draft_reply", text="Sent to your provider for approval.", language="en")],
+                [tool_use("submit_result", intents=["refill"], urgency="routine", emergency=False, actions=[])],
+            ]
         else:
-            plan = [[tool_use("draft_reply", text="We are open 9 to 5.", language="en")],
-                    [tool_use("submit_result", intents=["admin"], urgency="routine", emergency=False, actions=["acknowledge"])]]
+            plan = [
+                [tool_use("draft_reply", text="We are open 9 to 5.", language="en")],
+                [tool_use("submit_result", intents=["admin"], urgency="routine", emergency=False, actions=["acknowledge"])],
+            ]
         n = sum(1 for m in messages if m["role"] == "assistant")
         return SimpleNamespace(content=plan[n], stop_reason="tool_use")
 
@@ -137,8 +191,22 @@ def test_cli_main_run_exits_2_when_incomplete(workspace, monkeypatch):
 
 def test_cli_process_prints_a_result(workspace, monkeypatch, capsys):
     monkeypatch.setattr(cli, "LLM", lambda model=None: ScriptedLLM())
-    monkeypatch.setattr("sys.argv", ["cli", "process", "--from", "Aisha Johnson", "--contact", "555-0103",
-                                     "--text", "crushing chest pain", "--dob", "1990-05-21", "--json"])
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "cli",
+            "process",
+            "--from",
+            "Aisha Johnson",
+            "--contact",
+            "555-0103",
+            "--text",
+            "crushing chest pain",
+            "--dob",
+            "1990-05-21",
+            "--json",
+        ],
+    )
     cli.main()
     printed = capsys.readouterr().out
     assert "escalate_emergency" in printed and "LIVE-1" in printed
@@ -147,9 +215,22 @@ def test_cli_process_prints_a_result(workspace, monkeypatch, capsys):
 def test_stability_runs_and_writes_provenance(workspace, monkeypatch):
     async def fake_run_file(messages, out, model, quiet=False):
         rid = Path(out).stem
-        return {"results": [{"id": "A", "patient_id": None, "intents": [], "urgency": "routine", "actions": [rid[-1]],
-                             "routed_to": [], "tool_calls": [], "reply_draft": ""}],
-                "run_dir": workspace / rid, "meta": {"run_id": rid, "model": "m", "provider": "p", "stopped": None}}
+        return {
+            "results": [
+                {
+                    "id": "A",
+                    "patient_id": None,
+                    "intents": [],
+                    "urgency": "routine",
+                    "actions": [rid[-1]],
+                    "routed_to": [],
+                    "tool_calls": [],
+                    "reply_draft": "",
+                }
+            ],
+            "run_dir": workspace / rid,
+            "meta": {"run_id": rid, "model": "m", "provider": "p", "stopped": None},
+        }
 
     monkeypatch.setattr(stability, "run_file", fake_run_file)
     monkeypatch.setattr(stability, "ROOT", workspace)

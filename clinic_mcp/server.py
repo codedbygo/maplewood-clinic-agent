@@ -83,17 +83,30 @@ def prepare_refill_for_approval(verification_token: str, medication_query: str, 
 
 
 @mcp.tool()
-def get_patient_appointments(verification_token: str, date: str | None = None, date_from: str | None = None,
-                             date_to: str | None = None, weekday: str | None = None, provider: str | None = None,
-                             visit_type: str | None = None) -> dict:
+def get_patient_appointments(
+    verification_token: str,
+    date: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    weekday: str | None = None,
+    provider: str | None = None,
+    visit_type: str | None = None,
+) -> dict:
     """The verified patient's booked appointments (default: from today onward). Filter by date (YYYY-MM-DD),
     date range, weekday name, provider id or visit type. Requires verification_token."""
     return T.get_patient_appointments(verification_token, date, date_from, date_to, weekday, provider, visit_type)
 
 
 @mcp.tool()
-def find_available_slots(visit_type: str, date_from: str | None = None, date_to: str | None = None, provider: str | None = None,
-                         part_of_day: str | None = None, verification_token: str | None = None, limit: int = 8) -> dict:
+def find_available_slots(
+    visit_type: str,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    provider: str | None = None,
+    part_of_day: str | None = None,
+    verification_token: str | None = None,
+    limit: int = 8,
+) -> dict:
     """Free slots that satisfy every booking rule (hours, lunch, holidays, leave, :00/:20/:40 grid, visit length,
     no overlaps, not in the past). visit_type: new_patient | annual_physical | follow_up | sick_visit | telehealth.
     provider: PATEL | OKAFOR | KIM (omit for any). part_of_day: morning | afternoon. Dates YYYY-MM-DD; without dates,
@@ -109,16 +122,27 @@ def book_appointment(verification_token: str, provider: str, visit_type: str, da
 
 
 @mcp.tool()
-def reschedule_appointment(verification_token: str, new_date: str, new_start: str, appointment_id: str | None = None,
-                           current_date: str | None = None, new_provider: str | None = None) -> dict:
+def reschedule_appointment(
+    verification_token: str,
+    new_date: str,
+    new_start: str,
+    appointment_id: str | None = None,
+    current_date: str | None = None,
+    new_provider: str | None = None,
+) -> dict:
     """Move one of the verified patient's bookings (identify it by appointment_id or current_date). Keeps the visit type.
     Refuses if the target slot breaks a booking rule, or if more than one booking matches (ask the patient which)."""
     return T.reschedule_appointment(verification_token, new_date, new_start, appointment_id, current_date, new_provider)
 
 
 @mcp.tool()
-def cancel_appointment(verification_token: str, appointment_id: str | None = None, date: str | None = None,
-                       provider: str | None = None, start: str | None = None) -> dict:
+def cancel_appointment(
+    verification_token: str,
+    appointment_id: str | None = None,
+    date: str | None = None,
+    provider: str | None = None,
+    start: str | None = None,
+) -> dict:
     """Cancel one of the verified patient's bookings by appointment_id, or by date (+ provider/start). Refuses with
     `candidates` when more than one booking matches: ask the patient which one, never guess."""
     return T.cancel_appointment(verification_token, appointment_id, date, provider, start)

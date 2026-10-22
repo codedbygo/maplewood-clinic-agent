@@ -5,7 +5,9 @@ __pycache__/
 .env
 .superpowers/
 brief.pdf
-results/runs/
+results/runs/*
+!results/runs/20261022T065031Z_messages_sample/
+!results/runs/20261022T070842Z_holdout_messages/
 .gstack/
 .bearing/
 web/coverage/

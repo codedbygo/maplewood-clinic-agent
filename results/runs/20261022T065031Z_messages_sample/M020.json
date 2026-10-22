@@ -1,0 +1,248 @@
+{
+  "id": "M020",
+  "from_name": "Linda Morales",
+  "body": "Necesito más metformina por favor.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "es"
+  },
+  "triage": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender requests a refill of metformin without mentioning any symptoms or urgent concerns.",
+    "language": "es",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P001",
+    "candidate_patient_ids": [
+      "P001"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P001",
+        "candidate_patient_ids": [
+          "P001"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P001",
+          "first_name": "Linda",
+          "full_name": "Linda Morales",
+          "age": 68,
+          "is_minor": false,
+          "preferred_language": "Spanish",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-07-02",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "verification_token": "[redacted]",
+        "medication_query": "metformina"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "prepare",
+        "eligible": true,
+        "medication": "Metformin 500 mg",
+        "prescriber": "PATEL",
+        "run_out_date": "2026-11-10",
+        "earliest_date": "2026-11-03",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Metformin 500 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": true,
+            "detail": "Last visit 2026-07-02; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 2."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-10; a request can be prepared from 2026-11-03."
+          }
+        ],
+        "reason": "All refill rules pass for Metformin 500 mg (supply runs out 2026-11-10). The agent may prepare a request for provider approval; it never approves."
+      }
+    },
+    {
+      "name": "prepare_refill_for_approval",
+      "input": {
+        "medication_query": "metformina",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "request": {
+          "id": "RR004",
+          "patient_id": "P001",
+          "medication": "Metformin 500 mg",
+          "prescriber": "PATEL",
+          "status": "pending_provider_approval",
+          "note": "",
+          "message_id": "M020"
+        },
+        "decision": "prepare",
+        "reason": "Pending request RR004 for Metformin 500 mg sent to the provider_refills queue for approval. Not approved."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "es",
+        "text": "Hola Linda,\n\nTu solicitud de receta para Metformina 500 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista.\n\n— Clínica Maplewood Family Clinic"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 809,
+      "output_tokens": 140,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.9,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6025,
+      "output_tokens": 106,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.89,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6423,
+      "output_tokens": 192,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 10.9,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6606,
+      "output_tokens": 161,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 14.8,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6722,
+      "output_tokens": 229,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 8.24,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 41.75,
+  "result": {
+    "id": "M020",
+    "patient_id": "P001",
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "prepare_refill_for_approval"
+    ],
+    "routed_to": [
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "prepare_refill_for_approval",
+      "draft_reply"
+    ],
+    "reply_draft": "Hola Linda,\n\nTu solicitud de receta para Metformina 500 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista.\n\n— Clínica Maplewood Family Clinic"
+  }
+}

@@ -1,0 +1,325 @@
+{
+  "id": "M015",
+  "from_name": "Anna Rossi",
+  "body": "Sofia has had a fever of 101 for two days and a cough. Can we get her seen today or tomorrow?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "urgent_clinical",
+    "matches": [
+      "fever"
+    ],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "emergency": false,
+    "clinical_concern": true,
+    "rationale": "The message describes a child with fever of 101 for two days and a cough, requesting to be seen today or tomorrow, indicating a clinical concern that needs prompt attention.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_caregiver",
+    "patient_id": "P009",
+    "candidate_patient_ids": [
+      "P009"
+    ],
+    "relationship": "mother",
+    "reason": "Sender is the authorised caregiver (mother) on file for this patient, writing from the caregiver phone on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_caregiver",
+        "patient_id": "P009",
+        "candidate_patient_ids": [
+          "P009"
+        ],
+        "relationship": "mother",
+        "reason": "Sender is the authorised caregiver (mother) on file for this patient, writing from the caregiver phone on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P009",
+          "first_name": "Sofia",
+          "full_name": "Sofia Rossi",
+          "age": 11,
+          "is_minor": true,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2026-08-28",
+          "sender_role": "verified_caregiver",
+          "caregiver": {
+            "name": "Anna Rossi",
+            "relationship": "mother"
+          }
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "today"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-09",
+        "end": "2026-11-09",
+        "business_days": [
+          "2026-11-09"
+        ],
+        "label": "today",
+        "reason": "'today' resolves to 2026-11-09 (today), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "tomorrow"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-10",
+        "end": "2026-11-10",
+        "business_days": [
+          "2026-11-10"
+        ],
+        "label": "tomorrow",
+        "reason": "'tomorrow' resolves to 2026-11-10 (tomorrow), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "provider": "KIM",
+        "date_to": "2026-11-10",
+        "limit": 8,
+        "verification_token": "[redacted]",
+        "visit_type": "sick_visit",
+        "date_from": "2026-11-09"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "11:20",
+            "end": "11:40",
+            "visit_type": "sick_visit"
+          }
+        ],
+        "reason": "8 free sick_visit slot(s) between 2026-11-09 and 2026-11-10 with KIM."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "start": "09:00",
+        "visit_type": "sick_visit",
+        "verification_token": "[redacted]",
+        "provider": "KIM",
+        "date": "2026-11-09"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A172",
+          "patient_id": "P009",
+          "provider": "KIM",
+          "date": "2026-11-09",
+          "start": "09:00",
+          "end": "09:20",
+          "visit_type": "sick_visit",
+          "status": "booked",
+          "message_id": "M015"
+        },
+        "reason": "Booked A172: KIM sick_visit 2026-11-09 09:00-09:20."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Anna, I've booked a sick visit for Sofia today, Monday 2026-11-09, at 9:00 AM with Sarah Kim, NP. If you need to adjust the time, just let us know.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked sick visit for Sofia (P009) today 2026-11-09 09:00 with Sarah Kim, NP. Caregiver Anna Rossi verified."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 826,
+      "output_tokens": 182,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.96,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6260,
+      "output_tokens": 327,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.33,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6858,
+      "output_tokens": 1019,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 20.19,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7112,
+      "output_tokens": 206,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.65,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7231,
+      "output_tokens": 477,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.77,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 37.93,
+  "result": {
+    "id": "M015",
+    "patient_id": "P009",
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "resolve_date",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Anna, I've booked a sick visit for Sofia today, Monday 2026-11-09, at 9:00 AM with Sarah Kim, NP. If you need to adjust the time, just let us know."
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "id": "M006",
+  "from_name": "Emily Novak",
+  "body": "Refill sertraline please. Also, I've been feeling really low lately and some days I don't see the point of anything.",
+  "path": "emergency",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "urgent_clinical",
+    "matches": [
+      "low_mood"
+    ],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "emergency": true,
+    "clinical_concern": true,
+    "rationale": "The patient requests a sertraline refill and expresses depressive symptoms including hopelessness ('some days I don't see the point of anything'), which may indicate suicidal ideation and requires immediate clinical attention.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P005",
+    "candidate_patient_ids": [
+      "P005"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P005",
+        "candidate_patient_ids": [
+          "P005"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "queue": "clinician_urgent",
+        "summary": "POSSIBLE EMERGENCY from Emily Novak (emily.novak@example.com, portal). Reason: LLM triage: The patient requests a sertraline refill and expresses depressive symptoms including hopelessness ('some days I don't see the point of anything'), which may indicate suicidal ideation and requires immediate clinical attention.. Message: Refill sertraline please. Also, I've been feeling really low lately and some days I don't see the point of anything.",
+        "priority": "emergency",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to clinician_urgent (emergency)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [],
+    "emergency": true,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 826,
+      "output_tokens": 770,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 40.98,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 40.99,
+  "result": {
+    "id": "M006",
+    "patient_id": "P005",
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [
+      "escalate_emergency"
+    ],
+    "routed_to": [
+      "clinician_urgent"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message."
+  }
+}

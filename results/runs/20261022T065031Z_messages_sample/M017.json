@@ -1,0 +1,133 @@
+{
+  "id": "M017",
+  "from_name": "Samuel Foster",
+  "body": "Refill warfarin please. Also my gums have been bleeding a lot and I have dark stools.",
+  "path": "emergency",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "emergency",
+    "matches": [
+      "bleeding",
+      "bleeding_on_anticoagulant",
+      "severe_bleeding"
+    ],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "emergency": true,
+    "clinical_concern": true,
+    "rationale": "Patient requests warfarin refill and reports 'gums have been bleeding a lot' and 'dark stools' — both are classic signs of serious bleeding on anticoagulation, which may indicate a medical emergency.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P020",
+    "candidate_patient_ids": [
+      "P020"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P020",
+        "candidate_patient_ids": [
+          "P020"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "queue": "clinician_urgent",
+        "summary": "POSSIBLE EMERGENCY from Samuel Foster (samuel.foster@example.com, portal). Reason: safety pre-screen: bleeding, bleeding_on_anticoagulant, severe_bleeding. Message: Refill warfarin please. Also my gums have been bleeding a lot and I have dark stools.",
+        "priority": "emergency",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to clinician_urgent (emergency)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [],
+    "emergency": true,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 821,
+      "output_tokens": 253,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.76,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 2.77,
+  "result": {
+    "id": "M017",
+    "patient_id": "P020",
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [
+      "escalate_emergency"
+    ],
+    "routed_to": [
+      "clinician_urgent"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message."
+  }
+}

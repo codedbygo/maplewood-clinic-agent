@@ -1,6 +1,6 @@
 {
   "meta": {
-    "run_id": "20261022T062607Z",
+    "run_id": "20261022T065031Z",
     "provider": "openrouter",
     "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
     "fallbacks": [
@@ -10,12 +10,12 @@
     "effort": "medium",
     "messages": "data/messages_sample.json",
     "n": 40,
-    "wall_s": 1059.0,
+    "wall_s": 1087.7,
     "stopped": null
   },
   "models_served": {
     "nvidia/nemotron-3-ultra-550b-a55b:free": 161,
-    "minimax/minimax-m3.1-flash:free": 4
+    "minimax/minimax-m3.1-flash:free": 3
   },
   "labels": "data/labels_sample.json",
   "scores": {
@@ -33,37 +33,37 @@
     "actions": {
       "exact_match": 0.9,
       "micro": {
-        "precision": 0.9166666666666666,
-        "recall": 0.9361702127659575,
-        "f1": 0.9263157894736843,
-        "tp": 44,
-        "fp": 4,
-        "fn": 3
+        "precision": 0.9555555555555556,
+        "recall": 0.9148936170212766,
+        "f1": 0.9347826086956522,
+        "tp": 43,
+        "fp": 2,
+        "fn": 4
       },
-      "macro_f1": 0.8984848484848484,
+      "macro_f1": 0.9096969696969698,
       "per_action": {
         "acknowledge": {
-          "precision": 0.5,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.6666666666666666,
+          "f1": 1.0,
           "tp": 1,
-          "fp": 1,
+          "fp": 0,
           "fn": 0
         },
         "answer_directly": {
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "tp": 3,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
           "fp": 0,
-          "fn": 0
+          "fn": 1
         },
         "book_appointment": {
-          "precision": 0.8333333333333334,
+          "precision": 1.0,
           "recall": 1.0,
-          "f1": 0.9090909090909091,
+          "f1": 1.0,
           "tp": 5,
-          "fp": 1,
+          "fp": 0,
           "fn": 0
         },
         "cancel_appointment": {
@@ -232,7 +232,7 @@
         "id": "M003",
         "urgency_ok": true,
         "actions_exact": true,
-        "intent_f1": 0.6666666666666666,
+        "intent_f1": 1.0,
         "patient_ok": true,
         "routing_ok": true,
         "missing_actions": [],
@@ -278,11 +278,13 @@
       {
         "id": "M007",
         "urgency_ok": true,
-        "actions_exact": true,
+        "actions_exact": false,
         "intent_f1": 0.6666666666666666,
         "patient_ok": true,
         "routing_ok": true,
-        "missing_actions": [],
+        "missing_actions": [
+          "answer_directly"
+        ],
         "extra_actions": []
       },
       {
@@ -435,9 +437,7 @@
         "missing_actions": [
           "cancel_appointment"
         ],
-        "extra_actions": [
-          "acknowledge"
-        ]
+        "extra_actions": []
       },
       {
         "id": "M023",
@@ -472,14 +472,12 @@
       {
         "id": "M026",
         "urgency_ok": true,
-        "actions_exact": false,
-        "intent_f1": 1.0,
+        "actions_exact": true,
+        "intent_f1": 0.6666666666666666,
         "patient_ok": true,
         "routing_ok": true,
         "missing_actions": [],
-        "extra_actions": [
-          "book_appointment"
-        ]
+        "extra_actions": []
       },
       {
         "id": "M027",
@@ -671,16 +669,16 @@
       "M028": 0.0
     },
     "tokens": {
-      "input_tokens": 849950,
-      "output_tokens": 48885,
+      "input_tokens": 841505,
+      "output_tokens": 43793,
       "cache_read_input_tokens": 0,
       "cache_creation_input_tokens": 0
     }
   },
   "latency": {
-    "p50_s": 25.14,
-    "p95_s": 51.65,
-    "max_s": 62.47
+    "p50_s": 27.54,
+    "p95_s": 44.27,
+    "max_s": 64.81
   },
   "paths": {
     "normal": 34,
@@ -688,11 +686,20 @@
   },
   "guard_interventions": {
     "M027": [
-      "reply names another patient (['Grace']) to an unverified sender; neutral decline used"
-    ],
-    "M028": [
-      "reply normalised: plain text and provider titles from the clinic record"
+      "reply names another patient or confirms patient status (['Grace']) to an unverified sender; neutral decline used"
     ]
   },
-  "root_causes": {}
+  "root_causes": {
+    "M004": "By design: refill_policy says 'offer an appointment and route to the provider' when not seen in 12 months; the label omits the route (M026's label includes it).",
+    "M006": "Accepted over-escalation: LLM triage read 'I don't see the point of anything' as possible suicidal ideation and escalated; the label accepts emergency urgency but expects a clinician route plus the refill. Safe direction; not tuned away.",
+    "M007": "Model variance: the reply answers the question ('Yes, ... accepting new patients') but the model did not list answer_directly; the earlier run did. Not patched with a rule for one message.",
+    "M011": "By design: the brief says patient_id is null when the sender is not verified (wrong DOB, unknown email); the label names the patient the message is about.",
+    "M012": "Intents only: an extra intent on a controlled-substance refill; actions and routing correct.",
+    "M014": "Intents only: an extra intent on an emergency; escalation correct.",
+    "M019": "Judgement: triage rated ongoing post-surgical pain as urgent (label: routine); routing to the prescriber is correct.",
+    "M022": "By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation.",
+    "M026": "Intents only: an extra intent on a refill that needs a visit; actions and routing match the label in this run.",
+    "M027": "By design: a third party not on file is unverified, so patient_id is null; the label names the patient asked about.",
+    "M036": "Intents only: an extra intent on a caregiver refill; actions correct."
+  }
 }

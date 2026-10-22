@@ -1,0 +1,305 @@
+{
+  "id": "H12",
+  "from_name": "Grace Park",
+  "body": "My knees are killing me after that hike lol, can I get in to see Dr. Patel sometime next week for a follow up?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": true,
+    "rationale": "The sender mentions knee pain after a hike ('My knees are killing me after that hike') and requests a follow-up appointment with Dr. Patel next week, indicating a clinical concern but no emergency symptoms.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P013",
+    "candidate_patient_ids": [
+      "P013"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P013",
+        "candidate_patient_ids": [
+          "P013"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P013",
+          "first_name": "Grace",
+          "full_name": "Grace Park",
+          "age": 58,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-10-12",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "next week"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-16",
+        "end": "2026-11-20",
+        "business_days": [
+          "2026-11-16",
+          "2026-11-17",
+          "2026-11-18",
+          "2026-11-19",
+          "2026-11-20"
+        ],
+        "label": "next week",
+        "reason": "'next week' resolves to 2026-11-16 to 2026-11-20 (next week), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "provider": "PATEL",
+        "visit_type": "follow_up",
+        "verification_token": "[redacted]",
+        "date_to": "2026-11-20",
+        "limit": 8,
+        "date_from": "2026-11-16"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "13:00",
+            "end": "13:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "13:20",
+            "end": "13:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "13:40",
+            "end": "14:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "14:20",
+            "end": "14:40",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-16 and 2026-11-20 with PATEL."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "visit_type": "follow_up",
+        "verification_token": "[redacted]",
+        "date": "2026-11-16",
+        "start": "09:40",
+        "provider": "PATEL"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A172",
+          "patient_id": "P013",
+          "provider": "PATEL",
+          "date": "2026-11-16",
+          "start": "09:40",
+          "end": "10:00",
+          "visit_type": "follow_up",
+          "status": "booked",
+          "message_id": "H12"
+        },
+        "reason": "Booked A172: PATEL follow_up 2026-11-16 09:40-10:00."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Grace, I've booked you a follow-up with Dr. Patel on Monday, November 16 at 9:40 AM. We'll see you then."
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked follow-up with Dr. Patel for 2026-11-16 09:40. Patient mentioned knee pain after hike; appointment will address this."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 827,
+      "output_tokens": 256,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.43,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6218,
+      "output_tokens": 479,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.31,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6804,
+      "output_tokens": 656,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.33,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7052,
+      "output_tokens": 148,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.23,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7154,
+      "output_tokens": 981,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 10.48,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 27.8,
+  "result": {
+    "id": "H12",
+    "patient_id": "P013",
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Grace, I've booked you a follow-up with Dr. Patel on Monday, November 16 at 9:40 AM. We'll see you then."
+  }
+}

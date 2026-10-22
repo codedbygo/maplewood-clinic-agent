@@ -47,10 +47,7 @@ class Store:
 
 def load_store(data_dir: Path = DATA_DIR) -> Store:
     data_dir = Path(data_dir)
-    source = {
-        name: json.loads((data_dir / f"{name}.json").read_text())
-        for name in ("clinic", "patients", "medications", "appointments")
-    }
+    source = {name: json.loads((data_dir / f"{name}.json").read_text()) for name in ("clinic", "patients", "medications", "appointments")}
     store = Store(data_dir=data_dir, _source=source)
     store.reset()
     return store

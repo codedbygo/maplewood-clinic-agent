@@ -1,0 +1,264 @@
+{
+  "id": "H07",
+  "from_name": "Daniel Kim",
+  "body": "Can I get a follow-up with Dr. Patel on Thanksgiving Day? I'm off work that day.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule",
+      "admin"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender wants to schedule a follow-up with Dr. Patel on Thanksgiving Day, a holiday; no symptoms or urgent concerns are mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P010",
+    "candidate_patient_ids": [
+      "P010"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P010",
+        "candidate_patient_ids": [
+          "P010"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P010",
+          "first_name": "Daniel",
+          "full_name": "Daniel Kim",
+          "age": 38,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-01-14",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Thanksgiving"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-26",
+        "end": "2026-11-26",
+        "business_days": [],
+        "label": "Thanksgiving",
+        "reason": "'Thanksgiving' resolves to 2026-11-26 (Thanksgiving), relative to today 2026-11-09. Note: 2026-11-26 (Thursday) is a clinic holiday. No clinic business days in this range."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "date_from": "2026-11-23",
+        "verification_token": "[redacted]",
+        "limit": 8,
+        "date_to": "2026-11-30",
+        "visit_type": "follow_up",
+        "provider": "PATEL"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "11:20",
+            "end": "11:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "13:40",
+            "end": "14:00",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-23 and 2026-11-30 with PATEL."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Daniel, the clinic is closed on Thanksgiving Day (Thursday, November 26), so we can't book a follow-up with Dr. Patel that day.\n\nDr. Patel has follow-up openings on Monday, November 23:\n- 9:00 AM, 9:20 AM, 9:40 AM, 10:20 AM, 10:40 AM, 11:00 AM, 11:20 AM, or 1:40 PM.\n\nWould one of those work for you? If you'd prefer a different day or provider, just let me know."
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule",
+      "admin"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives",
+      "answer_directly"
+    ],
+    "emergency": false,
+    "notes": "Patient requested follow-up with Dr. Patel on Thanksgiving Day (2026-11-26), which is a clinic holiday. Offered alternative slots on Monday 2026-11-23."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 819,
+      "output_tokens": 260,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.03,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6156,
+      "output_tokens": 398,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 12.24,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6744,
+      "output_tokens": 396,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.21,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6944,
+      "output_tokens": 514,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.01,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 27.52,
+  "result": {
+    "id": "H07",
+    "patient_id": "P010",
+    "intents": [
+      "schedule",
+      "admin"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives",
+      "answer_directly"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Daniel, the clinic is closed on Thanksgiving Day (Thursday, November 26), so we can't book a follow-up with Dr. Patel that day.\n\nDr. Patel has follow-up openings on Monday, November 23:\n- 9:00 AM, 9:20 AM, 9:40 AM, 10:20 AM, 10:40 AM, 11:00 AM, 11:20 AM, or 1:40 PM.\n\nWould one of those work for you? If you'd prefer a different day or provider, just let me know."
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "id": "M001",
+  "from_name": "Robert Chen",
+  "body": "Hi, can I get my lisinopril refilled? Running low. Thanks - Robert Chen",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender is requesting a refill of lisinopril because they are running low, with no mention of symptoms, side effects, or urgent health concerns.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P002",
+    "candidate_patient_ids": [
+      "P002"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P002",
+        "candidate_patient_ids": [
+          "P002"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P002",
+          "first_name": "Robert",
+          "full_name": "Robert Chen",
+          "age": 55,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-09-15",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "medication_query": "lisinopril",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "prepare",
+        "eligible": true,
+        "medication": "Lisinopril 10 mg",
+        "prescriber": "OKAFOR",
+        "run_out_date": "2026-11-13",
+        "earliest_date": "2026-11-06",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Lisinopril 10 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": true,
+            "detail": "Last visit 2026-09-15; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 3."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-13; a request can be prepared from 2026-11-06."
+          }
+        ],
+        "reason": "All refill rules pass for Lisinopril 10 mg (supply runs out 2026-11-13). The agent may prepare a request for provider approval; it never approves."
+      }
+    },
+    {
+      "name": "prepare_refill_for_approval",
+      "input": {
+        "verification_token": "[redacted]",
+        "medication_query": "lisinopril"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "request": {
+          "id": "RR001",
+          "patient_id": "P002",
+          "medication": "Lisinopril 10 mg",
+          "prescriber": "OKAFOR",
+          "status": "pending_provider_approval",
+          "note": "",
+          "message_id": "M001"
+        },
+        "decision": "prepare",
+        "reason": "Pending request RR001 for Lisinopril 10 mg sent to the provider_refills queue for approval. Not approved."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Robert, your lisinopril refill request has been sent to Dr. Okafor for approval. You'll hear back once it's reviewed."
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 819,
+      "output_tokens": 178,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.34,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6049,
+      "output_tokens": 106,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.68,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6447,
+      "output_tokens": 86,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.53,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6629,
+      "output_tokens": 150,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.88,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6728,
+      "output_tokens": 387,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.89,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 24.34,
+  "result": {
+    "id": "M001",
+    "patient_id": "P002",
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "prepare_refill_for_approval"
+    ],
+    "routed_to": [
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "prepare_refill_for_approval",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Robert, your lisinopril refill request has been sent to Dr. Okafor for approval. You'll hear back once it's reviewed."
+  }
+}

@@ -43,12 +43,16 @@ def test_answer_directly_only_for_public_information_questions():
     assert actions(["answer_directly"], routed, intents=["billing"]) == ["route_to_billing"]
     assert actions(["answer_directly"], [], intents=["admin"]) == ["answer_directly"]
     assert actions(["answer_directly", "offer_new_patient_booking"], [], intents=["new_patient"]) == [
-        "offer_new_patient_booking", "answer_directly"]
+        "offer_new_patient_booking",
+        "answer_directly",
+    ]
 
 
 def test_refill_needing_a_visit_offers_an_appointment_not_alternatives():
-    trace = [call("check_refill_eligibility", decision="needs_visit"),
-             call("route_to_queue", input={"queue": "provider_refills", "priority": "routine"})]
+    trace = [
+        call("check_refill_eligibility", decision="needs_visit"),
+        call("route_to_queue", input={"queue": "provider_refills", "priority": "routine"}),
+    ]
     out = actions(["offer_alternatives", "acknowledge"], trace)
     assert out == ["route_to_provider", "refill_needs_visit", "offer_appointment"]
 

@@ -1,0 +1,217 @@
+{
+  "id": "M022",
+  "from_name": "Hannah Lee",
+  "body": "Hey, I need to cancel my appointment tomorrow, something came up.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "cancel"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender only requests cancellation of an appointment with no symptoms or health concerns mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P011",
+    "candidate_patient_ids": [
+      "P011"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P011",
+        "candidate_patient_ids": [
+          "P011"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P011",
+          "first_name": "Hannah",
+          "full_name": "Hannah Lee",
+          "age": 33,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2026-09-30",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "tomorrow"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-10",
+        "end": "2026-11-10",
+        "business_days": [
+          "2026-11-10"
+        ],
+        "label": "tomorrow",
+        "reason": "'tomorrow' resolves to 2026-11-10 (tomorrow), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "get_patient_appointments",
+      "input": {
+        "verification_token": "[redacted]",
+        "date": "2026-11-10"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "appointments": [
+          {
+            "id": "A017",
+            "patient_id": "P011",
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "follow_up",
+            "status": "booked"
+          },
+          {
+            "id": "A025",
+            "patient_id": "P011",
+            "provider": "OKAFOR",
+            "date": "2026-11-10",
+            "start": "15:00",
+            "end": "15:20",
+            "visit_type": "telehealth",
+            "status": "booked"
+          }
+        ],
+        "reason": "2 booked appointment(s) match."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Hannah, you have two appointments tomorrow (November 10):\n- 11:00 AM with Sarah Kim, NP (follow-up)\n- 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "cancel"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": "Patient has two appointments tomorrow; asked which to cancel."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 812,
+      "output_tokens": 112,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.26,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6115,
+      "output_tokens": 157,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.88,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6365,
+      "output_tokens": 181,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.78,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6489,
+      "output_tokens": 961,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 23.28,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 34.23,
+  "result": {
+    "id": "M022",
+    "patient_id": "P011",
+    "intents": [
+      "cancel"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "get_patient_appointments",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Hannah, you have two appointments tomorrow (November 10):\n- 11:00 AM with Sarah Kim, NP (follow-up)\n- 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?"
+  }
+}

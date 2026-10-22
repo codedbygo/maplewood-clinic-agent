@@ -1,14 +1,13 @@
 {
-  "M003": "Intents only: triage added an extra intent on an emergency; actions, routing and reply are correct.",
   "M004": "By design: refill_policy says 'offer an appointment and route to the provider' when not seen in 12 months; the label omits the route (M026's label includes it).",
   "M006": "Accepted over-escalation: LLM triage read 'I don't see the point of anything' as possible suicidal ideation and escalated; the label accepts emergency urgency but expects a clinician route plus the refill. Safe direction; not tuned away.",
-  "M007": "Intents only: an extra intent alongside new_patient; actions correct.",
+  "M007": "Model variance: the reply answers the question ('Yes, ... accepting new patients') but the model did not list answer_directly; the earlier run did. Not patched with a rule for one message.",
   "M011": "By design: the brief says patient_id is null when the sender is not verified (wrong DOB, unknown email); the label names the patient the message is about.",
   "M012": "Intents only: an extra intent on a controlled-substance refill; actions and routing correct.",
   "M014": "Intents only: an extra intent on an emergency; escalation correct.",
   "M019": "Judgement: triage rated ongoing post-surgical pain as urgent (label: routine); routing to the prescriber is correct.",
   "M022": "By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation.",
-  "M026": "Model deviation: for an antidepressant refill that needs a visit, the agent booked a visit where the prompt says to offer options; arguably helpful for a patient who is out of pills, but not the instructed behaviour.",
+  "M026": "Intents only: an extra intent on a refill that needs a visit; actions and routing match the label in this run.",
   "M027": "By design: a third party not on file is unverified, so patient_id is null; the label names the patient asked about.",
   "M036": "Intents only: an extra intent on a caregiver refill; actions correct."
 }

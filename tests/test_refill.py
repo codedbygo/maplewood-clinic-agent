@@ -77,7 +77,11 @@ def test_twelve_month_boundary_is_inclusive():
 def test_all_five_rules_reported_in_order():
     r = check("P006", "Xanax")
     assert [x["rule"] for x in r["reasons"]] == [
-        "on_active_list", "not_controlled", "seen_within_12_months", "refills_remaining", "within_7_days_of_run_out",
+        "on_active_list",
+        "not_controlled",
+        "seen_within_12_months",
+        "refills_remaining",
+        "within_7_days_of_run_out",
     ]
     failed = [x["rule"] for x in r["reasons"] if not x["passed"]]
     assert failed == ["not_controlled", "refills_remaining"]

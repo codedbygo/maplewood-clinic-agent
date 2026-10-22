@@ -1,7 +1,7 @@
 """CLI: process one message (live demo) or run a whole message file.
 
-  python -m agent.cli process --text "..." --from "Jane Doe" --contact 555-0101 --channel sms
-  python -m agent.cli run --messages data/messages_sample.json --out results/results_sample.json
+python -m agent.cli process --text "..." --from "Jane Doe" --contact 555-0101 --channel sms
+python -m agent.cli run --messages data/messages_sample.json --out results/results_sample.json
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import argparse
 import asyncio
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from rich.console import Console
@@ -32,8 +32,14 @@ def _show(result, log) -> None:
 
 
 async def _process(args) -> None:
-    msg = {"id": args.id, "received_at": args.received_at, "channel": args.channel, "from_name": args.sender,
-           "from_contact": args.contact, "body": args.text}
+    msg = {
+        "id": args.id,
+        "received_at": args.received_at,
+        "channel": args.channel,
+        "from_name": args.sender,
+        "from_contact": args.contact,
+        "body": args.text,
+    }
     if args.dob:
         msg["stated_dob"] = args.dob
     llm = LLM(model=args.model)
@@ -47,31 +53,44 @@ async def _process(args) -> None:
 
 async def run_file(messages_path: Path, out_path: Path, model: str | None = None, quiet: bool = False) -> dict:
     messages = sorted(json.loads(Path(messages_path).read_text()), key=lambda m: m.get("received_at", ""))
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     run_dir = ROOT / "results" / "runs" / f"{run_id}_{Path(messages_path).stem}"
     run_dir.mkdir(parents=True, exist_ok=True)
     llm = LLM(model=model)
-    results, started, stopped = [], time.monotonic(), None
+    results: list[dict] = []
+    started, stopped = time.monotonic(), None
     async with open_clinic() as clinic:
         await clinic.reset()
         for msg in messages:
             try:
                 result, log = await process_message(msg, clinic, llm, fail_on_quota=True)
             except LLMQuotaError as e:
-                stopped = {"reason": str(e), "at": msg["id"], "not_processed": [m["id"] for m in messages[len(results):]]}
+                stopped = {"reason": str(e), "at": msg["id"], "not_processed": [m["id"] for m in messages[len(results) :]]}
                 console.print(f"[bold red]Stopped at {msg['id']}: {e}[/bold red]")
                 break
             results.append(result.model_dump())
             (run_dir / f"{msg['id']}.json").write_text(json.dumps(log, indent=2, default=str, ensure_ascii=False))
             if not quiet:
                 cost = sum(cost_usd(c["model"], c) for c in log["llm_calls"])
-                console.print(f"{msg['id']:>6} {log['path']:<9} {result.urgency:<9} {','.join(result.actions):<70} "
-                              f"{log['latency_s']:>5}s ${cost:.4f}" + (f" [yellow]guard:{len(log['guard_violations'])}[/yellow]" if log["guard_violations"] else ""))
+                console.print(
+                    f"{msg['id']:>6} {log['path']:<9} {result.urgency:<9} {','.join(result.actions):<70} "
+                    f"{log['latency_s']:>5}s ${cost:.4f}"
+                    + (f" [yellow]guard:{len(log['guard_violations'])}[/yellow]" if log["guard_violations"] else "")
+                )
         state = await clinic.export_state()
     (run_dir / "final_state.json").write_text(json.dumps(state, indent=2, default=str))
-    meta = {"run_id": run_id, "provider": getattr(llm, "provider", "anthropic"), "model": llm.model,
-            "fallbacks": getattr(llm, "fallbacks", []), "effort": llm.effort, "messages": str(messages_path),
-            "n": len(results), "wall_s": round(time.monotonic() - started, 1), "stopped": stopped, "llm_calls": llm.calls}
+    meta = {
+        "run_id": run_id,
+        "provider": getattr(llm, "provider", "anthropic"),
+        "model": llm.model,
+        "fallbacks": getattr(llm, "fallbacks", []),
+        "effort": llm.effort,
+        "messages": str(messages_path),
+        "n": len(results),
+        "wall_s": round(time.monotonic() - started, 1),
+        "stopped": stopped,
+        "llm_calls": llm.calls,
+    }
     (run_dir / "meta.json").write_text(json.dumps(meta, indent=2))
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,8 +98,10 @@ async def run_file(messages_path: Path, out_path: Path, model: str | None = None
     (out_path.parent / f"{out_path.stem}.run").write_text(str(run_dir.relative_to(ROOT)))
     total = sum(cost_usd(c["model"], c) for c in llm.calls)
     if not quiet:
-        console.print(f"[bold]{len(results)} messages, {meta['wall_s']}s, ${total:.3f} ({llm.model}). "
-                      f"Results: {out_path}  Logs: {run_dir.relative_to(ROOT)}[/bold]")
+        console.print(
+            f"[bold]{len(results)} messages, {meta['wall_s']}s, ${total:.3f} ({llm.model}). "
+            f"Results: {out_path}  Logs: {run_dir.relative_to(ROOT)}[/bold]"
+        )
     return {"results": results, "run_dir": run_dir, "meta": meta}
 
 
@@ -107,8 +128,10 @@ def main() -> None:
     else:
         out = asyncio.run(run_file(Path(args.messages), Path(args.out), args.model))
         if out["meta"]["stopped"]:
-            console.print(f"[red]Incomplete run: {len(out['meta']['stopped']['not_processed'])} messages not processed. "
-                          "Results so far are saved; rerun when the quota resets.[/red]")
+            console.print(
+                f"[red]Incomplete run: {len(out['meta']['stopped']['not_processed'])} messages not processed. "
+                "Results so far are saved; rerun when the quota resets.[/red]"
+            )
             raise SystemExit(2)
 
 

@@ -1,0 +1,260 @@
+{
+  "id": "M029",
+  "from_name": "Robert Chen",
+  "body": "I want to see Dr. Okafor this Thursday at 2pm.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender requests a new appointment with Dr. Okafor this Thursday at 2pm, with no health concern or urgent issue mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P002",
+    "candidate_patient_ids": [
+      "P002"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P002",
+        "candidate_patient_ids": [
+          "P002"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P002",
+          "first_name": "Robert",
+          "full_name": "Robert Chen",
+          "age": 55,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-09-15",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "this Thursday"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-12",
+        "end": "2026-11-12",
+        "business_days": [
+          "2026-11-12"
+        ],
+        "label": "Thursday",
+        "reason": "'this Thursday' resolves to 2026-11-12 (Thursday), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "visit_type": "follow_up",
+        "date_from": "2026-11-12",
+        "provider": "OKAFOR",
+        "verification_token": "[redacted]",
+        "date_to": "2026-11-12"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "11:20",
+            "end": "11:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "13:00",
+            "end": "13:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "13:20",
+            "end": "13:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-12",
+            "start": "13:40",
+            "end": "14:00",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-12 and 2026-11-12 with OKAFOR."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Robert, Dr. Okafor doesn't have a 2:00 PM slot this Thursday (Nov 12). The closest follow‑up openings with him that day are:\n\n• 1:00 PM – 1:20 PM\n• 1:20 PM – 1:40 PM\n• 1:40 PM – 2:00 PM\n\nWould one of those work for you? If you’d prefer a different time or provider, just let me know.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives"
+    ],
+    "emergency": false,
+    "notes": "Requested 2pm Thursday with Dr. Okafor; no 2pm slot available. Offered three closest afternoon follow-up slots on 2026-11-12."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "input_tokens": 956,
+      "output_tokens": 159,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 16.58,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6133,
+      "output_tokens": 548,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 12.41,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6713,
+      "output_tokens": 754,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.11,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6894,
+      "output_tokens": 354,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.45,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 42.58,
+  "result": {
+    "id": "M029",
+    "patient_id": "P002",
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Robert, Dr. Okafor doesn't have a 2:00 PM slot this Thursday (Nov 12). The closest follow‑up openings with him that day are:\n\n• 1:00 PM – 1:20 PM\n• 1:20 PM – 1:40 PM\n• 1:40 PM – 2:00 PM\n\nWould one of those work for you? If you’d prefer a different time or provider, just let me know."
+  }
+}

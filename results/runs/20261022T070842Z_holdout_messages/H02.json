@@ -1,0 +1,126 @@
+{
+  "id": "H02",
+  "from_name": "Anna Rossi",
+  "body": "Sofia just ate a cookie at a party that had nuts in it. Her lips look puffy and she says her throat feels funny. What do we do?",
+  "path": "emergency",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "emergency": true,
+    "clinical_concern": true,
+    "rationale": "The message describes a child who ate nuts and now has puffy lips and a funny throat sensation, which are classic signs of anaphylaxis and require immediate emergency evaluation.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_caregiver",
+    "patient_id": "P009",
+    "candidate_patient_ids": [
+      "P009"
+    ],
+    "relationship": "mother",
+    "reason": "Sender is the authorised caregiver (mother) on file for this patient, writing from the caregiver phone on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_caregiver",
+        "patient_id": "P009",
+        "candidate_patient_ids": [
+          "P009"
+        ],
+        "relationship": "mother",
+        "reason": "Sender is the authorised caregiver (mother) on file for this patient, writing from the caregiver phone on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "queue": "clinician_urgent",
+        "summary": "POSSIBLE EMERGENCY from Anna Rossi (555-0109, sms). Reason: LLM triage: The message describes a child who ate nuts and now has puffy lips and a funny throat sensation, which are classic signs of anaphylaxis and require immediate emergency evaluation.. Message: Sofia just ate a cookie at a party that had nuts in it. Her lips look puffy and she says her throat feels funny. What do we do?",
+        "priority": "emergency",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to clinician_urgent (emergency)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [],
+    "emergency": true,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 832,
+      "output_tokens": 322,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.46,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 5.47,
+  "result": {
+    "id": "H02",
+    "patient_id": "P009",
+    "intents": [
+      "clinical"
+    ],
+    "urgency": "emergency",
+    "actions": [
+      "escalate_emergency"
+    ],
+    "routed_to": [
+      "clinician_urgent"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message."
+  }
+}

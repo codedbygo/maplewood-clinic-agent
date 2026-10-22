@@ -1,4 +1,4 @@
-.PHONY: coverage help install backend backend-stop ui ui-build ui-dev server run eval holdout stability demo test test-web
+.PHONY: check lint coverage help install backend backend-stop ui ui-build ui-dev server run eval holdout stability demo test test-web
 .DEFAULT_GOAL := help
 PORT ?= 8000
 
@@ -53,6 +53,13 @@ stability: ## Run the sample 3 times and count changed outcomes
 
 test: ## Python tests
 	uv run pytest -q
+
+lint: ## Python lint, format and type checks (ruff, mypy)
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+
+check: lint coverage test-web ## Every gate: lint, types, tests with coverage floor, frontend gate
 
 coverage: ## Python tests with line+branch coverage; fails under 95%
 	uv run pytest -q --cov --cov-report=term-missing --cov-fail-under=95

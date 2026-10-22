@@ -89,7 +89,11 @@ def test_emergency_screen_forces_template_and_escalation():
 
 
 def test_emergency_screen_floor_cannot_be_lowered_by_llm():
-    out = run(answer(intents=["clinical"], urgency="routine"), [route("clinician_urgent", "emergency"), draft(EMERGENCY_TEMPLATE["en"])], screen=EMERG)
+    out = run(
+        answer(intents=["clinical"], urgency="routine"),
+        [route("clinician_urgent", "emergency"), draft(EMERGENCY_TEMPLATE["en"])],
+        screen=EMERG,
+    )
     assert out.result.urgency == "emergency"
 
 
@@ -102,25 +106,38 @@ def test_urgent_screen_without_clinician_route_gets_one():
 
 
 def test_urgent_screen_satisfied_by_next_day_sick_visit():
-    trace = [call("book_appointment", appointment={"id": "A171", "date": "2026-11-10", "visit_type": "sick_visit"}), draft("Booked tomorrow.")]
-    out = run(answer(intents=["schedule", "clinical"], urgency="urgent"), trace, screen=URGENT,
-              context={"today": "2026-11-09", "next_business_day": "2026-11-10"})
+    trace = [
+        call("book_appointment", appointment={"id": "A171", "date": "2026-11-10", "visit_type": "sick_visit"}),
+        draft("Booked tomorrow."),
+    ]
+    out = run(
+        answer(intents=["schedule", "clinical"], urgency="urgent"),
+        trace,
+        screen=URGENT,
+        context={"today": "2026-11-09", "next_business_day": "2026-11-10"},
+    )
     assert out.extra_routes == []
     assert "route_to_clinician" not in out.result.actions
 
 
 def test_unverified_sender_gets_null_patient_and_no_phi():
     ctx = {"phi_terms": ["2026-11-11", "13:00"]}
-    out = run(answer(intents=["third_party"], actions=["decline_disclosure"]),
-              [draft("Grace has an appointment on 2026-11-11 at 13:00.")], verification=UNVERIFIED, context=ctx)
+    out = run(
+        answer(intents=["third_party"], actions=["decline_disclosure"]),
+        [draft("Grace has an appointment on 2026-11-11 at 13:00.")],
+        verification=UNVERIFIED,
+        context=ctx,
+    )
     assert out.result.patient_id is None
     assert "2026-11-11" not in out.result.reply_draft
     assert any("phi" in v.lower() for v in out.violations)
 
 
 def test_clinical_explanation_is_replaced_and_routed():
-    out = run(answer(intents=["clinical"], actions=["answer_directly"]),
-              [draft("High TSH means that your thyroid is underactive; you should take more levothyroxine.")])
+    out = run(
+        answer(intents=["clinical"], actions=["answer_directly"]),
+        [draft("High TSH means that your thyroid is underactive; you should take more levothyroxine.")],
+    )
     assert "means that" not in out.result.reply_draft
     assert "route_to_clinician" in out.result.actions
     assert "answer_directly" not in out.result.actions

@@ -1,0 +1,221 @@
+{
+  "id": "M036",
+  "from_name": "Claire Ellis",
+  "body": "Mom's donepezil refill please",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill",
+      "third_party"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "Request for a donepezil refill for the sender's mother; no symptoms, side effects, or urgent language are present.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_caregiver",
+    "patient_id": "P017",
+    "candidate_patient_ids": [
+      "P017"
+    ],
+    "relationship": "daughter",
+    "reason": "Sender is the authorised caregiver (daughter) on file for this patient, writing from the caregiver phone on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_caregiver",
+        "patient_id": "P017",
+        "candidate_patient_ids": [
+          "P017"
+        ],
+        "relationship": "daughter",
+        "reason": "Sender is the authorised caregiver (daughter) on file for this patient, writing from the caregiver phone on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P017",
+          "first_name": "Margaret",
+          "full_name": "Margaret Ellis",
+          "age": 81,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-10-28",
+          "sender_role": "verified_caregiver",
+          "caregiver": {
+            "name": "Claire Ellis",
+            "relationship": "daughter"
+          }
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "medication_query": "donepezil",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "too_early",
+        "eligible": false,
+        "medication": "Donepezil 10 mg",
+        "prescriber": "OKAFOR",
+        "run_out_date": "2026-11-28",
+        "earliest_date": "2026-11-21",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Donepezil 10 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": true,
+            "detail": "Last visit 2026-10-28; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 3."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": false,
+            "detail": "Supply runs out 2026-11-28; a request can be prepared from 2026-11-21."
+          }
+        ],
+        "reason": "Too early: the current supply of Donepezil 10 mg lasts until 2026-11-28. The earliest date the request can be prepared is 2026-11-21."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Claire, I checked Margaret's donepezil (10 mg) refill. The current supply lasts until November 28, so it's a bit early to request a refill — the earliest we can prepare it is November 21. If you'd like, I can set a reminder for you around that date. Just let me know."
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill",
+      "third_party"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "answer_directly"
+    ],
+    "emergency": false,
+    "notes": "Caregiver requested donepezil refill for mother; too early (runs out 2026-11-28, earliest request 2026-11-21). Informed caregiver."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 807,
+      "output_tokens": 385,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.62,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6066,
+      "output_tokens": 110,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.26,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6469,
+      "output_tokens": 237,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.21,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6609,
+      "output_tokens": 247,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.95,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 16.06,
+  "result": {
+    "id": "M036",
+    "patient_id": "P017",
+    "intents": [
+      "refill",
+      "third_party"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "refill_too_early"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Claire, I checked Margaret's donepezil (10 mg) refill. The current supply lasts until November 28, so it's a bit early to request a refill — the earliest we can prepare it is November 21. If you'd like, I can set a reminder for you around that date. Just let me know."
+  }
+}

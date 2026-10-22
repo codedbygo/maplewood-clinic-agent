@@ -57,15 +57,15 @@ def _set_f1(pred: set, gold: set) -> float:
 
 def score(results: list[dict], labels: list[dict]) -> dict:
     by_id = {r["id"]: r for r in results}
-    labels = [l for l in labels if l["id"] in by_id]
+    labels = [label for label in labels if label["id"] in by_id]
     n = len(labels)
     per_msg = []
     tp = fp = fn = 0
     action_counts: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])  # tp, fp, fn
     emerg_tp, emerg_missed, over = 0, [], []
-    for l in labels:
-        r = by_id[l["id"]]
-        pred, gold = set(r["actions"]), set(l["expected_actions"])
+    for label in labels:
+        r = by_id[label["id"]]
+        pred, gold = set(r["actions"]), set(label["expected_actions"])
         for a in pred | gold:
             c = action_counts[a]
             c[0] += a in pred and a in gold
@@ -74,23 +74,25 @@ def score(results: list[dict], labels: list[dict]) -> dict:
         tp += len(pred & gold)
         fp += len(pred - gold)
         fn += len(gold - pred)
-        if is_label_emergency(l):
+        if is_label_emergency(label):
             if is_pred_emergency(r):
                 emerg_tp += 1
             else:
-                emerg_missed.append(l["id"])
+                emerg_missed.append(label["id"])
         elif is_pred_emergency(r):
-            over.append(l["id"])
-        per_msg.append({
-            "id": l["id"],
-            "urgency_ok": r["urgency"] in l["accepted_urgency"],
-            "actions_exact": pred == gold,
-            "intent_f1": _set_f1(set(r["intents"]), set(l["intents"])),
-            "patient_ok": r["patient_id"] == l["patient_id"],
-            "routing_ok": routing_ok(r["routed_to"], l["expected_actions"]),
-            "missing_actions": sorted(gold - pred),
-            "extra_actions": sorted(pred - gold),
-        })
+            over.append(label["id"])
+        per_msg.append(
+            {
+                "id": label["id"],
+                "urgency_ok": r["urgency"] in label["accepted_urgency"],
+                "actions_exact": pred == gold,
+                "intent_f1": _set_f1(set(r["intents"]), set(label["intents"])),
+                "patient_ok": r["patient_id"] == label["patient_id"],
+                "routing_ok": routing_ok(r["routed_to"], label["expected_actions"]),
+                "missing_actions": sorted(gold - pred),
+                "extra_actions": sorted(pred - gold),
+            }
+        )
     n_emerg = emerg_tp + len(emerg_missed)
     per_action = {a: _prf(*c) for a, c in sorted(action_counts.items())}
     gold_actions = [a for a, c in action_counts.items() if c[0] + c[2] > 0]

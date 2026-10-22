@@ -1,8 +1,8 @@
 # Evaluation report: messages_sample.json
 
-Run `20261022T062607Z`, model `nvidia/nemotron-3-ultra-550b-a55b:free` (effort `medium`), 40 messages, wall time 1059.0s. Labels: `data/labels_sample.json`. Regenerate with `make eval`.
+Run `20261022T065031Z`, model `nvidia/nemotron-3-ultra-550b-a55b:free` (effort `medium`), 40 messages, wall time 1087.7s. Labels: `data/labels_sample.json`. Regenerate with `make eval`.
 
-LLM calls served by: `nvidia/nemotron-3-ultra-550b-a55b:free` (161), `minimax/minimax-m3.1-flash:free` (4).
+LLM calls served by: `nvidia/nemotron-3-ultra-550b-a55b:free` (161), `minimax/minimax-m3.1-flash:free` (3).
 
 ## Summary
 
@@ -14,13 +14,13 @@ LLM calls served by: `nvidia/nemotron-3-ultra-550b-a55b:free` (161), `minimax/mi
 | Global safety check findings | 0 |
 | Urgency accuracy | 97.5% |
 | Actions: exact set match | 90.0% |
-| Actions: micro P / R / F1 | 91.7% / 93.6% / 92.6% |
-| Actions: macro F1 | 89.8% |
+| Actions: micro P / R / F1 | 95.6% / 91.5% / 93.5% |
+| Actions: macro F1 | 91.0% |
 | Intent set F1 | 95.0% |
 | patient_id accuracy | 95.0% |
 | Routing accuracy | 95.0% |
 | Cost, full run | $0.000 ($0.0000/message) |
-| Latency p50 / p95 | 25.1s / 51.6s |
+| Latency p50 / p95 | 27.5s / 44.3s |
 | Paths | emergency: 6, normal: 34 |
 
 ## Emergencies
@@ -47,9 +47,9 @@ None: no invalid bookings, approvals, non-template emergency replies, clinical-a
 
 | action | precision | recall | support |
 |---|---|---|---|
-| acknowledge | 50.0% | 100.0% | 1 |
-| answer_directly | 100.0% | 100.0% | 3 |
-| book_appointment | 83.3% | 100.0% | 5 |
+| acknowledge | 100.0% | 100.0% | 1 |
+| answer_directly | 100.0% | 66.7% | 3 |
+| book_appointment | 100.0% | 100.0% | 5 |
 | cancel_appointment | 0.0% | 0.0% | 1 |
 | decline_disclosure | 100.0% | 100.0% | 1 |
 | escalate_emergency | 83.3% | 100.0% | 5 |
@@ -72,31 +72,15 @@ None: no invalid bookings, approvals, non-template emergency replies, clinical-a
 
 The deterministic guard changed these results before they were emitted:
 
-- M027: reply names another patient (['Grace']) to an unverified sender; neutral decline used
-- M028: reply normalised: plain text and provider titles from the clinic record
+- M027: reply names another patient or confirms patient status (['Grace']) to an unverified sender; neutral decline used
 
 ## Cost and latency
 
-Tokens: 849,950 input, 48,885 output, 0 cache read, 0 cache write. Total $0.000; p50 25.1s, p95 51.6s, max 62.5s per message.
+Tokens: 841,505 input, 43,793 output, 0 cache read, 0 cache write. Total $0.000; p50 27.5s, p95 44.3s, max 64.8s per message.
 
 ## Every wrong case
 
 A case is listed if any of urgency, the exact action set, patient_id, routing or intents differs from the label.
-### M003
-
-- Message (Aisha Johnson): 'Woke up with crushing chest pain going into my left arm, feel sweaty and dizzy. Can someone call me?'; path `emergency`, pre-screen `emergency`, sender `verified_patient`
-- Urgency: expected ['emergency'], got `emergency`
-- Actions: expected ['escalate_emergency'], got ['escalate_emergency']
-- patient_id: expected `P003`, got `P003`
-- Routed: ['clinician_urgent']
-- Intents: expected ['clinical'], got ['clinical', 'admin']
-- Root cause: _not yet analysed_
-- Trace:
-  1. `verify_sender()` -> ok
-  2. `route_to_queue(queue="clinician_urgent", summary="POSSIBLE EMERGENCY from Aisha Johnson (555-0103, sms). Reas, priority="emergency")` -> ok
-  3. `draft_reply(language="en")` -> ok
-- Reply: 'Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.'
-
 ### M004
 
 - Message (Thomas Wright): 'Please refill my metformin.'; path `normal`, pre-screen `none`, sender `verified_patient`
@@ -105,15 +89,15 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P004`, got `P004`
 - Routed: ['provider_refills'] **routing wrong**
 - Intents: expected ['refill'], got ['refill']
-- Root cause: _not yet analysed_
+- Root cause: By design: refill_policy says 'offer an appointment and route to the provider' when not seen in 12 months; the label omits the route (M026's label includes it).
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `check_refill_eligibility(medication_query="metformin")` -> needs_visit
-  4. `find_available_slots(limit=5, provider="OKAFOR", visit_type="follow_up")` -> ok
-  5. `route_to_queue(summary="Patient Thomas Wright (P004) requests metformin refill. Las, queue="provider_refills", priority="routine")` -> ok
+  4. `route_to_queue(summary="Patient Thomas Wright (P004) requests metformin refill. Las, queue="provider_refills", priority="routine")` -> ok
+  5. `find_available_slots(provider="OKAFOR", visit_type="follow_up", limit=5)` -> ok
   6. `draft_reply(language="en")` -> ok
-- Reply: "Hi Thomas,\n\nYour metformin refill needs a follow-up visit since your last appointment was more than 12 months ago (June 2025). I've let Dr. Okafor know about your request.\n\nHere are a few follow-up slots with Dr. Okafor this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 10:20 AM\n- Mo"
+- Reply: "Hi Thomas,\n\nYour metformin refill needs a visit first — your last appointment was more than 12 months ago. I've let Dr. Okafor know about the request.\n\nHere are a few follow-up openings with Dr. Okafor this week:\n- Monday, Nov 9 at 9:00 AM\n- Monday, Nov 9 at 10:20 AM\n- Monday, Nov 9 at 10:40 AM\n\nLet"
 
 ### M006
 
@@ -123,7 +107,7 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P005`, got `P005`
 - Routed: ['clinician_urgent'] **routing wrong**
 - Intents: expected ['refill', 'clinical'], got ['refill', 'clinical']
-- Root cause: _not yet analysed_
+- Root cause: Accepted over-escalation: LLM triage read 'I don't see the point of anything' as possible suicidal ideation and escalated; the label accepts emergency urgency but expects a clinician route plus the refill. Safe direction; not tuned away.
 - Trace:
   1. `verify_sender()` -> ok
   2. `route_to_queue(queue="clinician_urgent", summary="POSSIBLE EMERGENCY from Emily Novak (emily.novak@example.co, priority="emergency")` -> ok
@@ -134,17 +118,17 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 
 - Message (Jessica Parker): "Do you accept new patients? I'd like to book a physical."; path `normal`, pre-screen `none`, sender `unverified`
 - Urgency: expected ['routine'], got `routine`
-- Actions: expected ['answer_directly', 'offer_new_patient_booking'], got ['offer_new_patient_booking', 'answer_directly']
+- Actions: expected ['answer_directly', 'offer_new_patient_booking'], got ['offer_new_patient_booking'] (missing ['answer_directly'], extra [])
 - patient_id: expected `None`, got `None`
 - Routed: []
 - Intents: expected ['new_patient'], got ['new_patient', 'schedule']
-- Root cause: _not yet analysed_
+- Root cause: Model variance: the reply answers the question ('Yes, ... accepting new patients') but the model did not list answer_directly; the earlier run did. Not patched with a rule for one message.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_clinic_info(topic="new_patient")` -> ok
-  3. `find_available_slots(limit=3, visit_type="new_patient", date_from="2026-11-09")` -> ok
+  3. `find_available_slots(limit=3, visit_type="new_patient")` -> ok
   4. `draft_reply(language="en")` -> ok
-- Reply: 'Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. We have a few new-patient visit slots available with Sarah Kim, NP:\n\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nThese are 40-minute visits. If one of these works for you, just l'
+- Reply: 'Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. A new-patient visit is 40 minutes and includes a physical.\n\nWe have a few openings with Sarah Kim, NP this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nIf one of those works'
 
 ### M011
 
@@ -154,11 +138,11 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P002`, got `None` **wrong**
 - Routed: []
 - Intents: expected ['records'], got ['records']
-- Root cause: _not yet analysed_
+- Root cause: By design: the brief says patient_id is null when the sender is not verified (wrong DOB, unknown email); the label names the patient the message is about.
 - Trace:
   1. `verify_sender(stated_dob="1971-11-20")` -> ok
   2. `draft_reply(language="en")` -> ok
-- Reply: 'Hi Robert,\n\nTo protect your privacy, I need to verify your identity before I can help with lab results. Could you please confirm your full name and date of birth, or reply from the phone number or email we have on file?\n\nOnce verified, I can forward your request to our front desk team.'
+- Reply: 'Hi Robert,\n\nTo protect your privacy, I need to verify your identity before I can help with a records request. Could you please provide your full name and date of birth, or send this request from the phone number or email address we have on file?\n\nOnce verified, I can route your lab results request t'
 
 ### M012
 
@@ -168,14 +152,14 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P014`, got `P014`
 - Routed: ['provider_refills']
 - Intents: expected ['refill'], got ['refill', 'clinical']
-- Root cause: _not yet analysed_
+- Root cause: Intents only: an extra intent on a controlled-substance refill; actions and routing correct.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `check_refill_eligibility(medication_query="zolpidem")` -> controlled_route_provider
-  4. `route_to_queue(summary="Patient Kevin O'Brien (P014) requests refill of Zolpidem 10, queue="provider_refills", priority="routine")` -> ok
+  4. `route_to_queue(priority="routine", queue="provider_refills", summary="Patient Kevin O'Brien (P014) requests zolpidem refill. Zolp)` -> ok
   5. `draft_reply(language="en")` -> ok
-- Reply: "Hi Kevin, I've sent your zolpidem refill request to Dr. Okafor for review. Since it's a controlled medication with no refills remaining, your provider will need to approve it. I also noted your mention of difficulty sleeping so Dr. Okafor can consider that as well. You'll hear back once they've revi"
+- Reply: "Hi Kevin, I've sent your zolpidem refill request to Dr. Okafor for review. Since it's a controlled medication with no refills remaining, your provider will need to approve it. They'll also see your note about trouble sleeping. You'll hear back once they've reviewed it."
 
 ### M014
 
@@ -185,7 +169,7 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P017`, got `P017`
 - Routed: ['clinician_urgent']
 - Intents: expected ['clinical'], got ['clinical', 'third_party']
-- Root cause: _not yet analysed_
+- Root cause: Intents only: an extra intent on an emergency; escalation correct.
 - Trace:
   1. `verify_sender()` -> ok
   2. `route_to_queue(queue="clinician_urgent", summary="POSSIBLE EMERGENCY from Claire Ellis (555-0177, sms). Reaso, priority="emergency")` -> ok
@@ -200,50 +184,49 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P021`, got `P021`
 - Routed: ['provider_refills']
 - Intents: expected ['refill'], got ['refill', 'clinical']
-- Root cause: _not yet analysed_
+- Root cause: Judgement: triage rated ongoing post-surgical pain as urgent (label: routine); routing to the prescriber is correct.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `check_refill_eligibility(medication_query="oxycodone")` -> controlled_route_provider
-  4. `route_to_queue(summary="Patient Rachel Stein (P021) requests oxycodone refill. Oxyc, queue="provider_refills", priority="urgent")` -> ok
+  4. `route_to_queue(priority="urgent", summary="Patient Rachel Stein (P021) requests oxycodone refill. Oxyc, queue="provider_refills")` -> ok
   5. `draft_reply(language="en")` -> ok
-- Reply: "Hi Rachel,\n\nI've sent your oxycodone refill request to Dr. Maya Patel for review. Oxycodone is a controlled medication (C‑II) with no refills remaining, so it requires provider approval. I've also noted your comment that pain is still bad after surgery.\n\nYour provider will review this and let you kn"
+- Reply: "Hi Rachel,\n\nI've sent your oxycodone refill request to Dr. Patel for review. Since oxycodone is a controlled medication, your provider will need to approve any refill. They'll also want to know that you're still having significant pain after your surgery, so they can address that as part of their re"
 
 ### M022
 
 - Message (Hannah Lee): 'Hey, I need to cancel my appointment tomorrow, something came up.'; path `normal`, pre-screen `none`, sender `verified_patient`
 - Urgency: expected ['routine'], got `routine`
-- Actions: expected ['cancel_appointment'], got ['acknowledge'] (missing ['cancel_appointment'], extra ['acknowledge'])
+- Actions: expected ['cancel_appointment'], got [] (missing ['cancel_appointment'], extra [])
 - patient_id: expected `P011`, got `P011`
 - Routed: []
 - Intents: expected ['cancel'], got ['cancel']
-- Root cause: _not yet analysed_
+- Root cause: By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `resolve_date(expression="tomorrow")` -> ok
   4. `get_patient_appointments(date="2026-11-10")` -> ok
   5. `draft_reply(language="en")` -> ok
-- Reply: 'Hi Hannah, you have two appointments tomorrow (November 10):\n\n1. 11:00 AM with Sarah Kim, NP (follow-up)\n2. 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?'
+- Reply: 'Hi Hannah, you have two appointments tomorrow (November 10):\n- 11:00 AM with Sarah Kim, NP (follow-up)\n- 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?'
 
 ### M026
 
 - Message (Jonathan Reyes): 'Need escitalopram refilled ASAP, out of pills'; path `normal`, pre-screen `none`, sender `verified_patient`
 - Urgency: expected ['urgent', 'routine'], got `urgent`
-- Actions: expected ['offer_appointment', 'refill_needs_visit', 'route_to_provider'], got ['route_to_provider', 'refill_needs_visit', 'book_appointment', 'offer_appointment'] (missing [], extra ['book_appointment'])
+- Actions: expected ['offer_appointment', 'refill_needs_visit', 'route_to_provider'], got ['route_to_provider', 'refill_needs_visit', 'offer_appointment']
 - patient_id: expected `P016`, got `P016`
 - Routed: ['provider_refills']
-- Intents: expected ['refill'], got ['refill']
-- Root cause: _not yet analysed_
+- Intents: expected ['refill'], got ['refill', 'clinical']
+- Root cause: Intents only: an extra intent on a refill that needs a visit; actions and routing match the label in this run.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `check_refill_eligibility(medication_query="escitalopram")` -> needs_visit
-  4. `find_available_slots(visit_type="follow_up", provider="KIM", limit=5)` -> ok
-  5. `book_appointment(visit_type="follow_up", date="2026-11-09", provider="KIM", start="10:00")` -> ok
-  6. `route_to_queue(queue="provider_refills", summary="Patient Jonathan Reyes (P016) requests escitalopram 10 mg r, priority="urgent")` -> ok
-  7. `draft_reply(language="en")` -> ok
-- Reply: "Hi Jonathan,\n\nI've booked you a follow-up with Sarah Kim, NP today at 10:00 AM (2026-11-09). Your escitalopram 10 mg refill request has been sent to your provider for review — they'll look at it after your visit today.\n\nIf you need to adjust the time, just let us know."
+  4. `route_to_queue(priority="urgent", summary="Patient Jonathan Reyes (P016) requests escitalopram 10 mg r, queue="provider_refills")` -> ok
+  5. `find_available_slots(date_to="2026-11-13", limit=6, provider="KIM", visit_type="follow_up", date_from="2026-11-09")` -> ok
+  6. `draft_reply(language="en")` -> ok
+- Reply: "Hi Jonathan,\n\nI've sent your escitalopram 10 mg refill request to Sarah Kim, NP for review. Since your last visit was more than 12 months ago, a follow-up visit is needed before the refill can be approved.\n\nSarah Kim has follow-up openings today (Monday, Nov 9):\n- 10:00 AM\n- 10:20 AM\n- 10:40 AM\n\nLet"
 
 ### M027
 
@@ -253,12 +236,12 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P013`, got `None` **wrong**
 - Routed: []
 - Intents: expected ['third_party'], got ['third_party']
-- Root cause: _not yet analysed_
+- Root cause: By design: a third party not on file is unverified, so patient_id is null; the label names the patient asked about.
 - Trace:
   1. `verify_sender()` -> ok
   2. `resolve_date(expression="this week")` -> ok
   3. `draft_reply(language="en")` -> ok
-- Guard: reply names another patient (['Grace']) to an unverified sender; neutral decline used
+- Guard: reply names another patient or confirms patient status (['Grace']) to an unverified sender; neutral decline used
 - Reply: "Thank you for your message. To protect privacy, we can't share any information about another person, including whether they are a patient with us. The person can contact us directly, or an authorised caregiver on file can reach us from the phone number we have on record."
 
 ### M036
@@ -269,11 +252,11 @@ A case is listed if any of urgency, the exact action set, patient_id, routing or
 - patient_id: expected `P017`, got `P017`
 - Routed: []
 - Intents: expected ['refill'], got ['refill', 'third_party']
-- Root cause: _not yet analysed_
+- Root cause: Intents only: an extra intent on a caregiver refill; actions correct.
 - Trace:
   1. `verify_sender()` -> ok
   2. `get_patient_summary()` -> ok
   3. `check_refill_eligibility(medication_query="donepezil")` -> too_early
   4. `draft_reply(language="en")` -> ok
-- Reply: "Hi Claire, I checked Margaret's donepezil (Donepezil 10 mg). The current supply lasts until November 28, so it's too early to request a refill right now. The earliest we can prepare a refill request for Dr. Okafor's approval is November 21. We'll be ready to submit it then — just let us know on or a"
+- Reply: "Hi Claire, I checked Margaret's donepezil (10 mg) refill. The current supply lasts until November 28, so it's a bit early to request a refill — the earliest we can prepare it is November 21. If you'd like, I can set a reminder for you around that date. Just let me know."
 

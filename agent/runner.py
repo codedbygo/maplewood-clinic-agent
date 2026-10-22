@@ -14,15 +14,17 @@ from collections.abc import Callable
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
+from mcp.types import TextContent
 from pydantic import ValidationError
 
 from agent.llm import LLMQuotaError
 from agent.prompts import AGENT_SYSTEM, TRIAGE_SYSTEM, agent_user_content, triage_user_content
 from agent.safety import EMERGENCY_TEMPLATE, post_guard, prescreen
-from agent.schema import ACTIONS, CONVERSATIONAL_ACTIONS, INTENTS, URGENCIES, AgentResult, FinalAnswer
+from agent.schema import CONVERSATIONAL_ACTIONS, INTENTS, URGENCIES, AgentResult, FinalAnswer
 from clinic_mcp.policy.dates import find_date_phrases, next_business_days
 from clinic_mcp.policy.refill import _tokens
 from clinic_mcp.store import load_store
@@ -40,8 +42,13 @@ SUBMIT_TOOL = {
             "intents": {"type": "array", "items": {"type": "string", "enum": list(INTENTS)}},
             "urgency": {"type": "string", "enum": list(URGENCIES)},
             "emergency": {"type": "boolean"},
-            "actions": {"type": "array", "items": {"type": "string", "enum": list(CONVERSATIONAL_ACTIONS)},
-                        "description": "Only the conversational actions defined in the instructions. Tool-backed actions are recorded automatically."},
+            "actions": {
+                "type": "array",
+                "items": {"type": "string", "enum": list(CONVERSATIONAL_ACTIONS)},
+                "description": (
+                    "Only the conversational actions defined in the instructions. Tool-backed actions are recorded automatically."
+                ),
+            },
             "notes": {"type": "string", "description": "Optional note for staff."},
         },
         "required": ["intents", "urgency", "emergency", "actions"],
@@ -65,11 +72,12 @@ class ClinicClient:
         self.session = session
         self.trace: list[dict] = []
         self.emit: Callable[[dict], None] | None = None
-        self._tools = None
+        self._tools: list[dict] | None = None
 
     async def call(self, name: str, args: dict | None = None, record: bool = True) -> dict:
         res = await self.session.call_tool(name, args or {})
-        text = res.content[0].text if res.content else "{}"
+        first = res.content[0] if res.content else None
+        text = first.text if isinstance(first, TextContent) else "{}"
         try:
             out = json.loads(text)
         except json.JSONDecodeError:
@@ -87,8 +95,11 @@ class ClinicClient:
     async def llm_tools(self) -> list[dict]:
         if self._tools is None:
             listed = (await self.session.list_tools()).tools
-            self._tools = [{"name": t.name, "description": t.description or "", "input_schema": t.input_schema}
-                           for t in sorted(listed, key=lambda t: t.name) if not t.name.startswith("admin_")]
+            self._tools = [
+                {"name": t.name, "description": t.description or "", "input_schema": t.input_schema}
+                for t in sorted(listed, key=lambda t: t.name)
+                if not t.name.startswith("admin_")
+            ]
             self._tools.append(SUBMIT_TOOL)
         return self._tools
 
@@ -101,13 +112,11 @@ class ClinicClient:
 
 @asynccontextmanager
 async def open_clinic():
-    params = StdioServerParameters(command=sys.executable, args=["-m", "clinic_mcp.server"], cwd=str(ROOT),
-                                   env={"PYTHONPATH": str(ROOT)})
+    params = StdioServerParameters(command=sys.executable, args=["-m", "clinic_mcp.server"], cwd=str(ROOT), env={"PYTHONPATH": str(ROOT)})
     with open(os.devnull, "w") as devnull:
-        async with stdio_client(params, errlog=devnull) as (read, write):
-            async with ClientSession(read, write) as session:
-                await session.initialize()
-                yield ClinicClient(session)
+        async with stdio_client(params, errlog=devnull) as (read, write), ClientSession(read, write) as session:
+            await session.initialize()
+            yield ClinicClient(session)
 
 
 # ---- helpers ----
@@ -125,8 +134,14 @@ def _phi_terms(state: dict, candidates: list[str], body: str) -> list[str]:
             h, m = map(int, a["start"].split(":"))
             h12 = h % 12 or 12
             ampm = "am" if h < 12 else "pm"
-            terms += [a["date"], d.strftime("%b %d").replace(" 0", " "), d.strftime("%B %d").replace(" 0", " "), a["start"],
-                      f"{h12}:{m:02d} {ampm}", f"{h12}:{m:02d}{ampm}"]
+            terms += [
+                a["date"],
+                d.strftime("%b %d").replace(" 0", " "),
+                d.strftime("%B %d").replace(" 0", " "),
+                a["start"],
+                f"{h12}:{m:02d} {ampm}",
+                f"{h12}:{m:02d}{ampm}",
+            ]
             if m == 0:
                 terms += [f"{h12} {ampm}", f"{h12}{ampm}"]
     for med in _LOCAL.medications:
@@ -171,23 +186,38 @@ def _guard_context(screen: dict, triage, phi_terms: list[str], msg: dict) -> dic
     today = _LOCAL.today
     nbd = next_business_days(today, 2, _LOCAL.clinic["holidays"])
     lang = "es" if "es" in (screen["language"], getattr(triage, "language", None)) else "en"
-    return {"language": lang, "today": today.isoformat(), "next_business_day": nbd[1].isoformat() if nbd[0] == today else nbd[0].isoformat(),
-            "phi_terms": phi_terms, "llm_emergency": bool(getattr(triage, "emergency", False)),
-            "providers": [p["name"] for p in _LOCAL.clinic["providers"]], "other_patient_names": _other_patient_names(msg)}
+    return {
+        "language": lang,
+        "today": today.isoformat(),
+        "next_business_day": nbd[1].isoformat() if nbd[0] == today else nbd[0].isoformat(),
+        "phi_terms": phi_terms,
+        "llm_emergency": bool(getattr(triage, "emergency", False)),
+        "providers": [p["name"] for p in _LOCAL.clinic["providers"]],
+        "other_patient_names": _other_patient_names(msg),
+    }
 
 
 async def _escalate(clinic: ClinicClient, msg: dict, screen: dict, verification: dict, why: str, lang: str) -> None:
-    summary = (f"POSSIBLE EMERGENCY from {msg.get('from_name')} ({msg.get('from_contact')}, {msg.get('channel')}). "
-               f"Reason: {why}. Message: {msg['body'][:500]}")
-    await clinic.call("route_to_queue", {"queue": "clinician_urgent", "summary": summary, "priority": "emergency",
-                                         "verification_token": verification.get("verification_token")})
+    summary = (
+        f"POSSIBLE EMERGENCY from {msg.get('from_name')} ({msg.get('from_contact')}, {msg.get('channel')}). "
+        f"Reason: {why}. Message: {msg['body'][:500]}"
+    )
+    await clinic.call(
+        "route_to_queue",
+        {
+            "queue": "clinician_urgent",
+            "summary": summary,
+            "priority": "emergency",
+            "verification_token": verification.get("verification_token"),
+        },
+    )
     await clinic.call("draft_reply", {"text": EMERGENCY_TEMPLATE[lang], "language": lang})
 
 
 async def _tool_loop(clinic: ClinicClient, llm, user_content: str) -> tuple[FinalAnswer | None, str]:
     tools = await clinic.llm_tools()
     offered = {t["name"] for t in tools}
-    messages = [{"role": "user", "content": user_content}]
+    messages: list[dict[str, Any]] = [{"role": "user", "content": user_content}]
     model_calls, nudged = 0, False
     for _ in range(MAX_TURNS):
         resp = await llm.step(AGENT_SYSTEM, messages, tools)
@@ -208,18 +238,32 @@ async def _tool_loop(clinic: ClinicClient, llm, user_content: str) -> tuple[Fina
                 # Hidden (admin_) or invented tool names are refused here, not just hidden from the list.
                 model_calls += 1
                 reason = f"Tool '{u.name}' is not available."
-                clinic.trace.append({"name": u.name, "input": redact(dict(u.input)), "ok": False, "output": {"ok": False, "reason": reason}})
+                clinic.trace.append(
+                    {"name": u.name, "input": redact(dict(u.input)), "ok": False, "output": {"ok": False, "reason": reason}}
+                )
                 if clinic.emit:
                     clinic.emit({"type": "tool", **clinic.trace[-1]})
                 results.append({"type": "tool_result", "tool_use_id": u.id, "is_error": True, "content": reason})
             elif model_calls >= MAX_TOOL_CALLS:
-                results.append({"type": "tool_result", "tool_use_id": u.id, "is_error": True,
-                                "content": "Tool-call limit reached. Call submit_result now."})
+                results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": u.id,
+                        "is_error": True,
+                        "content": "Tool-call limit reached. Call submit_result now.",
+                    }
+                )
             else:
                 model_calls += 1
                 out = await clinic.call(u.name, dict(u.input))
-                results.append({"type": "tool_result", "tool_use_id": u.id, "content": json.dumps(out, default=str),
-                                **({"is_error": True} if out.get("tool_error") else {})})
+                results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": u.id,
+                        "content": json.dumps(out, default=str),
+                        **({"is_error": True} if out.get("tool_error") else {}),
+                    }
+                )
         if submitted is not None:
             try:
                 return FinalAnswer(**submitted), "ok"
@@ -233,8 +277,9 @@ async def _tool_loop(clinic: ClinicClient, llm, user_content: str) -> tuple[Fina
     return None, "turn limit reached"
 
 
-async def process_message(msg: dict, clinic: ClinicClient, llm, emit: Callable[[dict], None] | None = None,
-                          fail_on_quota: bool = False) -> tuple[AgentResult, dict]:
+async def process_message(
+    msg: dict, clinic: ClinicClient, llm, emit: Callable[[dict], None] | None = None, fail_on_quota: bool = False
+) -> tuple[AgentResult, dict]:
     """Process one message. `emit` receives live events (stages, tool calls, guard, result) for the UI.
 
     fail_on_quota: batch runs re-raise LLMQuotaError (after any emergency escalation) so a run never
@@ -245,11 +290,19 @@ async def process_message(msg: dict, clinic: ClinicClient, llm, emit: Callable[[
     clinic.trace = []
     clinic.emit = emit
     say = emit or (lambda event: None)
-    log: dict = {"id": msg["id"], "from_name": msg.get("from_name"), "body": msg["body"], "path": None, "error": None}
+    log: dict[str, Any] = {"id": msg["id"], "from_name": msg.get("from_name"), "body": msg["body"], "path": None, "error": None}
 
-    await clinic.call("admin_begin_message", {"message_id": msg["id"], "from_name": msg.get("from_name", ""),
-                                              "from_contact": msg.get("from_contact", ""), "channel": msg.get("channel", ""),
-                                              "received_at": msg.get("received_at")}, record=False)
+    await clinic.call(
+        "admin_begin_message",
+        {
+            "message_id": msg["id"],
+            "from_name": msg.get("from_name", ""),
+            "from_contact": msg.get("from_contact", ""),
+            "channel": msg.get("channel", ""),
+            "received_at": msg.get("received_at"),
+        },
+        record=False,
+    )
     screen = prescreen(msg["body"])
     say({"type": "stage", "stage": "prescreen", "data": screen})
     verification = await clinic.call("verify_sender", {"stated_dob": msg.get("stated_dob")})
@@ -284,7 +337,9 @@ async def process_message(msg: dict, clinic: ClinicClient, llm, emit: Callable[[
             log["path"] = "normal"
             summary = None
             if verification.get("verification_token"):
-                summary = (await clinic.call("get_patient_summary", {"verification_token": verification["verification_token"]})).get("patient")
+                summary = (await clinic.call("get_patient_summary", {"verification_token": verification["verification_token"]})).get(
+                    "patient"
+                )
             dates = await _resolve_message_dates(clinic, msg["body"])
             content = agent_user_content(msg, screen, verification, summary, triage.model_dump(), dates)
             try:
@@ -301,17 +356,26 @@ async def process_message(msg: dict, clinic: ClinicClient, llm, emit: Callable[[
         log["path"] = "fallback"
         urgency = triage.urgency if triage else ("urgent" if screen["tier"] == "urgent_clinical" else "routine")
         if (triage and triage.clinical_concern) or screen["tier"] == "urgent_clinical":
-            await clinic.call("route_to_queue", {"queue": "clinician_urgent" if urgency != "routine" else "clinician_routine",
-                                                 "summary": f"Agent could not complete ({log['error']}). Clinical concern present.",
-                                                 "priority": urgency, "verification_token": verification.get("verification_token")})
+            await clinic.call(
+                "route_to_queue",
+                {
+                    "queue": "clinician_urgent" if urgency != "routine" else "clinician_routine",
+                    "summary": f"Agent could not complete ({log['error']}). Clinical concern present.",
+                    "priority": urgency,
+                    "verification_token": verification.get("verification_token"),
+                },
+            )
         answer = FinalAnswer(intents=list(triage.intents) if triage else ["other"], urgency=urgency)
 
     say({"type": "stage", "stage": "path", "data": {"path": log["path"], "error": log["error"]}})
     phi = []
     if not str(verification.get("status", "")).startswith("verified") and verification.get("candidate_patient_ids"):
         phi = _phi_terms(await clinic.export_state(), verification["candidate_patient_ids"], msg["body"])
-    later = [c["output"] for c in clinic.trace if c["name"] == "verify_sender" and c["ok"]
-             and str(c["output"].get("status", "")).startswith("verified")]
+    later = [
+        c["output"]
+        for c in clinic.trace
+        if c["name"] == "verify_sender" and c["ok"] and str(c["output"].get("status", "")).startswith("verified")
+    ]
     if later and not str(verification.get("status", "")).startswith("verified"):
         verification = later[-1]
     log["phi_terms"] = phi
@@ -333,6 +397,5 @@ async def process_message(msg: dict, clinic: ClinicClient, llm, emit: Callable[[
         latency_s=round(time.monotonic() - started, 2),
         result=result.model_dump(),
     )
-    say({"type": "result", "data": result.model_dump(), "latency_s": log["latency_s"],
-         "llm_calls": log["llm_calls"]})
+    say({"type": "result", "data": result.model_dump(), "latency_s": log["latency_s"], "llm_calls": log["llm_calls"]})
     return result, log

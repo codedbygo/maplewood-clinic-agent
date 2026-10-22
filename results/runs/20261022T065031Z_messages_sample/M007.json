@@ -1,0 +1,283 @@
+{
+  "id": "M007",
+  "from_name": "Jessica Parker",
+  "body": "Do you accept new patients? I'd like to book a physical.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "new_patient",
+      "schedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender asks whether the clinic accepts new patients and wants to book a physical, which is a routine administrative request with no clinical symptoms or urgency.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "unverified",
+    "patient_id": null,
+    "candidate_patient_ids": [],
+    "relationship": null,
+    "reason": "The sender does not match any patient or authorised caregiver on file.",
+    "verification_token": null
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "unverified",
+        "patient_id": null,
+        "candidate_patient_ids": [],
+        "relationship": null,
+        "reason": "The sender does not match any patient or authorised caregiver on file.",
+        "verification_token": null
+      }
+    },
+    {
+      "name": "get_clinic_info",
+      "input": {
+        "topic": "new_patient"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "info": {
+          "clinic_name": "Maplewood Family Clinic (fictional)",
+          "today": "2026-11-09",
+          "timezone": "America/Chicago",
+          "hours": {
+            "days": [
+              "Mon",
+              "Tue",
+              "Wed",
+              "Thu",
+              "Fri"
+            ],
+            "open": "09:00",
+            "close": "17:00",
+            "lunch": [
+              "12:00",
+              "13:00"
+            ]
+          },
+          "holidays": [
+            "2026-11-26",
+            "2026-11-27",
+            "2026-12-25"
+          ],
+          "visit_types_minutes": {
+            "new_patient": 40,
+            "annual_physical": 40,
+            "follow_up": 20,
+            "sick_visit": 20,
+            "telehealth": 20
+          },
+          "booking_rules": [
+            "Appointments start on the hour or at :20 / :40.",
+            "No bookings during lunch, on holidays, or on provider leave.",
+            "A provider cannot have overlapping appointments.",
+            "Sick visits should be offered within 1 business day where possible."
+          ],
+          "providers": [
+            {
+              "id": "PATEL",
+              "name": "Dr. Maya Patel",
+              "role": "Family Medicine",
+              "languages": [
+                "English",
+                "Gujarati"
+              ],
+              "leave": null
+            },
+            {
+              "id": "OKAFOR",
+              "name": "Dr. James Okafor",
+              "role": "Internal Medicine",
+              "languages": [
+                "English"
+              ],
+              "leave": [
+                [
+                  "2026-11-16",
+                  "2026-11-20"
+                ]
+              ]
+            },
+            {
+              "id": "KIM",
+              "name": "Sarah Kim, NP",
+              "role": "Nurse Practitioner (adults and children)",
+              "languages": [
+                "English",
+                "Spanish"
+              ],
+              "leave": null
+            }
+          ],
+          "routing_queues": [
+            "clinician_urgent",
+            "clinician_routine",
+            "provider_refills",
+            "front_desk",
+            "billing"
+          ]
+        },
+        "reason": "Public clinic information; safe to share with anyone."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "limit": 3,
+        "visit_type": "new_patient"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:00",
+            "end": "09:40",
+            "visit_type": "new_patient"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:20",
+            "end": "10:00",
+            "visit_type": "new_patient"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "09:40",
+            "end": "10:20",
+            "visit_type": "new_patient"
+          }
+        ],
+        "reason": "3 free new_patient slot(s) between 2026-11-09 and 2026-11-20. Defaulted to the next 10 business days."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. A new-patient visit is 40 minutes and includes a physical.\n\nWe have a few openings with Sarah Kim, NP this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nIf one of those works, just let me know which time you prefer and I’ll book it for you. If you’d rather see a different provider or need another day, I can check more options.\n\nThanks,\nMaplewood Family Clinic",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "new_patient",
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_new_patient_booking"
+    ],
+    "emergency": false,
+    "notes": "Offered three new-patient slots with Sarah Kim, NP on 2026-11-09."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 812,
+      "output_tokens": 196,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 16.13,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 5939,
+      "output_tokens": 155,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.02,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6452,
+      "output_tokens": 304,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.44,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6721,
+      "output_tokens": 285,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.13,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6921,
+      "output_tokens": 346,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.69,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 32.44,
+  "result": {
+    "id": "M007",
+    "patient_id": null,
+    "intents": [
+      "new_patient",
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_new_patient_booking"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_clinic_info",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. A new-patient visit is 40 minutes and includes a physical.\n\nWe have a few openings with Sarah Kim, NP this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nIf one of those works, just let me know which time you prefer and I’ll book it for you. If you’d rather see a different provider or need another day, I can check more options.\n\nThanks,\nMaplewood Family Clinic"
+  }
+}

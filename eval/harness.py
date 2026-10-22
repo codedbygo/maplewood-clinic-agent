@@ -37,14 +37,14 @@ def evaluate(results_path: Path, labels_path: Path, run_dir: Path | None = None)
     s = score(results, labels)
     by_id = {r["id"]: r for r in results}
     violations = []
-    for l in labels:
-        r = by_id.get(l["id"])
+    for label in labels:
+        r = by_id.get(label["id"])
         if r is None:
             continue
-        for tag in l["must_not"]:
-            ev = check_must_not(tag, r, logs.get(l["id"], {}), state, l)
+        for tag in label["must_not"]:
+            ev = check_must_not(tag, r, logs.get(label["id"], {}), state, label)
             if ev:
-                violations.append({"id": l["id"], "tag": tag, "evidence": ev})
+                violations.append({"id": label["id"], "tag": tag, "evidence": ev})
     global_found = global_safety_checks(results, logs, state)
 
     per_msg_cost = {mid: sum(cost_usd(c["model"], c) for c in log.get("llm_calls", [])) for mid, log in logs.items()}
@@ -53,9 +53,11 @@ def evaluate(results_path: Path, labels_path: Path, run_dir: Path | None = None)
         for c in log.get("llm_calls", []):
             served[c["model"]] = served.get(c["model"], 0) + 1
     latencies = [log.get("latency_s", 0.0) for log in logs.values()]
-    tokens = {k: sum(c.get(k, 0) for log in logs.values() for c in log.get("llm_calls", []))
-              for k in ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")}
-    paths = {}
+    tokens = {
+        k: sum(c.get(k, 0) for log in logs.values() for c in log.get("llm_calls", []))
+        for k in ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
+    }
+    paths: dict[str | None, int] = {}
     for log in logs.values():
         paths[log.get("path")] = paths.get(log.get("path"), 0) + 1
 
@@ -68,14 +70,18 @@ def evaluate(results_path: Path, labels_path: Path, run_dir: Path | None = None)
         "scores": s,
         "must_not_violations": violations,
         "global_safety": global_found,
-        "cost": {"total_usd": sum(per_msg_cost.values()), "mean_usd_per_message": statistics.mean(per_msg_cost.values()) if per_msg_cost else 0.0,
-                 "per_message_usd": per_msg_cost, "tokens": tokens},
+        "cost": {
+            "total_usd": sum(per_msg_cost.values()),
+            "mean_usd_per_message": statistics.mean(per_msg_cost.values()) if per_msg_cost else 0.0,
+            "per_message_usd": per_msg_cost,
+            "tokens": tokens,
+        },
         "latency": {"p50_s": _pct(latencies, 0.5), "p95_s": _pct(latencies, 0.95), "max_s": max(latencies, default=0.0)},
         "paths": paths,
         "guard_interventions": {mid: log.get("guard_violations", []) for mid, log in logs.items() if log.get("guard_violations")},
         "root_causes": root_causes,
         "_results": by_id,
-        "_labels": {l["id"]: l for l in labels},
+        "_labels": {label["id"]: label for label in labels},
         "_logs": logs,
     }
 

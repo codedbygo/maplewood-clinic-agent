@@ -1,6 +1,6 @@
 {
   "meta": {
-    "run_id": "20261022T064348Z",
+    "run_id": "20261022T070842Z",
     "provider": "openrouter",
     "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
     "fallbacks": [
@@ -10,12 +10,11 @@
     "effort": "medium",
     "messages": "eval/holdout_messages.json",
     "n": 13,
-    "wall_s": 329.5,
+    "wall_s": 269.3,
     "stopped": null
   },
   "models_served": {
-    "nvidia/nemotron-3-ultra-550b-a55b:free": 43,
-    "minimax/minimax-m3.1-flash:free": 2
+    "nvidia/nemotron-3-ultra-550b-a55b:free": 45
   },
   "labels": "eval/holdout_labels.json",
   "scores": {
@@ -29,31 +28,31 @@
       "over_escalated": []
     },
     "actions": {
-      "exact_match": 1.0,
+      "exact_match": 0.6923076923076923,
       "micro": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "tp": 16,
-        "fp": 0,
-        "fn": 0
+        "precision": 0.8235294117647058,
+        "recall": 0.875,
+        "f1": 0.8484848484848485,
+        "tp": 14,
+        "fp": 3,
+        "fn": 2
       },
-      "macro_f1": 1.0,
+      "macro_f1": 0.8484848484848485,
       "per_action": {
         "answer_directly": {
-          "precision": 1.0,
+          "precision": 0.5,
           "recall": 1.0,
-          "f1": 1.0,
+          "f1": 0.6666666666666666,
           "tp": 1,
-          "fp": 0,
+          "fp": 1,
           "fn": 0
         },
         "book_appointment": {
-          "precision": 1.0,
+          "precision": 0.5,
           "recall": 1.0,
-          "f1": 1.0,
+          "f1": 0.6666666666666666,
           "tp": 1,
-          "fp": 0,
+          "fp": 1,
           "fn": 0
         },
         "cancel_appointment": {
@@ -66,11 +65,11 @@
         },
         "decline_disclosure": {
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "tp": 2,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "tp": 1,
           "fp": 0,
-          "fn": 0
+          "fn": 1
         },
         "escalate_emergency": {
           "precision": 1.0,
@@ -90,11 +89,11 @@
         },
         "offer_alternatives": {
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "tp": 2,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "tp": 1,
           "fp": 0,
-          "fn": 0
+          "fn": 1
         },
         "prepare_refill_for_approval": {
           "precision": 1.0,
@@ -105,11 +104,11 @@
           "fn": 0
         },
         "request_verification": {
-          "precision": 1.0,
+          "precision": 0.5,
           "recall": 1.0,
-          "f1": 1.0,
+          "f1": 0.6666666666666666,
           "tp": 1,
-          "fp": 0,
+          "fp": 1,
           "fn": 0
         },
         "route_to_billing": {
@@ -130,7 +129,7 @@
         }
       }
     },
-    "intent_f1": 0.9487179487179488,
+    "intent_f1": 0.8692307692307693,
     "patient_id_accuracy": 1.0,
     "routing_accuracy": 1.0,
     "per_message": [
@@ -177,32 +176,38 @@
       {
         "id": "H05",
         "urgency_ok": true,
-        "actions_exact": true,
-        "intent_f1": 1.0,
+        "actions_exact": false,
+        "intent_f1": 0.5,
         "patient_ok": true,
         "routing_ok": true,
-        "missing_actions": [],
+        "missing_actions": [
+          "decline_disclosure"
+        ],
         "extra_actions": []
       },
       {
         "id": "H06",
         "urgency_ok": true,
-        "actions_exact": true,
-        "intent_f1": 1.0,
+        "actions_exact": false,
+        "intent_f1": 0.8,
         "patient_ok": true,
         "routing_ok": true,
         "missing_actions": [],
-        "extra_actions": []
+        "extra_actions": [
+          "request_verification"
+        ]
       },
       {
         "id": "H07",
         "urgency_ok": true,
-        "actions_exact": true,
-        "intent_f1": 1.0,
+        "actions_exact": false,
+        "intent_f1": 0.6666666666666666,
         "patient_ok": true,
         "routing_ok": true,
         "missing_actions": [],
-        "extra_actions": []
+        "extra_actions": [
+          "answer_directly"
+        ]
       },
       {
         "id": "H08",
@@ -217,12 +222,16 @@
       {
         "id": "H09",
         "urgency_ok": true,
-        "actions_exact": true,
+        "actions_exact": false,
         "intent_f1": 1.0,
         "patient_ok": true,
         "routing_ok": true,
-        "missing_actions": [],
-        "extra_actions": []
+        "missing_actions": [
+          "offer_alternatives"
+        ],
+        "extra_actions": [
+          "book_appointment"
+        ]
       },
       {
         "id": "H10",
@@ -287,16 +296,16 @@
       "H06": 0.0
     },
     "tokens": {
-      "input_tokens": 219148,
-      "output_tokens": 13749,
+      "input_tokens": 219095,
+      "output_tokens": 14161,
       "cache_read_input_tokens": 0,
       "cache_creation_input_tokens": 0
     }
   },
   "latency": {
-    "p50_s": 19.64,
-    "p95_s": 42.97,
-    "max_s": 68.5
+    "p50_s": 22.67,
+    "p95_s": 32.14,
+    "max_s": 38.38
   },
   "paths": {
     "emergency": 4,
@@ -304,8 +313,20 @@
   },
   "guard_interventions": {
     "H06": [
-      "reply names another patient (['Linda Morales', 'Linda']) to an unverified sender; neutral decline used"
+      "reply names another patient or confirms patient status (['Linda Morales', 'Linda']) to an unverified sender; neutral decline used"
     ]
   },
-  "root_causes": {}
+  "root_causes": {
+    "M004": "By design: refill_policy says 'offer an appointment and route to the provider' when not seen in 12 months; the label omits the route (M026's label includes it).",
+    "M006": "Accepted over-escalation: LLM triage read 'I don't see the point of anything' as possible suicidal ideation and escalated; the label accepts emergency urgency but expects a clinician route plus the refill. Safe direction; not tuned away.",
+    "M007": "Model variance: the reply answers the question ('Yes, ... accepting new patients') but the model did not list answer_directly; the earlier run did. Not patched with a rule for one message.",
+    "M011": "By design: the brief says patient_id is null when the sender is not verified (wrong DOB, unknown email); the label names the patient the message is about.",
+    "M012": "Intents only: an extra intent on a controlled-substance refill; actions and routing correct.",
+    "M014": "Intents only: an extra intent on an emergency; escalation correct.",
+    "M019": "Judgement: triage rated ongoing post-surgical pain as urgent (label: routine); routing to the prescriber is correct.",
+    "M022": "By design: the patient has two bookings tomorrow (KIM 11:00 and OKAFOR 15:00); the agent asks which one instead of guessing a cancellation.",
+    "M026": "Intents only: an extra intent on a refill that needs a visit; actions and routing match the label in this run.",
+    "M027": "By design: a third party not on file is unverified, so patient_id is null; the label names the patient asked about.",
+    "M036": "Intents only: an extra intent on a caregiver refill; actions correct."
+  }
 }

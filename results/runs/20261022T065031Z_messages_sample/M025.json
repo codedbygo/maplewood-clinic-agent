@@ -1,0 +1,281 @@
+{
+  "id": "M025",
+  "from_name": "Brian Walsh",
+  "body": "Can I get my atorvastatin and also, what's the copay for a telehealth visit?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill",
+      "billing"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender requests a refill of atorvastatin and asks about the copay for a telehealth visit, both routine requests with no reported health concern.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P024",
+    "candidate_patient_ids": [
+      "P024"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P024",
+        "candidate_patient_ids": [
+          "P024"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P024",
+          "first_name": "Brian",
+          "full_name": "Brian Walsh",
+          "age": 52,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-05-27",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "medication_query": "atorvastatin",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "prepare",
+        "eligible": true,
+        "medication": "Atorvastatin 40 mg",
+        "prescriber": "PATEL",
+        "run_out_date": "2026-11-12",
+        "earliest_date": "2026-11-05",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Atorvastatin 40 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": true,
+            "detail": "Last visit 2026-05-27; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 1."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-12; a request can be prepared from 2026-11-05."
+          }
+        ],
+        "reason": "All refill rules pass for Atorvastatin 40 mg (supply runs out 2026-11-12). The agent may prepare a request for provider approval; it never approves."
+      }
+    },
+    {
+      "name": "prepare_refill_for_approval",
+      "input": {
+        "verification_token": "[redacted]",
+        "medication_query": "atorvastatin"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "request": {
+          "id": "RR005",
+          "patient_id": "P024",
+          "medication": "Atorvastatin 40 mg",
+          "prescriber": "PATEL",
+          "status": "pending_provider_approval",
+          "note": "",
+          "message_id": "M025"
+        },
+        "decision": "prepare",
+        "reason": "Pending request RR005 for Atorvastatin 40 mg sent to the provider_refills queue for approval. Not approved."
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "priority": "routine",
+        "queue": "billing",
+        "summary": "Patient Brian Walsh (P024) asks about the copay for a telehealth visit.",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to billing (routine)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Brian,\n\nYour atorvastatin refill request has been sent to Dr. Patel for approval. You'll hear back once it's reviewed.\n\nYour question about the telehealth copay has been forwarded to our billing team — they'll get back to you with the details.\n\nThanks,\nMaplewood Family Clinic",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill",
+      "billing"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "input_tokens": 958,
+      "output_tokens": 127,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 13.32,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6051,
+      "output_tokens": 142,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.97,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6451,
+      "output_tokens": 119,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.77,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6635,
+      "output_tokens": 159,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.33,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6756,
+      "output_tokens": 207,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.09,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6886,
+      "output_tokens": 447,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 14.75,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 44.27,
+  "result": {
+    "id": "M025",
+    "patient_id": "P024",
+    "intents": [
+      "refill",
+      "billing"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "route_to_billing",
+      "prepare_refill_for_approval"
+    ],
+    "routed_to": [
+      "billing",
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "prepare_refill_for_approval",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Brian,\n\nYour atorvastatin refill request has been sent to Dr. Patel for approval. You'll hear back once it's reviewed.\n\nYour question about the telehealth copay has been forwarded to our billing team — they'll get back to you with the details.\n\nThanks,\nMaplewood Family Clinic"
+  }
+}

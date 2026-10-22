@@ -14,8 +14,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+    "ruff>=0.17.1",
 ]
 
 [tool.pytest.ini_options]
@@ -29,3 +31,16 @@ branch = true
 show_missing = true
 skip_covered = true
 exclude_also = ["if __name__ == .__main__.:", "raise RuntimeError\\(\"unreachable\"\\)"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["agent", "clinic_mcp", "console", "eval"]
+ignore_missing_imports = true
+check_untyped_defs = true

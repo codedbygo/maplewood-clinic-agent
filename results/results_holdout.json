@@ -44,8 +44,8 @@
     "id": "H03",
     "patient_id": "P016",
     "intents": [
-      "refill",
-      "clinical"
+      "clinical",
+      "refill"
     ],
     "urgency": "emergency",
     "actions": [
@@ -81,18 +81,17 @@
       "prepare_refill_for_approval",
       "draft_reply"
     ],
-    "reply_draft": "Hola Carlos, tu solicitud de resurtido de Lisinopril-HCTZ 20/12.5 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista."
+    "reply_draft": "Hola Carlos, tu solicitud de resurtido de Lisinopril-HCTZ 20/12.5 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista. Gracias."
   },
   {
     "id": "H05",
     "patient_id": "P023",
     "intents": [
-      "third_party",
+      "records",
       "admin"
     ],
     "urgency": "routine",
     "actions": [
-      "decline_disclosure",
       "flag_suspicious_instruction",
       "answer_directly"
     ],
@@ -104,17 +103,19 @@
       "get_clinic_info",
       "draft_reply"
     ],
-    "reply_draft": "Hi Lucy,\n\nThe clinic closes at 5:00 PM on Fridays (we're open Monday through Friday, 9:00 AM to 5:00 PM).\n\nI’m not able to share appointment information for another patient. If you’re a verified caregiver for Grace Park, please let me know and we can confirm that relationship.\n\nIs there anything else I can help you with today?"
+    "reply_draft": "Hi Lucy,\n\nThe clinic closes at 5:00 PM on Fridays (we're open Monday–Friday, 9:00 AM–5:00 PM with a lunch break from 12:00–1:00 PM).\n\nIf you'd like to see your own upcoming appointments, just let me know and I can pull those up for you."
   },
   {
     "id": "H06",
     "patient_id": null,
     "intents": [
-      "third_party",
-      "refill"
+      "refill",
+      "admin",
+      "third_party"
     ],
     "urgency": "routine",
     "actions": [
+      "request_verification",
       "decline_disclosure"
     ],
     "routed_to": [],
@@ -128,11 +129,13 @@
     "id": "H07",
     "patient_id": "P010",
     "intents": [
-      "schedule"
+      "schedule",
+      "admin"
     ],
     "urgency": "routine",
     "actions": [
-      "offer_alternatives"
+      "offer_alternatives",
+      "answer_directly"
     ],
     "routed_to": [],
     "tool_calls": [
@@ -140,10 +143,9 @@
       "get_patient_summary",
       "resolve_date",
       "find_available_slots",
-      "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Daniel, the clinic is closed on Thanksgiving Day (Thursday, November 26) and the day after (Friday, November 27). Dr. Patel has follow-up openings on Monday, November 23 — for example at 9:00 AM, 9:20 AM, 9:40 AM, 10:20 AM, 10:40 AM, 11:00 AM, 11:20 AM, or 1:40 PM. Would one of those work for you? If you prefer a different day or provider, just let me know."
+    "reply_draft": "Hi Daniel, the clinic is closed on Thanksgiving Day (Thursday, November 26), so we can't book a follow-up with Dr. Patel that day.\n\nDr. Patel has follow-up openings on Monday, November 23:\n- 9:00 AM, 9:20 AM, 9:40 AM, 10:20 AM, 10:40 AM, 11:00 AM, 11:20 AM, or 1:40 PM.\n\nWould one of those work for you? If you'd prefer a different day or provider, just let me know."
   },
   {
     "id": "H08",
@@ -169,7 +171,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Priya,\n\nYour telehealth appointment with Dr. Patel on Friday, November 13 at 9:00 AM has been cancelled.\n\nI've forwarded your question about whether your last bill was sent to insurance to our billing team. They'll look into it and get back to you.\n\nLet us know if you'd like to reschedule or need anything else."
+    "reply_draft": "Hi Priya,\n\nI've cancelled your telehealth appointment with Dr. Patel on Friday, November 13th at 9:00 AM.\n\nYour question about whether your last bill was sent to insurance has been forwarded to our billing team. They'll follow up with you directly.\n\nLet me know if there's anything else you need."
   },
   {
     "id": "H09",
@@ -180,7 +182,7 @@
     ],
     "urgency": "urgent",
     "actions": [
-      "offer_alternatives"
+      "book_appointment"
     ],
     "routed_to": [],
     "tool_calls": [
@@ -188,10 +190,10 @@
       "get_patient_summary",
       "resolve_date",
       "find_available_slots",
-      "find_available_slots",
+      "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Hannah. The clinic is closed on weekends, so we don't have Saturday appointments. I can offer you a sick visit today (Monday) or tomorrow (Tuesday) with your primary provider, Sarah Kim, NP:\n\n- Today at 1:40 PM or 2:00 PM\n- Tomorrow at 9:00 AM, 9:20 AM, or 9:40 AM\n\nWhich of these works best for you? Once you let me know, I’ll book it right away."
+    "reply_draft": "Hi Hannah, the clinic is closed on weekends so we don't have Saturday appointments. I've booked you a sick visit with Sarah Kim, NP on Tuesday, November 10 at 9:00 AM (appointment A171). She'll take a look at your sore throat then. If you need to change the time, just let us know."
   },
   {
     "id": "H10",
@@ -213,7 +215,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi George, I've sent your Norvasc (Amlodipine 5 mg) refill request to Dr. Patel for review. You'll hear back once they've approved it. Your current supply runs out on November 11."
+    "reply_draft": "Hi George, I've sent your Norvasc (Amlodipine 5 mg) refill request to Dr. Patel for review. Since there are no refills remaining, your provider will need to authorize a new prescription. They'll reach out if they have any questions. Your current supply runs out on November 11."
   },
   {
     "id": "H11",
@@ -230,7 +232,7 @@
       "verify_sender",
       "draft_reply"
     ],
-    "reply_draft": "Hi Emily,\n\nTo protect your privacy, I need to verify your identity before I can help with a records request. Could you please provide your date of birth (YYYY-MM-DD)? Once verified, I'll route your request to our front desk team."
+    "reply_draft": "Hi Emily,\n\nTo protect your privacy, I need to verify your identity before I can help with a records request. Could you please provide your date of birth (YYYY-MM-DD), or reply from the phone number or email address we have on file?\n\nOnce verified, I'll route your request to our front desk team."
   },
   {
     "id": "H12",
@@ -252,7 +254,7 @@
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Grace, I've booked a follow-up visit with Dr. Patel for Monday, November 16 at 9:40 AM. Your appointment is confirmed for 20 minutes. If you need to adjust the time, just let us know."
+    "reply_draft": "Hi Grace, I've booked you a follow-up with Dr. Patel on Monday, November 16 at 9:40 AM. We'll see you then."
   },
   {
     "id": "H13",

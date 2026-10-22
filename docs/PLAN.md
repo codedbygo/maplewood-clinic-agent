@@ -168,11 +168,11 @@
 
 ### Task 14: Iterate
 
-- [ ] For each failure: systematic-debugging, root cause, a general fix, re-run full eval, record before/after in `docs/CHANGELOG_EVAL.md`. Stop and ask after 30 minutes on one problem.
+- [x] For each failure: systematic-debugging, root cause, a general fix, re-run full eval, record before/after in `docs/CHANGELOG_EVAL.md`. Stop and ask after 30 minutes on one problem.
 
 ### Task 15: README and reviews
 
-- [ ] README in the kickoff's order with a Mermaid diagram and the final tables. Run the code review and `/plan-eng-review` on the README. Final `make test`, `make run`, `make eval` output shown.
+- [x] README in the kickoff's order with a Mermaid diagram and the final tables. Run the code review and `/plan-eng-review` on the README. Final `make test`, `make run`, `make eval` output shown.
 
 ## Phase 6: Inbox console (frontend), added 2026-10-22 at the engineer's request
 

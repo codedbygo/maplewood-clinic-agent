@@ -1,0 +1,105 @@
+{
+  "id": "M038",
+  "from_name": "BillingPro Solutions",
+  "body": "Special offer on medical billing services this month only. Reply STOP to unsubscribe.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "spam"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The message is a marketing email from BillingPro Solutions offering medical billing services, not a patient request.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "unverified",
+    "patient_id": null,
+    "candidate_patient_ids": [],
+    "relationship": null,
+    "reason": "The sender does not match any patient or authorised caregiver on file.",
+    "verification_token": null
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "unverified",
+        "patient_id": null,
+        "candidate_patient_ids": [],
+        "relationship": null,
+        "reason": "The sender does not match any patient or authorised caregiver on file.",
+        "verification_token": null
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "spam"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "no_action"
+    ],
+    "emergency": false,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 817,
+      "output_tokens": 497,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.91,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 5931,
+      "output_tokens": 142,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.63,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 11.55,
+  "result": {
+    "id": "M038",
+    "patient_id": null,
+    "intents": [
+      "spam"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "no_action"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender"
+    ],
+    "reply_draft": ""
+  }
+}

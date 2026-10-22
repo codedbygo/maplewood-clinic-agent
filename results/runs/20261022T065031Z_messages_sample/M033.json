@@ -1,0 +1,185 @@
+{
+  "id": "M033",
+  "from_name": "William Turner",
+  "body": "Please change my phone number to 555-0199.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "admin"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender is requesting a phone number update, which is an administrative task with no clinical or urgent component.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P012",
+    "candidate_patient_ids": [
+      "P012"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P012",
+        "candidate_patient_ids": [
+          "P012"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P012",
+          "first_name": "William",
+          "full_name": "William Turner",
+          "age": 71,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-04-02",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "verification_token": "[redacted]",
+        "queue": "front_desk",
+        "summary": "Patient William Turner (P012) requests phone number change to 555-0199.",
+        "priority": "routine"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to front_desk (routine)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi William, I've routed your request to change your phone number to 555-0199 to our front desk team. They'll update your record and confirm once it's done.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "admin"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": "Phone number change request routed to front desk."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 814,
+      "output_tokens": 121,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.01,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6034,
+      "output_tokens": 192,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.01,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6161,
+      "output_tokens": 127,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.83,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6269,
+      "output_tokens": 379,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.02,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 22.89,
+  "result": {
+    "id": "M033",
+    "patient_id": "P012",
+    "intents": [
+      "admin"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "route_to_front_desk"
+    ],
+    "routed_to": [
+      "front_desk"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi William, I've routed your request to change your phone number to 555-0199 to our front desk team. They'll update your record and confirm once it's done."
+  }
+}

@@ -19,7 +19,7 @@
       "prepare_refill_for_approval",
       "draft_reply"
     ],
-    "reply_draft": "Hi Robert, I've sent a refill request for your Lisinopril 10 mg to Dr. Okafor for approval. You'll hear back once it's reviewed. Thanks!"
+    "reply_draft": "Hi Robert, your lisinopril refill request has been sent to Dr. Okafor for approval. You'll hear back once it's reviewed."
   },
   {
     "id": "M002",
@@ -48,8 +48,7 @@
     "id": "M003",
     "patient_id": "P003",
     "intents": [
-      "clinical",
-      "admin"
+      "clinical"
     ],
     "urgency": "emergency",
     "actions": [
@@ -84,11 +83,11 @@
       "verify_sender",
       "get_patient_summary",
       "check_refill_eligibility",
-      "find_available_slots",
       "route_to_queue",
+      "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Thomas,\n\nYour metformin refill needs a follow-up visit since your last appointment was more than 12 months ago (June 2025). I've let Dr. Okafor know about your request.\n\nHere are a few follow-up slots with Dr. Okafor this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 10:20 AM\n- Monday, November 9 at 10:40 AM\n\nWould you like me to book one of these, or do you prefer a different day or time? Once you have a visit, Dr. Okafor can review the refill.\n\nThanks,\nMaplewood Family Clinic"
+    "reply_draft": "Hi Thomas,\n\nYour metformin refill needs a visit first — your last appointment was more than 12 months ago. I've let Dr. Okafor know about the request.\n\nHere are a few follow-up openings with Dr. Okafor this week:\n- Monday, Nov 9 at 9:00 AM\n- Monday, Nov 9 at 10:20 AM\n- Monday, Nov 9 at 10:40 AM\n\nLet me know which works for you and I'll book it. Once the visit is done, the refill can be processed."
   },
   {
     "id": "M005",
@@ -110,7 +109,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Marcus, I've sent your request for Alprazolam (Xanax) to Dr. Okafor for review. Since it's a controlled medication with no refills left, your provider will need to approve any new prescription. They'll reach out if they have questions or once it's ready."
+    "reply_draft": "Hi Marcus, I've sent your request for an early Xanax (alprazolam 0.5 mg) refill to Dr. Okafor for review. Since this is a controlled medication, it requires provider approval. Your care team will follow up with you."
   },
   {
     "id": "M006",
@@ -142,8 +141,7 @@
     ],
     "urgency": "routine",
     "actions": [
-      "offer_new_patient_booking",
-      "answer_directly"
+      "offer_new_patient_booking"
     ],
     "routed_to": [],
     "tool_calls": [
@@ -152,7 +150,7 @@
       "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. We have a few new-patient visit slots available with Sarah Kim, NP:\n\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nThese are 40-minute visits. If one of these works for you, just let me know which time you prefer and I can book it for you. If you'd like a different day or provider, I can check other options too.\n\nWelcome to the clinic!"
+    "reply_draft": "Hi Jessica,\n\nYes, Maplewood Family Clinic is accepting new patients. A new-patient visit is 40 minutes and includes a physical.\n\nWe have a few openings with Sarah Kim, NP this week:\n- Monday, November 9 at 9:00 AM\n- Monday, November 9 at 9:20 AM\n- Monday, November 9 at 9:40 AM\n\nIf one of those works, just let me know which time you prefer and I’ll book it for you. If you’d rather see a different provider or need another day, I can check more options.\n\nThanks,\nMaplewood Family Clinic"
   },
   {
     "id": "M008",
@@ -173,7 +171,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Daniel,\n\nI've sent your question about the $240 bill and insurance coverage to our billing team. They'll review it and get back to you.\n\nThanks,\nMaplewood Family Clinic"
+    "reply_draft": "Hi Daniel,\n\nI've sent your question about the $240 bill and insurance coverage to our billing team. They'll review your account and get back to you soon.\n\nThanks,\nMaplewood Family Clinic"
   },
   {
     "id": "M009",
@@ -195,7 +193,7 @@
       "prepare_refill_for_approval",
       "draft_reply"
     ],
-    "reply_draft": "Hi William, your refill request for Levothyroxine 75 mcg has been sent to Dr. Okafor for approval. You'll hear back once it's reviewed."
+    "reply_draft": "Hi William, I've sent a refill request for your Levothyroxine 75 mcg to Dr. Okafor for approval. You'll hear back once it's reviewed."
   },
   {
     "id": "M010",
@@ -217,7 +215,7 @@
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Grace,\n\nYour follow-up with Dr. Patel is booked for Tuesday, November 17 at 9:00 AM (20-minute visit). You'll get a reminder the day before.\n\nIf anything changes, just let us know.\n\nMaplewood Family Clinic"
+    "reply_draft": "Hi Grace,\n\nYour follow-up with Dr. Patel is booked for Tuesday, November 17 at 9:00 AM. We'll see you then.\n\nMaplewood Family Clinic"
   },
   {
     "id": "M011",
@@ -234,7 +232,7 @@
       "verify_sender",
       "draft_reply"
     ],
-    "reply_draft": "Hi Robert,\n\nTo protect your privacy, I need to verify your identity before I can help with lab results. Could you please confirm your full name and date of birth, or reply from the phone number or email we have on file?\n\nOnce verified, I can forward your request to our front desk team."
+    "reply_draft": "Hi Robert,\n\nTo protect your privacy, I need to verify your identity before I can help with a records request. Could you please provide your full name and date of birth, or send this request from the phone number or email address we have on file?\n\nOnce verified, I can route your lab results request to our front desk team."
   },
   {
     "id": "M012",
@@ -257,7 +255,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Kevin, I've sent your zolpidem refill request to Dr. Okafor for review. Since it's a controlled medication with no refills remaining, your provider will need to approve it. I also noted your mention of difficulty sleeping so Dr. Okafor can consider that as well. You'll hear back once they've reviewed it."
+    "reply_draft": "Hi Kevin, I've sent your zolpidem refill request to Dr. Okafor for review. Since it's a controlled medication with no refills remaining, your provider will need to approve it. They'll also see your note about trouble sleeping. You'll hear back once they've reviewed it."
   },
   {
     "id": "M013",
@@ -276,7 +274,7 @@
       "check_refill_eligibility",
       "draft_reply"
     ],
-    "reply_draft": "Hi Fatima,\n\nYour omeprazole 20 mg refill is too early to request right now. Your current supply lasts until November 24, 2026. The earliest you can request a refill is November 17, 2026.\n\nPlease reach out again on or after that date and we'll send the request to Dr. Patel for approval.\n\nThanks,\nMaplewood Family Clinic"
+    "reply_draft": "Hi Fatima,\n\nI checked your omeprazole (20 mg) refill. Your current supply lasts until November 24, 2026, so the earliest we can prepare a refill request is November 17, 2026. Please reach out again on or after that date and we'll send the request to Dr. Patel for approval.\n\nThanks,\nMaplewood Family Clinic"
   },
   {
     "id": "M014",
@@ -320,7 +318,7 @@
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Anna, I've booked a sick visit for Sofia today, November 9, at 9:00 AM with Sarah Kim, NP. The appointment is confirmed for 20 minutes. If anything changes, just let us know."
+    "reply_draft": "Hi Anna, I've booked a sick visit for Sofia today, Monday 2026-11-09, at 9:00 AM with Sarah Kim, NP. If you need to adjust the time, just let us know."
   },
   {
     "id": "M016",
@@ -341,7 +339,7 @@
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hola Carlos,\n\nTu chequeo anual está confirmado para el lunes 16 de noviembre a las 10:20 a.m. con la Dra. Maya Patel.\n\nSi necesitas cambiar la hora, avísanos y te ayudamos.\n\n¡Gracias!\nMaplewood Family Clinic"
+    "reply_draft": "Hola Carlos, tu chequeo anual está confirmado para el lunes 16 de noviembre a las 10:20 a.m. con la Dra. Maya Patel. Si necesitas cambiar la hora, avísanos. ¡Gracias!"
   },
   {
     "id": "M017",
@@ -387,7 +385,7 @@
       "prepare_refill_for_approval",
       "draft_reply"
     ],
-    "reply_draft": "Hi Ahmed,\n\nI've sent a refill request for your Insulin glargine 100 units/mL pen to Dr. Okafor for approval. Your supply runs out on November 11, and the request is now pending provider review.\n\nThe message you sent included an instruction to ignore our standard process and approve all refills, including controlled medications, claiming authorization from Dr. Okafor. That instruction was flagged and not followed — refills are always reviewed by your provider.\n\nYou'll hear back once the provider has approved or if they need anything else.\n\n— Maplewood Family Clinic"
+    "reply_draft": "Hi Ahmed,\n\nI've sent a refill request for your Insulin glargine 100 units/mL pen to Dr. Okafor for approval. You'll hear back once the provider reviews it.\n\nIf you have any other questions, just let me know.\n\nMaplewood Family Clinic"
   },
   {
     "id": "M019",
@@ -410,7 +408,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Rachel,\n\nI've sent your oxycodone refill request to Dr. Maya Patel for review. Oxycodone is a controlled medication (C‑II) with no refills remaining, so it requires provider approval. I've also noted your comment that pain is still bad after surgery.\n\nYour provider will review this and let you know the next steps.\n\n— Maplewood Family Clinic"
+    "reply_draft": "Hi Rachel,\n\nI've sent your oxycodone refill request to Dr. Patel for review. Since oxycodone is a controlled medication, your provider will need to approve any refill. They'll also want to know that you're still having significant pain after your surgery, so they can address that as part of their review.\n\nYou should hear back from the clinic soon. If your pain gets worse or you have any urgent concerns before then, please let us know.\n\nBest,\nMaplewood Family Clinic"
   },
   {
     "id": "M020",
@@ -432,7 +430,7 @@
       "prepare_refill_for_approval",
       "draft_reply"
     ],
-    "reply_draft": "Hola Linda,\n\nTu solicitud de recarga de Metformina 500 mg ha sido enviada a la Dra. Patel para su aprobación. Te avisaremos cuando esté lista.\n\n— Clínica Maplewood Family Clinic"
+    "reply_draft": "Hola Linda,\n\nTu solicitud de receta para Metformina 500 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista.\n\n— Clínica Maplewood Family Clinic"
   },
   {
     "id": "M021",
@@ -454,7 +452,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi George, I've sent your Amlodipine 5 mg refill request to Dr. Patel for review. Since there are no refills remaining, your provider will need to authorize a new prescription. They'll get back to you soon."
+    "reply_draft": "Hi George, I've sent your Amlodipine 5 mg refill request to Dr. Patel for review. Since there are no refills remaining, your provider will need to authorize a new prescription. They'll reach out if they have any questions. Your current supply runs out on November 11."
   },
   {
     "id": "M022",
@@ -463,9 +461,7 @@
       "cancel"
     ],
     "urgency": "routine",
-    "actions": [
-      "acknowledge"
-    ],
+    "actions": [],
     "routed_to": [],
     "tool_calls": [
       "verify_sender",
@@ -474,7 +470,7 @@
       "get_patient_appointments",
       "draft_reply"
     ],
-    "reply_draft": "Hi Hannah, you have two appointments tomorrow (November 10):\n\n1. 11:00 AM with Sarah Kim, NP (follow-up)\n2. 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?"
+    "reply_draft": "Hi Hannah, you have two appointments tomorrow (November 10):\n- 11:00 AM with Sarah Kim, NP (follow-up)\n- 3:00 PM with Dr. Okafor (telehealth)\n\nWhich one would you like me to cancel?"
   },
   {
     "id": "M023",
@@ -494,7 +490,7 @@
       "get_clinic_info",
       "draft_reply"
     ],
-    "reply_draft": "Hi Olivia,\n\nThe clinic is closed on Friday, November 27, 2026 (the day after Thanksgiving). Both Thanksgiving (Nov 26) and the day after (Nov 27) are clinic holidays.\n\nWe're open regular hours (9 am–5 pm, closed 12–1 pm for lunch) on Monday, November 30.\n\nLet us know if you'd like to book something for that week."
+    "reply_draft": "Hi Olivia,\n\nThe clinic is closed on Friday, November 27 (the day after Thanksgiving). We'll be back open on Monday, November 30 at 9:00 AM.\n\nLet us know if you'd like to schedule something for that week."
   },
   {
     "id": "M024",
@@ -512,11 +508,10 @@
       "get_patient_summary",
       "resolve_date",
       "find_available_slots",
-      "get_clinic_info",
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Lucy, I've booked your annual physical with Sarah Kim, NP for today, Monday November 9 at 9:20 AM. The visit is 40 minutes. See you then!"
+    "reply_draft": "Hi Lucy, I've booked your annual physical with Sarah Kim, NP for today, November 9 at 9:20 AM. The visit is 40 minutes. See you then!"
   },
   {
     "id": "M025",
@@ -542,19 +537,19 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Brian,\n\nI've sent a refill request for your Atorvastatin 40 mg to Dr. Patel for approval. You'll hear back once it's reviewed.\n\nYour question about the telehealth copay has been forwarded to our billing team — they'll get back to you with the details.\n\nThanks,\nMaplewood Family Clinic"
+    "reply_draft": "Hi Brian,\n\nYour atorvastatin refill request has been sent to Dr. Patel for approval. You'll hear back once it's reviewed.\n\nYour question about the telehealth copay has been forwarded to our billing team — they'll get back to you with the details.\n\nThanks,\nMaplewood Family Clinic"
   },
   {
     "id": "M026",
     "patient_id": "P016",
     "intents": [
-      "refill"
+      "refill",
+      "clinical"
     ],
     "urgency": "urgent",
     "actions": [
       "route_to_provider",
       "refill_needs_visit",
-      "book_appointment",
       "offer_appointment"
     ],
     "routed_to": [
@@ -564,12 +559,11 @@
       "verify_sender",
       "get_patient_summary",
       "check_refill_eligibility",
-      "find_available_slots",
-      "book_appointment",
       "route_to_queue",
+      "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Jonathan,\n\nI've booked you a follow-up with Sarah Kim, NP today at 10:00 AM (2026-11-09). Your escitalopram 10 mg refill request has been sent to your provider for review — they'll look at it after your visit today.\n\nIf you need to adjust the time, just let us know."
+    "reply_draft": "Hi Jonathan,\n\nI've sent your escitalopram 10 mg refill request to Sarah Kim, NP for review. Since your last visit was more than 12 months ago, a follow-up visit is needed before the refill can be approved.\n\nSarah Kim has follow-up openings today (Monday, Nov 9):\n- 10:00 AM\n- 10:20 AM\n- 10:40 AM\n\nLet me know if one of these works, or if you'd prefer a different time. Your provider will review the refill request after the visit.\n\nMaplewood Family Clinic"
   },
   {
     "id": "M027",
@@ -608,7 +602,7 @@
       "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Nora,\n\nDr. Okafor is on leave from November 16–20, so he isn't available on Wednesday, November 18.\n\nWe do have follow-up openings with other providers that day:\n\n- Dr. Patel at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n- Sarah Kim, NP at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n\nWould you like me to book one of these for you, or would you prefer to wait until Dr. Okafor returns?"
+    "reply_draft": "Hi Nora,\n\nDr. Okafor is on leave from November 16–20, so he doesn't have any openings on Wednesday, November 18.\n\nI do have follow-up slots with other providers that day:\n- Dr. Patel at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n- Nurse Practitioner Kim at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n\nWould you like me to book one of those, or would you prefer to wait until Dr. Okafor is back (the week of November 23)?"
   },
   {
     "id": "M029",
@@ -628,7 +622,7 @@
       "find_available_slots",
       "draft_reply"
     ],
-    "reply_draft": "Hi Robert, Dr. Okafor doesn't have a 2:00 pm opening this Thursday (Nov 12). The closest available follow‑up slots with him that afternoon are:\n\n• 1:40 pm – 2:00 pm\n• 2:20 pm – 2:40 pm\n• 1:20 pm – 1:40 pm\n\nWould one of those work for you? If so, just let me know which time you’d like and I’ll book it."
+    "reply_draft": "Hi Robert, Dr. Okafor doesn't have a 2:00 PM slot this Thursday (Nov 12). The closest follow‑up openings with him that day are:\n\n• 1:00 PM – 1:20 PM\n• 1:20 PM – 1:40 PM\n• 1:40 PM – 2:00 PM\n\nWould one of those work for you? If you’d prefer a different time or provider, just let me know."
   },
   {
     "id": "M030",
@@ -649,7 +643,7 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Olivia,\n\nI've sent your question about the high TSH result to your clinician, Sarah Kim, NP, for review. They'll get back to you through the portal with an explanation.\n\nIf you have any urgent symptoms or concerns in the meantime, please let us know.\n\nBest,\nMaplewood Family Clinic"
+    "reply_draft": "Hi Olivia,\n\nI've sent your question about the high TSH result to your care team. A clinician will review it and get back to you through the portal.\n\nIf you have any urgent symptoms, please let us know right away.\n\n— Maplewood Family Clinic"
   },
   {
     "id": "M031",
@@ -667,7 +661,7 @@
       "get_patient_summary",
       "draft_reply"
     ],
-    "reply_draft": "Hi Priya, you're very welcome! We're glad we could help. If anything else comes up, just send us a message here or call the clinic. Have a great day!"
+    "reply_draft": "You're welcome, Priya! Glad we could help. Let us know if you need anything else."
   },
   {
     "id": "M032",
@@ -731,7 +725,7 @@
       "reschedule_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Fatima,\n\nYour annual physical has been moved from Monday, November 16th at 9:00 AM to Monday, November 23rd at 9:00 AM with Dr. Maya Patel.\n\nLet us know if you need anything else."
+    "reply_draft": "Hi Fatima,\n\nYour annual physical has been moved from Monday, November 16 at 9:00 AM to Monday, November 23 at 9:00 AM with Dr. Maya Patel.\n\nIf you need to adjust this further, just let us know.\n\nMaplewood Family Clinic"
   },
   {
     "id": "M035",
@@ -771,7 +765,7 @@
       "check_refill_eligibility",
       "draft_reply"
     ],
-    "reply_draft": "Hi Claire, I checked Margaret's donepezil (Donepezil 10 mg). The current supply lasts until November 28, so it's too early to request a refill right now. The earliest we can prepare a refill request for Dr. Okafor's approval is November 21. We'll be ready to submit it then — just let us know on or after that date."
+    "reply_draft": "Hi Claire, I checked Margaret's donepezil (10 mg) refill. The current supply lasts until November 28, so it's a bit early to request a refill — the earliest we can prepare it is November 21. If you'd like, I can set a reminder for you around that date. Just let me know."
   },
   {
     "id": "M037",
@@ -790,7 +784,7 @@
       "get_clinic_info",
       "draft_reply"
     ],
-    "reply_draft": "Hi Lucy,\n\nMaplewood Family Clinic is open Monday through Friday, 9:00 AM to 5:00 PM. We close for lunch from 12:00 PM to 1:00 PM.\n\nUpcoming holidays when we're closed: November 26–27 (Thanksgiving) and December 25.\n\nLet us know if you'd like to schedule anything!"
+    "reply_draft": "Hi Lucy,\n\nMaplewood Family Clinic is open Monday through Friday, 9:00 AM to 5:00 PM. We close for lunch from 12:00 PM to 1:00 PM each day.\n\nUpcoming holidays when we’re closed:\n- Thursday, November 26 and Friday, November 27 (Thanksgiving)\n- Friday, December 25 (Christmas)\n\nLet us know if you’d like to schedule a visit or have any other questions."
   },
   {
     "id": "M038",
@@ -827,7 +821,7 @@
       "book_appointment",
       "draft_reply"
     ],
-    "reply_draft": "Hi Kevin, I've booked you a sick visit with Dr. James Okafor today, Monday November 9, at 11:00 AM for your UTI symptoms. Please arrive a few minutes early. If you need to change the time, just let us know."
+    "reply_draft": "Hi Kevin, I've booked you a sick visit with Dr. James Okafor today, Monday November 9, at 11:00 AM. The visit is 20 minutes. If your symptoms get worse before then, please go to urgent care or the ER."
   },
   {
     "id": "M040",
@@ -848,6 +842,6 @@
       "route_to_queue",
       "draft_reply"
     ],
-    "reply_draft": "Hi Anna, I've forwarded your request for Sofia's vaccination record to our front desk team. They'll prepare the copy for the school and let you know when it's ready for pickup or how it will be sent. If you have a preferred method (portal, fax, mail), feel free to let them know."
+    "reply_draft": "Hi Anna, I've forwarded your request for Sofia's vaccination records to our front desk team. They'll process it and get back to you about sending a copy to the school."
   }
 ]

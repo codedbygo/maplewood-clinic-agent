@@ -1,0 +1,300 @@
+{
+  "id": "H09",
+  "from_name": "Hannah Lee",
+  "body": "Do you have anything this Saturday morning for a sick visit? Sore throat since yesterday.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "emergency": false,
+    "clinical_concern": true,
+    "rationale": "The patient reports a sore throat since yesterday and requests a sick visit appointment for Saturday morning, indicating a clinical concern that warrants timely evaluation.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P011",
+    "candidate_patient_ids": [
+      "P011"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P011",
+        "candidate_patient_ids": [
+          "P011"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P011",
+          "first_name": "Hannah",
+          "full_name": "Hannah Lee",
+          "age": 33,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2026-09-30",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "this Saturday"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-14",
+        "end": "2026-11-14",
+        "business_days": [],
+        "label": "Saturday",
+        "reason": "'this Saturday' resolves to 2026-11-14 (Saturday), relative to today 2026-11-09. Note: 2026-11-14 is a Saturday; the clinic is closed at weekends. No clinic business days in this range."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "visit_type": "sick_visit",
+        "part_of_day": "morning",
+        "verification_token": "[redacted]",
+        "limit": 8,
+        "provider": "KIM",
+        "date_to": "2026-11-10",
+        "date_from": "2026-11-09"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "11:20",
+            "end": "11:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-10",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "sick_visit"
+          }
+        ],
+        "reason": "8 free sick_visit slot(s) between 2026-11-09 and 2026-11-10 with KIM."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "provider": "KIM",
+        "date": "2026-11-10",
+        "start": "09:00",
+        "verification_token": "[redacted]",
+        "visit_type": "sick_visit"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A171",
+          "patient_id": "P011",
+          "provider": "KIM",
+          "date": "2026-11-10",
+          "start": "09:00",
+          "end": "09:20",
+          "visit_type": "sick_visit",
+          "status": "booked",
+          "message_id": "H09"
+        },
+        "reason": "Booked A171: KIM sick_visit 2026-11-10 09:00-09:20."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Hannah, the clinic is closed on weekends so we don't have Saturday appointments. I've booked you a sick visit with Sarah Kim, NP on Tuesday, November 10 at 9:00 AM (appointment A171). She'll take a look at your sore throat then. If you need to change the time, just let us know.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked sick visit with primary provider Sarah Kim, NP for Tuesday 2026-11-10 09:00 AM (appointment A171). Clinic closed weekends, so Saturday not available."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 816,
+      "output_tokens": 445,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.17,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6156,
+      "output_tokens": 445,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.6,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6768,
+      "output_tokens": 319,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.89,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7022,
+      "output_tokens": 220,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.38,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7163,
+      "output_tokens": 590,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 16.31,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 38.38,
+  "result": {
+    "id": "H09",
+    "patient_id": "P011",
+    "intents": [
+      "schedule",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Hannah, the clinic is closed on weekends so we don't have Saturday appointments. I've booked you a sick visit with Sarah Kim, NP on Tuesday, November 10 at 9:00 AM (appointment A171). She'll take a look at your sore throat then. If you need to change the time, just let us know."
+  }
+}

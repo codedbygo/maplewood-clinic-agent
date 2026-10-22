@@ -10,8 +10,15 @@ from agent.schema import Triage
 
 
 def triage(**kw):
-    base = dict(intents=["refill"], urgency="routine", emergency=False, clinical_concern=False, rationale="r",
-                language="en", suspicious_instruction=False)
+    base = dict(
+        intents=["refill"],
+        urgency="routine",
+        emergency=False,
+        clinical_concern=False,
+        rationale="r",
+        language="en",
+        suspicious_instruction=False,
+    )
     base.update(kw)
     return Triage(**base)
 
@@ -41,7 +48,14 @@ class FakeLLM:
 
 
 def msg(body, name="Robert Chen", contact="555-0102", mid="T1"):
-    return {"id": mid, "received_at": "2026-11-09T08:00:00-06:00", "channel": "sms", "from_name": name, "from_contact": contact, "body": body}
+    return {
+        "id": mid,
+        "received_at": "2026-11-09T08:00:00-06:00",
+        "channel": "sms",
+        "from_name": name,
+        "from_contact": contact,
+        "body": body,
+    }
 
 
 async def _run(m, llm):
@@ -87,8 +101,13 @@ def test_scripted_refill_flow_uses_real_trace():
     assert result.patient_id == "P002"
     assert result.actions == ["prepare_refill_for_approval"]
     assert result.routed_to == ["provider_refills"]
-    assert result.tool_calls == ["verify_sender", "get_patient_summary", "check_refill_eligibility",
-                                 "prepare_refill_for_approval", "draft_reply"]
+    assert result.tool_calls == [
+        "verify_sender",
+        "get_patient_summary",
+        "check_refill_eligibility",
+        "prepare_refill_for_approval",
+        "draft_reply",
+    ]
     assert log["guard_violations"] == []
 
 
@@ -121,13 +140,17 @@ def test_runner_emits_stage_and_tool_events_in_order():
     events = []
 
     def script(step, token):
-        return [[tool_use("draft_reply", text="Hi", language="en")],
-                [tool_use("submit_result", intents=["other"], urgency="routine", actions=["acknowledge"])]][step]
+        return [
+            [tool_use("draft_reply", text="Hi", language="en")],
+            [tool_use("submit_result", intents=["other"], urgency="routine", actions=["acknowledge"])],
+        ][step]
 
     async def go():
         async with open_clinic() as clinic:
             await clinic.reset()
-            return await process_message(msg("thanks!"), clinic, FakeLLM(triage_result=triage(intents=["other"]), script=script), emit=events.append)
+            return await process_message(
+                msg("thanks!"), clinic, FakeLLM(triage_result=triage(intents=["other"]), script=script), emit=events.append
+            )
 
     asyncio.run(go())
     kinds = [e["type"] if e["type"] != "stage" else e["stage"] for e in events]
@@ -139,11 +162,14 @@ def test_runner_emits_stage_and_tool_events_in_order():
 
 def test_verification_token_never_leaves_the_runner():
     import json as _json
+
     events = []
 
     def script(step, token):
-        return [[tool_use("list_medications", verification_token=token)],
-                [tool_use("submit_result", intents=["refill"], urgency="routine", actions=[])]][step]
+        return [
+            [tool_use("list_medications", verification_token=token)],
+            [tool_use("submit_result", intents=["refill"], urgency="routine", actions=[])],
+        ][step]
 
     async def go():
         async with open_clinic() as clinic:

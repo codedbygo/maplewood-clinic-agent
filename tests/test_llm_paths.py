@@ -64,8 +64,13 @@ def test_cost():
 
 
 def test_translation_of_list_content_with_text_blocks():
-    out = to_openai_messages("S", [{"role": "user", "content": [{"type": "text", "text": "a"}, {"type": "text", "text": "b"}]},
-                                   {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t", "content": [{"x": 1}]}]}])
+    out = to_openai_messages(
+        "S",
+        [
+            {"role": "user", "content": [{"type": "text", "text": "a"}, {"type": "text", "text": "b"}]},
+            {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t", "content": [{"x": 1}]}]},
+        ],
+    )
     assert out[1] == {"role": "user", "content": "a\nb"}
     assert out[2] == {"role": "tool", "tool_call_id": "t", "content": '[{"x": 1}]'}
 
@@ -80,8 +85,11 @@ def test_transport_error_retries_then_gives_up():
 
 def test_non_json_5xx_retries_then_reports_status():
     with pytest.raises(RuntimeError, match="502 after 2 attempts"):
-        asyncio.run(make(lambda r: httpx2.Response(502, text="<html>bad gateway</html>"), max_retries=1)
-                    .step("S", [{"role": "user", "content": "x"}], []))
+        asyncio.run(
+            make(lambda r: httpx2.Response(502, text="<html>bad gateway</html>"), max_retries=1).step(
+                "S", [{"role": "user", "content": "x"}], []
+            )
+        )
 
 
 def test_client_error_is_not_retried():

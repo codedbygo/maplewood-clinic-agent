@@ -22,9 +22,14 @@ def token_for(tools, name, contact):
 
 def test_every_tool_returns_reason(tools):
     begin(tools, "Robert Chen", "555-0102")
-    for r in [tools.verify_sender(), tools.get_clinic_info(), tools.resolve_date("tomorrow"),
-              tools.list_medications("bogus"), tools.find_available_slots("follow_up")]:
-        assert "reason" in r and r["reason"]
+    for r in [
+        tools.verify_sender(),
+        tools.get_clinic_info(),
+        tools.resolve_date("tomorrow"),
+        tools.list_medications("bogus"),
+        tools.find_available_slots("follow_up"),
+    ]:
+        assert r.get("reason")
 
 
 def test_verify_uses_message_sender_not_llm_arguments(tools):
@@ -40,8 +45,12 @@ def test_verify_with_stated_dob_from_unknown_contact(tools):
 
 
 def test_phi_tools_refuse_without_valid_token(tools):
-    for r in [tools.list_medications("bogus"), tools.get_patient_appointments("bogus"),
-              tools.get_patient_summary("bogus"), tools.check_refill_eligibility("bogus", "lisinopril")]:
+    for r in [
+        tools.list_medications("bogus"),
+        tools.get_patient_appointments("bogus"),
+        tools.get_patient_summary("bogus"),
+        tools.check_refill_eligibility("bogus", "lisinopril"),
+    ]:
         assert r["ok"] is False
         assert "verif" in r["reason"].lower()
 
@@ -146,8 +155,9 @@ def test_appointments_for_unverified_caregiver_refused(tools):
 
 def test_reschedule_records_message_id(tools):
     tok = token_for(tools, "Fatima Hassan", "fatima.hassan@example.com")
-    slots = tools.find_available_slots("annual_physical", "2026-11-23", "2026-11-25", provider="PATEL",
-                                       part_of_day="morning", verification_token=tok)["slots"]
+    slots = tools.find_available_slots(
+        "annual_physical", "2026-11-23", "2026-11-25", provider="PATEL", part_of_day="morning", verification_token=tok
+    )["slots"]
     r = tools.reschedule_appointment(tok, slots[0]["date"], slots[0]["start"], appointment_id="A073")
     assert r["ok"], r["reason"]
     assert next(a for a in tools.store.appointments if a["id"] == "A073")["message_id"] == "MX"

@@ -1,0 +1,279 @@
+{
+  "id": "H08",
+  "from_name": "Priya Raman",
+  "body": "Two things: please cancel my telehealth on Friday the 13th, and can you tell me if my last bill was sent to insurance?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "cancel",
+      "billing"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The user requests cancellation of a telehealth appointment and asks about insurance billing status; no symptoms or urgent health concerns are mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P007",
+    "candidate_patient_ids": [
+      "P007"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P007",
+        "candidate_patient_ids": [
+          "P007"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P007",
+          "first_name": "Priya",
+          "full_name": "Priya Raman",
+          "age": 31,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2026-10-20",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Friday the 13th"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-13",
+        "end": "2026-11-13",
+        "business_days": [
+          "2026-11-13"
+        ],
+        "label": "2026-11-13",
+        "reason": "'Friday the 13th' resolves to 2026-11-13 (2026-11-13), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "get_patient_appointments",
+      "input": {
+        "verification_token": "[redacted]",
+        "date": "2026-11-13",
+        "visit_type": "telehealth"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "appointments": [
+          {
+            "id": "A064",
+            "patient_id": "P007",
+            "provider": "PATEL",
+            "date": "2026-11-13",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "telehealth",
+            "status": "booked"
+          }
+        ],
+        "reason": "1 booked appointment(s) match."
+      }
+    },
+    {
+      "name": "cancel_appointment",
+      "input": {
+        "verification_token": "[redacted]",
+        "appointment_id": "A064"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A064",
+          "patient_id": "P007",
+          "provider": "PATEL",
+          "date": "2026-11-13",
+          "start": "09:00",
+          "end": "09:20",
+          "visit_type": "telehealth",
+          "status": "cancelled"
+        },
+        "reason": "Cancelled A064 (PATEL 2026-11-13 09:00)."
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "queue": "billing",
+        "verification_token": "[redacted]",
+        "summary": "Patient Priya Raman (P007) asks if their last bill was sent to insurance.",
+        "priority": "routine"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to billing (routine)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Priya,\n\nI've cancelled your telehealth appointment with Dr. Patel on Friday, November 13th at 9:00 AM.\n\nYour question about whether your last bill was sent to insurance has been forwarded to our billing team. They'll follow up with you directly.\n\nLet me know if there's anything else you need.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "cancel",
+      "billing"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": "Cancelled telehealth appointment A064 (Dr. Patel, 2026-11-13 09:00). Routed billing question to billing queue."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 829,
+      "output_tokens": 160,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.47,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6161,
+      "output_tokens": 276,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.84,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6347,
+      "output_tokens": 114,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.53,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6536,
+      "output_tokens": 142,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.56,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6656,
+      "output_tokens": 202,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.06,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6792,
+      "output_tokens": 409,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.88,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 24.36,
+  "result": {
+    "id": "H08",
+    "patient_id": "P007",
+    "intents": [
+      "cancel",
+      "billing"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "route_to_billing",
+      "cancel_appointment"
+    ],
+    "routed_to": [
+      "billing"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "get_patient_appointments",
+      "cancel_appointment",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Priya,\n\nI've cancelled your telehealth appointment with Dr. Patel on Friday, November 13th at 9:00 AM.\n\nYour question about whether your last bill was sent to insurance has been forwarded to our billing team. They'll follow up with you directly.\n\nLet me know if there's anything else you need."
+  }
+}

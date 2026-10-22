@@ -9,16 +9,26 @@ import pytest
 
 from agent.llm import LLM, LLMQuotaError, OpenRouterLLM, to_openai_messages, to_openai_tools
 
-TRIAGE_JSON = {"intents": ["refill"], "urgency": "routine", "emergency": False, "clinical_concern": False,
-               "rationale": "Routine refill.", "language": "en", "suspicious_instruction": False}
+TRIAGE_JSON = {
+    "intents": ["refill"],
+    "urgency": "routine",
+    "emergency": False,
+    "clinical_concern": False,
+    "rationale": "Routine refill.",
+    "language": "en",
+    "suspicious_instruction": False,
+}
 
 
 def chat(content=None, tool_calls=None, model="nvidia/nemotron-3-ultra-550b-a55b:free"):
     msg = {"role": "assistant", "content": content}
     if tool_calls:
         msg["tool_calls"] = tool_calls
-    return {"model": model, "choices": [{"message": msg, "finish_reason": "tool_calls" if tool_calls else "stop"}],
-            "usage": {"prompt_tokens": 100, "completion_tokens": 20}}
+    return {
+        "model": model,
+        "choices": [{"message": msg, "finish_reason": "tool_calls" if tool_calls else "stop"}],
+        "usage": {"prompt_tokens": 100, "completion_tokens": 20},
+    }
 
 
 def make(handler, **kw):
@@ -31,8 +41,13 @@ def make(handler, **kw):
 def test_translates_anthropic_shaped_history_to_openai():
     history = [
         {"role": "user", "content": "hello"},
-        {"role": "assistant", "content": [SimpleNamespace(type="text", text="checking"),
-                                          SimpleNamespace(type="tool_use", id="c1", name="get_clinic_info", input={"topic": "hours"})]},
+        {
+            "role": "assistant",
+            "content": [
+                SimpleNamespace(type="text", text="checking"),
+                SimpleNamespace(type="tool_use", id="c1", name="get_clinic_info", input={"topic": "hours"}),
+            ],
+        },
         {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "c1", "content": '{"ok": true}'}]},
         {"role": "user", "content": "Call submit_result to finish this message."},
     ]
@@ -40,16 +55,20 @@ def test_translates_anthropic_shaped_history_to_openai():
     assert out[0] == {"role": "system", "content": "SYSTEM"}
     assert out[1] == {"role": "user", "content": "hello"}
     assert out[2]["role"] == "assistant" and out[2]["content"] == "checking"
-    assert out[2]["tool_calls"][0] == {"id": "c1", "type": "function",
-                                       "function": {"name": "get_clinic_info", "arguments": '{"topic": "hours"}'}}
+    assert out[2]["tool_calls"][0] == {
+        "id": "c1",
+        "type": "function",
+        "function": {"name": "get_clinic_info", "arguments": '{"topic": "hours"}'},
+    }
     assert out[3] == {"role": "tool", "tool_call_id": "c1", "content": '{"ok": true}'}
     assert out[4] == {"role": "user", "content": "Call submit_result to finish this message."}
 
 
 def test_translates_tools():
     tools = [{"name": "resolve_date", "description": "d", "input_schema": {"type": "object", "properties": {}}}]
-    assert to_openai_tools(tools) == [{"type": "function", "function": {"name": "resolve_date", "description": "d",
-                                                                        "parameters": {"type": "object", "properties": {}}}}]
+    assert to_openai_tools(tools) == [
+        {"type": "function", "function": {"name": "resolve_date", "description": "d", "parameters": {"type": "object", "properties": {}}}}
+    ]
 
 
 def test_step_parses_tool_calls_into_blocks_and_sends_fallbacks():
@@ -57,8 +76,15 @@ def test_step_parses_tool_calls_into_blocks_and_sends_fallbacks():
 
     def handler(request):
         seen.update(json.loads(request.content))
-        return httpx2.Response(200, json=chat(content="ok", tool_calls=[
-            {"id": "t1", "type": "function", "function": {"name": "resolve_date", "arguments": '{"expression": "tomorrow"}'}}]))
+        return httpx2.Response(
+            200,
+            json=chat(
+                content="ok",
+                tool_calls=[
+                    {"id": "t1", "type": "function", "function": {"name": "resolve_date", "arguments": '{"expression": "tomorrow"}'}}
+                ],
+            ),
+        )
 
     llm = make(handler, fallbacks=["minimax/minimax-m3.1-flash:free"])
     resp = asyncio.run(llm.step("S", [{"role": "user", "content": "hi"}], []))
@@ -72,8 +98,9 @@ def test_step_parses_tool_calls_into_blocks_and_sends_fallbacks():
 
 def test_bad_tool_arguments_become_empty_input_not_a_crash():
     def handler(request):
-        return httpx2.Response(200, json=chat(tool_calls=[
-            {"id": "t1", "type": "function", "function": {"name": "resolve_date", "arguments": "{not json"}}]))
+        return httpx2.Response(
+            200, json=chat(tool_calls=[{"id": "t1", "type": "function", "function": {"name": "resolve_date", "arguments": "{not json"}}])
+        )
 
     resp = asyncio.run(make(handler).step("S", [{"role": "user", "content": "hi"}], []))
     assert resp.content[0].input == {}
@@ -104,9 +131,13 @@ def test_triage_gives_up_after_one_repair():
 
 
 def test_retries_rate_limit_then_succeeds():
-    answers = iter([httpx2.Response(429, json={"error": {"message": "Rate limit exceeded: free-models-per-min"}}, headers={"Retry-After": "1"}),
-                    httpx2.Response(503, json={"error": {"message": "busy"}}),
-                    httpx2.Response(200, json=chat(content="ok"))])
+    answers = iter(
+        [
+            httpx2.Response(429, json={"error": {"message": "Rate limit exceeded: free-models-per-min"}}, headers={"Retry-After": "1"}),
+            httpx2.Response(503, json={"error": {"message": "busy"}}),
+            httpx2.Response(200, json=chat(content="ok")),
+        ]
+    )
     resp = asyncio.run(make(lambda r: next(answers)).step("S", [{"role": "user", "content": "x"}], []))
     assert resp.content[0].text == "ok"
 

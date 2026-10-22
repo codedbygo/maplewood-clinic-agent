@@ -1,0 +1,250 @@
+{
+  "id": "H04",
+  "from_name": "Carlos Mendez",
+  "body": "Buenos días, necesito un resurtido de mi lisinopril. Gracias.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "es"
+  },
+  "triage": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The message requests a refill of lisinopril with no mention of symptoms, side effects, or urgent health concerns.",
+    "language": "es",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P018",
+    "candidate_patient_ids": [
+      "P018"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P018",
+        "candidate_patient_ids": [
+          "P018"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P018",
+          "first_name": "Carlos",
+          "full_name": "Carlos Mendez",
+          "age": 56,
+          "is_minor": false,
+          "preferred_language": "Spanish",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-07-19",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "medication_query": "lisinopril",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "prepare",
+        "eligible": true,
+        "medication": "Lisinopril-HCTZ 20/12.5 mg",
+        "prescriber": "PATEL",
+        "run_out_date": "2026-11-10",
+        "earliest_date": "2026-11-03",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Lisinopril-HCTZ 20/12.5 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": true,
+            "detail": "Last visit 2026-07-19; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 2."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-10; a request can be prepared from 2026-11-03."
+          }
+        ],
+        "reason": "All refill rules pass for Lisinopril-HCTZ 20/12.5 mg (supply runs out 2026-11-10). The agent may prepare a request for provider approval; it never approves."
+      }
+    },
+    {
+      "name": "prepare_refill_for_approval",
+      "input": {
+        "medication_query": "lisinopril",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "request": {
+          "id": "RR001",
+          "patient_id": "P018",
+          "medication": "Lisinopril-HCTZ 20/12.5 mg",
+          "prescriber": "PATEL",
+          "status": "pending_provider_approval",
+          "note": "",
+          "message_id": "H04"
+        },
+        "decision": "prepare",
+        "reason": "Pending request RR001 for Lisinopril-HCTZ 20/12.5 mg sent to the provider_refills queue for approval. Not approved."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hola Carlos, tu solicitud de resurtido de Lisinopril-HCTZ 20/12.5 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista. Gracias.",
+        "language": "es"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 818,
+      "output_tokens": 172,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.74,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6043,
+      "output_tokens": 113,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.27,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6468,
+      "output_tokens": 144,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.1,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6668,
+      "output_tokens": 156,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 13.06,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6786,
+      "output_tokens": 172,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.19,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 23.39,
+  "result": {
+    "id": "H04",
+    "patient_id": "P018",
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "prepare_refill_for_approval"
+    ],
+    "routed_to": [
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "prepare_refill_for_approval",
+      "draft_reply"
+    ],
+    "reply_draft": "Hola Carlos, tu solicitud de resurtido de Lisinopril-HCTZ 20/12.5 mg ha sido enviada a la Dra. Maya Patel para su aprobación. Te avisaremos cuando esté lista. Gracias."
+  }
+}

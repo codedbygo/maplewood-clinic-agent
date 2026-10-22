@@ -67,12 +67,34 @@ def test_adjacent_slot_is_allowed(store):
 
 
 def test_patient_cannot_be_in_two_places(store):
-    appts = [{"id": "X", "patient_id": "P001", "provider": "KIM", "date": "2026-11-17", "start": "10:00", "end": "10:20", "visit_type": "follow_up", "status": "booked"}]
+    appts = [
+        {
+            "id": "X",
+            "patient_id": "P001",
+            "provider": "KIM",
+            "date": "2026-11-17",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up",
+            "status": "booked",
+        }
+    ]
     assert "patient_overlap" in violations(store, "PATEL", "follow_up", "2026-11-17", "10:00", appts=appts, patient_id="P001")
 
 
 def test_cancelled_bookings_do_not_block(store):
-    appts = [{"id": "X", "patient_id": "P001", "provider": "KIM", "date": "2026-11-17", "start": "10:00", "end": "10:20", "visit_type": "follow_up", "status": "cancelled"}]
+    appts = [
+        {
+            "id": "X",
+            "patient_id": "P001",
+            "provider": "KIM",
+            "date": "2026-11-17",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up",
+            "status": "cancelled",
+        }
+    ]
     assert violations(store, "KIM", "follow_up", "2026-11-17", "10:00", appts=appts) == []
 
 
@@ -136,7 +158,9 @@ def test_reschedule_ignores_own_slot(store):
 
 
 def test_reschedule_moves_and_keeps_visit_type(store):
-    slot = find_slots(store.clinic, store.appointments, "annual_physical", "2026-11-24", "2026-11-24", provider="PATEL", patient_id="P015")[0]
+    slot = find_slots(store.clinic, store.appointments, "annual_physical", "2026-11-24", "2026-11-24", provider="PATEL", patient_id="P015")[
+        0
+    ]
     r = reschedule(store, "A073", slot["date"], slot["start"])
     assert r["ok"], r["reason"]
     appt = next(a for a in store.appointments if a["id"] == "A073")

@@ -26,18 +26,30 @@ def compare(runs: list[list[dict]]) -> dict:
     for mid in ids:
         outs = [outcome(run[mid]) if mid in run else None for run in by_run]
         if len(set(outs)) > 1:
-            changed[mid] = [{"missing": True} if o is None else
-                            {"urgency": o[0], "actions": list(o[1]), "patient_id": o[2], "routed_to": list(o[3])} for o in outs]
+            changed[mid] = [
+                {"missing": True} if o is None else {"urgency": o[0], "actions": list(o[1]), "patient_id": o[2], "routed_to": list(o[3])}
+                for o in outs
+            ]
     emergencies = {mid for run in by_run for mid, r in run.items() if "escalate_emergency" in r["actions"]}
-    return {"runs": len(runs), "messages": len(ids), "changed": len(changed), "changed_ids": sorted(changed),
-            "details": changed, "emergency_flips": sorted(mid for mid in emergencies if mid in changed)}
+    return {
+        "runs": len(runs),
+        "messages": len(ids),
+        "changed": len(changed),
+        "changed_ids": sorted(changed),
+        "details": changed,
+        "emergency_flips": sorted(mid for mid in emergencies if mid in changed),
+    }
 
 
 def build_report(runs: list[list[dict]], metas: list[dict]) -> dict:
     """Stability plus provenance: which model and runs it measured, so a stale file is never mistaken for current."""
     report = compare(runs)
-    report.update(model=metas[0].get("model") if metas else None, provider=metas[0].get("provider") if metas else None,
-                  run_ids=[m.get("run_id") for m in metas], complete=all(not m.get("stopped") for m in metas))
+    report.update(
+        model=metas[0].get("model") if metas else None,
+        provider=metas[0].get("provider") if metas else None,
+        run_ids=[m.get("run_id") for m in metas],
+        complete=all(not m.get("stopped") for m in metas),
+    )
     return report
 
 

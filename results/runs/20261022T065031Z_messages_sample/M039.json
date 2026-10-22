@@ -1,0 +1,283 @@
+{
+  "id": "M039",
+  "from_name": "Kevin O'Brien",
+  "body": "I think I have a UTI, burning when I pee since yesterday, no fever. Can I get an appointment?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "clinical",
+      "schedule"
+    ],
+    "urgency": "urgent",
+    "emergency": false,
+    "clinical_concern": true,
+    "rationale": "Patient reports burning on urination since yesterday, suggestive of a UTI, and requests an appointment. This is a clinical symptom needing timely evaluation but no emergency signs (no fever, no severe pain).",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P014",
+    "candidate_patient_ids": [
+      "P014"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P014",
+        "candidate_patient_ids": [
+          "P014"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P014",
+          "first_name": "Kevin",
+          "full_name": "Kevin O'Brien",
+          "age": 43,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-06-18",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "visit_type": "sick_visit",
+        "date_from": "2026-11-09",
+        "date_to": "2026-11-10",
+        "limit": 8,
+        "verification_token": "[redacted]",
+        "provider": "OKAFOR"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "13:00",
+            "end": "13:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "13:40",
+            "end": "14:00",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "14:00",
+            "end": "14:20",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "14:20",
+            "end": "14:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "15:20",
+            "end": "15:40",
+            "visit_type": "sick_visit"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "15:40",
+            "end": "16:00",
+            "visit_type": "sick_visit"
+          }
+        ],
+        "reason": "8 free sick_visit slot(s) between 2026-11-09 and 2026-11-10 with OKAFOR."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "verification_token": "[redacted]",
+        "date": "2026-11-09",
+        "start": "11:00",
+        "visit_type": "sick_visit",
+        "provider": "OKAFOR"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A175",
+          "patient_id": "P014",
+          "provider": "OKAFOR",
+          "date": "2026-11-09",
+          "start": "11:00",
+          "end": "11:20",
+          "visit_type": "sick_visit",
+          "status": "booked",
+          "message_id": "M039"
+        },
+        "reason": "Booked A175: OKAFOR sick_visit 2026-11-09 11:00-11:20."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Kevin, I've booked you a sick visit with Dr. James Okafor today, Monday November 9, at 11:00 AM. The visit is 20 minutes. If your symptoms get worse before then, please go to urgent care or the ER."
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "clinical",
+      "schedule"
+    ],
+    "urgency": "urgent",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked sick visit with primary provider Dr. Okafor for today 11:00 AM for UTI symptoms."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 824,
+      "output_tokens": 201,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.72,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6067,
+      "output_tokens": 611,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.98,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6674,
+      "output_tokens": 361,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.83,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6930,
+      "output_tokens": 201,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.52,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7055,
+      "output_tokens": 953,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 18.32,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 43.39,
+  "result": {
+    "id": "M039",
+    "patient_id": "P014",
+    "intents": [
+      "clinical",
+      "schedule"
+    ],
+    "urgency": "urgent",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Kevin, I've booked you a sick visit with Dr. James Okafor today, Monday November 9, at 11:00 AM. The visit is 20 minutes. If your symptoms get worse before then, please go to urgent care or the ER."
+  }
+}

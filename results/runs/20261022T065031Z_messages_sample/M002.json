@@ -1,0 +1,352 @@
+{
+  "id": "M002",
+  "from_name": "Priya Raman",
+  "body": "I need to move my appointment on Wednesday to Friday afternoon if possible.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The patient is requesting to move an existing appointment from Wednesday to Friday afternoon, which is a routine rescheduling request with no clinical symptoms or urgency.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P007",
+    "candidate_patient_ids": [
+      "P007"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P007",
+        "candidate_patient_ids": [
+          "P007"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P007",
+          "first_name": "Priya",
+          "full_name": "Priya Raman",
+          "age": 31,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2026-10-20",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Wednesday"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-11",
+        "end": "2026-11-11",
+        "business_days": [
+          "2026-11-11"
+        ],
+        "label": "Wednesday",
+        "reason": "'Wednesday' resolves to 2026-11-11 (Wednesday), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Friday"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-13",
+        "end": "2026-11-13",
+        "business_days": [
+          "2026-11-13"
+        ],
+        "label": "Friday",
+        "reason": "'Friday' resolves to 2026-11-13 (Friday), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "get_patient_appointments",
+      "input": {
+        "date": "2026-11-11",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "appointments": [
+          {
+            "id": "A035",
+            "patient_id": "P007",
+            "provider": "KIM",
+            "date": "2026-11-11",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up",
+            "status": "booked"
+          }
+        ],
+        "reason": "1 booked appointment(s) match."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "verification_token": "[redacted]",
+        "visit_type": "follow_up",
+        "part_of_day": "afternoon",
+        "date_from": "2026-11-13",
+        "date_to": "2026-11-13",
+        "provider": "KIM"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "13:00",
+            "end": "13:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "13:20",
+            "end": "13:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "13:40",
+            "end": "14:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "14:00",
+            "end": "14:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "14:20",
+            "end": "14:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "14:40",
+            "end": "15:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "15:00",
+            "end": "15:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-13",
+            "start": "15:20",
+            "end": "15:40",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-13 and 2026-11-13 with KIM."
+      }
+    },
+    {
+      "name": "reschedule_appointment",
+      "input": {
+        "current_date": "2026-11-11",
+        "verification_token": "[redacted]",
+        "new_date": "2026-11-13",
+        "new_start": "13:00"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A035",
+          "patient_id": "P007",
+          "provider": "KIM",
+          "date": "2026-11-13",
+          "start": "13:00",
+          "end": "13:20",
+          "visit_type": "follow_up",
+          "status": "booked"
+        },
+        "reason": "Moved A035 from KIM 2026-11-11 10:00 to KIM 2026-11-13 13:00-13:20."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Priya,\n\nYour follow-up appointment with Sarah Kim, NP has been moved from Wednesday, November 11 at 10:00 AM to Friday, November 13 at 1:00 PM.\n\nLet us know if you need anything else.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": "Rescheduled follow-up from 2026-11-11 10:00 to 2026-11-13 13:00 with provider KIM."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 813,
+      "output_tokens": 160,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.88,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6205,
+      "output_tokens": 148,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.08,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6380,
+      "output_tokens": 229,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.14,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6963,
+      "output_tokens": 263,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.26,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7219,
+      "output_tokens": 174,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.02,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7341,
+      "output_tokens": 611,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.43,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 24.85,
+  "result": {
+    "id": "M002",
+    "patient_id": "P007",
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "reschedule_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "resolve_date",
+      "get_patient_appointments",
+      "find_available_slots",
+      "reschedule_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Priya,\n\nYour follow-up appointment with Sarah Kim, NP has been moved from Wednesday, November 11 at 10:00 AM to Friday, November 13 at 1:00 PM.\n\nLet us know if you need anything else."
+  }
+}

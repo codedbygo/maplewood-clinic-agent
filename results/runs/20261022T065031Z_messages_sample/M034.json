@@ -1,0 +1,356 @@
+{
+  "id": "M034",
+  "from_name": "Fatima Hassan",
+  "body": "Please move my annual physical from Monday the 16th to any morning the following week.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The patient is asking to move an existing annual physical appointment to a different morning the following week; no symptoms or urgent health concerns are mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P015",
+    "candidate_patient_ids": [
+      "P015"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P015",
+        "candidate_patient_ids": [
+          "P015"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P015",
+          "first_name": "Fatima",
+          "full_name": "Fatima Hassan",
+          "age": 50,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-02-09",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Monday the 16th"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-16",
+        "end": "2026-11-16",
+        "business_days": [
+          "2026-11-16"
+        ],
+        "label": "2026-11-16",
+        "reason": "'Monday the 16th' resolves to 2026-11-16 (2026-11-16), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "the following week",
+        "anchor_date": "2026-11-16"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-23",
+        "end": "2026-11-27",
+        "business_days": [
+          "2026-11-23",
+          "2026-11-24",
+          "2026-11-25"
+        ],
+        "label": "the following week",
+        "reason": "'the following week' resolves to 2026-11-23 to 2026-11-27 (the following week), relative to today 2026-11-09. Note: 2026-11-26 (Thursday) is a clinic holiday; 2026-11-27 (Friday) is a clinic holiday."
+      }
+    },
+    {
+      "name": "get_patient_appointments",
+      "input": {
+        "verification_token": "[redacted]",
+        "date": "2026-11-16"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "appointments": [
+          {
+            "id": "A073",
+            "patient_id": "P015",
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "09:00",
+            "end": "09:40",
+            "visit_type": "annual_physical",
+            "status": "booked"
+          }
+        ],
+        "reason": "1 booked appointment(s) match."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "date_to": "2026-11-25",
+        "limit": 8,
+        "date_from": "2026-11-23",
+        "visit_type": "annual_physical",
+        "provider": "PATEL",
+        "part_of_day": "morning",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "09:00",
+            "end": "09:40",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "09:20",
+            "end": "10:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "10:20",
+            "end": "11:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "10:40",
+            "end": "11:20",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-23",
+            "start": "11:00",
+            "end": "11:40",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-24",
+            "start": "10:40",
+            "end": "11:20",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-24",
+            "start": "11:00",
+            "end": "11:40",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-25",
+            "start": "10:20",
+            "end": "11:00",
+            "visit_type": "annual_physical"
+          }
+        ],
+        "reason": "8 free annual_physical slot(s) between 2026-11-23 and 2026-11-25 with PATEL."
+      }
+    },
+    {
+      "name": "reschedule_appointment",
+      "input": {
+        "verification_token": "[redacted]",
+        "new_date": "2026-11-23",
+        "current_date": "2026-11-16",
+        "new_start": "09:00"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A073",
+          "patient_id": "P015",
+          "provider": "PATEL",
+          "date": "2026-11-23",
+          "start": "09:00",
+          "end": "09:40",
+          "visit_type": "annual_physical",
+          "status": "booked"
+        },
+        "reason": "Moved A073 from PATEL 2026-11-16 09:00 to PATEL 2026-11-23 09:00-09:40."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Fatima,\n\nYour annual physical has been moved from Monday, November 16 at 9:00 AM to Monday, November 23 at 9:00 AM with Dr. Maya Patel.\n\nIf you need to adjust this further, just let us know.\n\nMaplewood Family Clinic"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "acknowledge"
+    ],
+    "emergency": false,
+    "notes": "Rescheduled annual physical from 2026-11-16 09:00 to 2026-11-23 09:00 with Dr. Maya Patel (PATEL)."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 818,
+      "output_tokens": 170,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.96,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6308,
+      "output_tokens": 158,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.87,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6483,
+      "output_tokens": 328,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.44,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7102,
+      "output_tokens": 140,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 1.99,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7360,
+      "output_tokens": 184,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.13,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7490,
+      "output_tokens": 217,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.29,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 23.7,
+  "result": {
+    "id": "M034",
+    "patient_id": "P015",
+    "intents": [
+      "reschedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "reschedule_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "resolve_date",
+      "get_patient_appointments",
+      "find_available_slots",
+      "reschedule_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Fatima,\n\nYour annual physical has been moved from Monday, November 16 at 9:00 AM to Monday, November 23 at 9:00 AM with Dr. Maya Patel.\n\nIf you need to adjust this further, just let us know.\n\nMaplewood Family Clinic"
+  }
+}

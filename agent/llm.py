@@ -16,6 +16,7 @@ import re
 import time
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import anthropic
 import httpx2
@@ -23,8 +24,10 @@ from pydantic import ValidationError
 
 from agent.schema import Triage
 
+ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
-def load_dotenv(path: Path = Path(__file__).resolve().parent.parent / ".env") -> None:
+
+def load_dotenv(path: Path = ENV_FILE) -> None:
     """Minimal .env loader (no extra dependency). Existing environment variables win."""
     if path.exists():
         for line in path.read_text().splitlines():
@@ -62,13 +65,18 @@ def cost_usd(model: str, usage: dict) -> float:
     if model.endswith(":free"):
         return 0.0
     pin, pout, pread, pwrite = PRICES.get(model, PRICES[DEFAULT_ANTHROPIC_MODEL])
-    return (usage.get("input_tokens", 0) * pin + usage.get("output_tokens", 0) * pout
-            + usage.get("cache_read_input_tokens", 0) * pread + usage.get("cache_creation_input_tokens", 0) * pwrite) / 1e6
+    return (
+        usage.get("input_tokens", 0) * pin
+        + usage.get("output_tokens", 0) * pout
+        + usage.get("cache_read_input_tokens", 0) * pread
+        + usage.get("cache_creation_input_tokens", 0) * pwrite
+    ) / 1e6
 
 
-def LLM(model: str | None = None, effort: str | None = None):  # noqa: N802 - factory keeps the old constructor name
+def LLM(model: str | None = None, effort: str | None = None):
     provider = os.environ.get("LLM_PROVIDER") or (
-        "anthropic" if os.environ.get("ANTHROPIC_API_KEY") and not os.environ.get("OPENROUTER_API_KEY") else "openrouter")
+        "anthropic" if os.environ.get("ANTHROPIC_API_KEY") and not os.environ.get("OPENROUTER_API_KEY") else "openrouter"
+    )
     if provider == "anthropic":
         return AnthropicLLM(model=model, effort=effort)
     return OpenRouterLLM(model=model, effort=effort)
@@ -77,6 +85,7 @@ def LLM(model: str | None = None, effort: str | None = None):  # noqa: N802 - fa
 # ---------------------------------------------------------------------------
 # Anthropic
 # ---------------------------------------------------------------------------
+
 
 def _usage(resp) -> dict:
     u = resp.usage
@@ -104,8 +113,13 @@ class AnthropicLLM:
         return kw
 
     def _record(self, kind: str, resp, started: float) -> dict:
-        entry = {"kind": kind, "model": getattr(resp, "model", self.model), **_usage(resp),
-                 "latency_s": round(time.monotonic() - started, 2), "stop_reason": resp.stop_reason}
+        entry = {
+            "kind": kind,
+            "model": getattr(resp, "model", self.model),
+            **_usage(resp),
+            "latency_s": round(time.monotonic() - started, 2),
+            "stop_reason": resp.stop_reason,
+        }
         self.calls.append(entry)
         if resp.stop_reason == "refusal":
             raise LLMRefusal(str(getattr(resp, "stop_details", None)))
@@ -116,9 +130,15 @@ class AnthropicLLM:
         extra = self._extra()
         extra["output_config"] = {**extra["output_config"], "effort": "low"}
         resp = await self.client.beta.messages.parse(
-            max_tokens=2000, system=system, messages=[{"role": "user", "content": user}], output_format=Triage, **extra,
+            max_tokens=2000,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+            output_format=Triage,
+            **extra,
         )
         self._record("triage", resp, started)
+        if resp.parsed_output is None:
+            raise ValueError("triage response did not match the schema")
         return resp.parsed_output
 
     async def step(self, system: str, messages: list, tools: list):
@@ -132,13 +152,16 @@ class AnthropicLLM:
 # OpenRouter (OpenAI-compatible chat completions)
 # ---------------------------------------------------------------------------
 
+
 def _get(block, key, default=None):
     return block.get(key, default) if isinstance(block, dict) else getattr(block, key, default)
 
 
 def to_openai_tools(tools: list[dict]) -> list[dict]:
-    return [{"type": "function", "function": {"name": t["name"], "description": t.get("description", ""),
-                                              "parameters": t["input_schema"]}} for t in tools]
+    return [
+        {"type": "function", "function": {"name": t["name"], "description": t.get("description", ""), "parameters": t["input_schema"]}}
+        for t in tools
+    ]
 
 
 def to_openai_messages(system: str, messages: list[dict]) -> list[dict]:
@@ -151,10 +174,16 @@ def to_openai_messages(system: str, messages: list[dict]) -> list[dict]:
             continue
         if m["role"] == "assistant":
             text = "".join(_get(b, "text", "") or "" for b in content if _get(b, "type") == "text")
-            calls = [{"id": _get(b, "id"), "type": "function",
-                      "function": {"name": _get(b, "name"), "arguments": json.dumps(_get(b, "input") or {})}}
-                     for b in content if _get(b, "type") == "tool_use"]
-            msg = {"role": "assistant", "content": text or None}
+            calls = [
+                {
+                    "id": _get(b, "id"),
+                    "type": "function",
+                    "function": {"name": _get(b, "name"), "arguments": json.dumps(_get(b, "input") or {})},
+                }
+                for b in content
+                if _get(b, "type") == "tool_use"
+            ]
+            msg: dict[str, Any] = {"role": "assistant", "content": text or None}
             if calls:
                 msg["tool_calls"] = calls
             out.append(msg)
@@ -163,8 +192,9 @@ def to_openai_messages(system: str, messages: list[dict]) -> list[dict]:
         for b in content:
             if _get(b, "type") == "tool_result":
                 body = _get(b, "content", "")
-                out.append({"role": "tool", "tool_call_id": _get(b, "tool_use_id"),
-                            "content": body if isinstance(body, str) else json.dumps(body)})
+                out.append(
+                    {"role": "tool", "tool_call_id": _get(b, "tool_use_id"), "content": body if isinstance(body, str) else json.dumps(body)}
+                )
             elif _get(b, "type") == "text":
                 texts.append(_get(b, "text", ""))
         if texts:
@@ -174,15 +204,14 @@ def to_openai_messages(system: str, messages: list[dict]) -> list[dict]:
 
 def _extract_json(text: str) -> dict:
     fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.S)
-    candidate = fenced.group(1) if fenced else text[text.find("{"): text.rfind("}") + 1]
+    candidate = fenced.group(1) if fenced else text[text.find("{") : text.rfind("}") + 1]
     if not candidate:
         raise ValueError("no JSON object in the model's answer")
     return json.loads(candidate)
 
 
-TRIAGE_JSON_INSTRUCTION = (
-    "\n\nAnswer with ONLY one JSON object, no prose, matching this JSON schema:\n"
-    + json.dumps(Triage.model_json_schema())
+TRIAGE_JSON_INSTRUCTION = "\n\nAnswer with ONLY one JSON object, no prose, matching this JSON schema:\n" + json.dumps(
+    Triage.model_json_schema()
 )
 
 
@@ -191,8 +220,14 @@ class OpenRouterLLM:
 
     provider = "openrouter"
 
-    def __init__(self, model: str | None = None, effort: str | None = None, api_key: str | None = None,
-                 fallbacks: list[str] | None = None, max_retries: int = 5):
+    def __init__(
+        self,
+        model: str | None = None,
+        effort: str | None = None,
+        api_key: str | None = None,
+        fallbacks: list[str] | None = None,
+        max_retries: int = 5,
+    ):
         self.model = model or os.environ.get("AGENT_MODEL") or DEFAULT_OPENROUTER_MODEL
         env_fallbacks = [m.strip() for m in os.environ.get("AGENT_FALLBACK_MODELS", "").split(",") if m.strip()]
         chosen = fallbacks if fallbacks is not None else (env_fallbacks or DEFAULT_OPENROUTER_FALLBACKS)
@@ -222,7 +257,7 @@ class OpenRouterLLM:
             except httpx2.TransportError as e:
                 if attempt == self.max_retries:
                     raise RuntimeError(f"OpenRouter unreachable: {e!r}") from e
-                await self.sleep(min(2 ** attempt, 30))
+                await self.sleep(min(2**attempt, 30))
                 continue
             try:
                 body = r.json()
@@ -248,8 +283,13 @@ class OpenRouterLLM:
         raise RuntimeError("unreachable")
 
     def _payload(self, messages: list[dict], max_tokens: int, tools: list[dict] | None = None) -> dict:
-        payload = {"model": self.model, "messages": messages, "temperature": 0, "max_tokens": max_tokens,
-                   "reasoning": {"effort": self.effort, "exclude": True}}
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0,
+            "max_tokens": max_tokens,
+            "reasoning": {"effort": self.effort, "exclude": True},
+        }
         if self.fallbacks:
             payload["models"] = [self.model, *self.fallbacks]
         if tools:
@@ -259,9 +299,16 @@ class OpenRouterLLM:
 
     def _record(self, kind: str, body: dict, started: float, stop: str) -> None:
         u = body.get("usage") or {}
-        entry = {"kind": kind, "model": body.get("model", self.model), "input_tokens": u.get("prompt_tokens", 0) or 0,
-                 "output_tokens": u.get("completion_tokens", 0) or 0, "cache_read_input_tokens": 0,
-                 "cache_creation_input_tokens": 0, "latency_s": round(time.monotonic() - started, 2), "stop_reason": stop}
+        entry = {
+            "kind": kind,
+            "model": body.get("model", self.model),
+            "input_tokens": u.get("prompt_tokens", 0) or 0,
+            "output_tokens": u.get("completion_tokens", 0) or 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "latency_s": round(time.monotonic() - started, 2),
+            "stop_reason": stop,
+        }
         if "cost" in u:
             entry["cost_usd"] = u["cost"]
         self.calls.append(entry)
@@ -271,7 +318,9 @@ class OpenRouterLLM:
         last_error = ""
         for kind in ("triage", "triage_repair"):
             if last_error:
-                messages.append({"role": "user", "content": f"That was not valid ({last_error}). Reply with only the corrected JSON object."})
+                messages.append(
+                    {"role": "user", "content": f"That was not valid ({last_error}). Reply with only the corrected JSON object."}
+                )
             started = time.monotonic()
             body = await self._post(self._payload(messages, 3000))
             text = (body["choices"][0]["message"].get("content") or "").strip()
@@ -295,8 +344,14 @@ class OpenRouterLLM:
                 args = json.loads(call["function"].get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}  # the tool's own validation then tells the model what was wrong
-            blocks.append(SimpleNamespace(type="tool_use", id=call.get("id") or f"call_{len(blocks)}",
-                                          name=call["function"]["name"], input=args if isinstance(args, dict) else {}))
+            blocks.append(
+                SimpleNamespace(
+                    type="tool_use",
+                    id=call.get("id") or f"call_{len(blocks)}",
+                    name=call["function"]["name"],
+                    input=args if isinstance(args, dict) else {},
+                )
+            )
         stop = "tool_use" if any(b.type == "tool_use" for b in blocks) else "end_turn"
         self._record("step", body, started, stop)
         return SimpleNamespace(content=blocks, stop_reason=stop, model=body.get("model"))

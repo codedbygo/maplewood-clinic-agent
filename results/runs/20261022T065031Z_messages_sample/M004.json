@@ -1,0 +1,307 @@
+{
+  "id": "M004",
+  "from_name": "Thomas Wright",
+  "body": "Please refill my metformin.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The message only requests a refill of metformin with no symptoms or urgent concerns mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P004",
+    "candidate_patient_ids": [
+      "P004"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P004",
+        "candidate_patient_ids": [
+          "P004"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P004",
+          "first_name": "Thomas",
+          "full_name": "Thomas Wright",
+          "age": 77,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2025-06-10",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "medication_query": "metformin",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "needs_visit",
+        "eligible": false,
+        "medication": "Metformin 500 mg",
+        "prescriber": "OKAFOR",
+        "run_out_date": "2026-11-11",
+        "earliest_date": "2026-11-04",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Metformin 500 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": false,
+            "detail": "Last visit 2025-06-10; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 2."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-11; a request can be prepared from 2026-11-04."
+          }
+        ],
+        "reason": "Last visit was 2025-06-10, more than 12 months ago. Do not prepare the refill; offer an appointment and route to the provider (OKAFOR)."
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "verification_token": "[redacted]",
+        "summary": "Patient Thomas Wright (P004) requests metformin refill. Last visit 2025-06-10 (>12 months). Refill eligibility: needs_visit. Provider: OKAFOR. Run-out date: 2026-11-11.",
+        "queue": "provider_refills",
+        "priority": "routine"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to provider_refills (routine)."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "provider": "OKAFOR",
+        "verification_token": "[redacted]",
+        "visit_type": "follow_up",
+        "limit": 5
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "OKAFOR",
+            "date": "2026-11-09",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "5 free follow_up slot(s) between 2026-11-09 and 2026-11-20 with OKAFOR. Note: Dr. James Okafor is on leave 2026-11-16 to 2026-11-20. Defaulted to the next 10 business days."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Thomas,\n\nYour metformin refill needs a visit first — your last appointment was more than 12 months ago. I've let Dr. Okafor know about the request.\n\nHere are a few follow-up openings with Dr. Okafor this week:\n- Monday, Nov 9 at 9:00 AM\n- Monday, Nov 9 at 10:20 AM\n- Monday, Nov 9 at 10:40 AM\n\nLet me know which works for you and I'll book it. Once the visit is done, the refill can be processed.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_appointment"
+    ],
+    "emergency": false,
+    "notes": "Metformin refill needs visit (last visit >12 months). Routed to provider_refills and offered follow-up slots with Dr. Okafor."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 804,
+      "output_tokens": 124,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.37,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6018,
+      "output_tokens": 101,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.18,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6414,
+      "output_tokens": 397,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.13,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6579,
+      "output_tokens": 140,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.78,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7020,
+      "output_tokens": 208,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.83,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7210,
+      "output_tokens": 317,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.68,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 33.01,
+  "result": {
+    "id": "M004",
+    "patient_id": "P004",
+    "intents": [
+      "refill"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "route_to_provider",
+      "refill_needs_visit",
+      "offer_appointment"
+    ],
+    "routed_to": [
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "route_to_queue",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Thomas,\n\nYour metformin refill needs a visit first — your last appointment was more than 12 months ago. I've let Dr. Okafor know about the request.\n\nHere are a few follow-up openings with Dr. Okafor this week:\n- Monday, Nov 9 at 9:00 AM\n- Monday, Nov 9 at 10:20 AM\n- Monday, Nov 9 at 10:40 AM\n\nLet me know which works for you and I'll book it. Once the visit is done, the refill can be processed."
+  }
+}

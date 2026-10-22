@@ -50,8 +50,15 @@ class Tools:
 
     def admin_export_state(self) -> dict:
         s = self.store
-        return {"ok": True, "reason": "State export.", "appointments": s.appointments, "refill_requests": s.refill_requests,
-                "routes": s.routes, "flags": s.flags, "drafts": s.drafts}
+        return {
+            "ok": True,
+            "reason": "State export.",
+            "appointments": s.appointments,
+            "refill_requests": s.refill_requests,
+            "routes": s.routes,
+            "flags": s.flags,
+            "drafts": s.drafts,
+        }
 
     # ---- helpers ----
 
@@ -62,9 +69,11 @@ class Tools:
         return self.store.tokens.get(token or "")
 
     def _no_token(self) -> dict:
-        return _refuse("Refused: a valid verification_token from verify_sender for this sender is required. "
-                       "If the sender is not verified, do not disclose anything; ask them to verify (name and date of birth) "
-                       "or to contact the clinic from the phone/email on file.")
+        return _refuse(
+            "Refused: a valid verification_token from verify_sender for this sender is required. "
+            "If the sender is not verified, do not disclose anything; ask them to verify (name and date of birth) "
+            "or to contact the clinic from the phone/email on file."
+        )
 
     # ---- identity ----
 
@@ -84,8 +93,10 @@ class Tools:
                 how.append("caregiver_name")
             if how:
                 hits.append({"patient_id": p["id"], "matched_on": how})
-        reason = (f"{len(hits)} possible record(s). This is not verification; use verify_sender before sharing anything, "
-                  "and never confirm to an unverified sender that someone is a patient.")
+        reason = (
+            f"{len(hits)} possible record(s). This is not verification; use verify_sender before sharing anything, "
+            "and never confirm to an unverified sender that someone is a patient."
+        )
         return {"ok": True, "matches": hits, "reason": reason}
 
     def verify_sender(self, stated_dob: str | None = None) -> dict:
@@ -109,10 +120,16 @@ class Tools:
         age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         prov = next(x for x in self.store.clinic["providers"] if x["id"] == p["primary_provider"])
         summary = {
-            "patient_id": p["id"], "first_name": p["name"].split(" ")[0], "full_name": p["name"],
-            "age": age, "is_minor": age < 18, "preferred_language": p["preferred_language"],
-            "primary_provider": p["primary_provider"], "primary_provider_name": prov["name"],
-            "last_visit": p["last_visit"], "sender_role": auth["role"],
+            "patient_id": p["id"],
+            "first_name": p["name"].split(" ")[0],
+            "full_name": p["name"],
+            "age": age,
+            "is_minor": age < 18,
+            "preferred_language": p["preferred_language"],
+            "primary_provider": p["primary_provider"],
+            "primary_provider_name": prov["name"],
+            "last_visit": p["last_visit"],
+            "sender_role": auth["role"],
         }
         if auth["role"] == "verified_caregiver":
             cg = p["authorised_caregiver"]
@@ -125,8 +142,10 @@ class Tools:
         auth = self._auth(verification_token)
         if not auth:
             return self._no_token()
-        meds = [{k: m[k] for k in ("medication", "controlled_schedule", "refills_remaining", "last_filled", "days_supply", "prescriber")}
-                for m in self.store.meds_for(auth["patient_id"])]
+        meds = [
+            {k: m[k] for k in ("medication", "controlled_schedule", "refills_remaining", "last_filled", "days_supply", "prescriber")}
+            for m in self.store.meds_for(auth["patient_id"])
+        ]
         return {"ok": True, "medications": meds, "reason": f"{len(meds)} active medication(s)."}
 
     def check_refill_eligibility(self, verification_token: str, medication_query: str) -> dict:
@@ -148,32 +167,72 @@ class Tools:
             return _refuse("Refused by policy: " + r["reason"], decision=r["decision"], earliest_date=r["earliest_date"])
         if any(q["patient_id"] == pid and q["medication"] == r["medication"] for q in self.store.refill_requests):
             return _refuse(f"A request for {r['medication']} is already pending.", decision="prepare")
-        req = {"id": f"RR{len(self.store.refill_requests) + 1:03d}", "patient_id": pid, "medication": r["medication"],
-               "prescriber": r["prescriber"], "status": "pending_provider_approval", "note": note, "message_id": self._mid()}
+        req = {
+            "id": f"RR{len(self.store.refill_requests) + 1:03d}",
+            "patient_id": pid,
+            "medication": r["medication"],
+            "prescriber": r["prescriber"],
+            "status": "pending_provider_approval",
+            "note": note,
+            "message_id": self._mid(),
+        }
         self.store.refill_requests.append(req)
-        self.store.routes.append({"queue": "provider_refills", "priority": "routine", "summary": f"Refill for approval: {r['medication']}",
-                                  "patient_id": pid, "message_id": self._mid()})
-        return {"ok": True, "request": req, "decision": "prepare",
-                "reason": f"Pending request {req['id']} for {r['medication']} sent to the provider_refills queue for approval. Not approved."}
+        self.store.routes.append(
+            {
+                "queue": "provider_refills",
+                "priority": "routine",
+                "summary": f"Refill for approval: {r['medication']}",
+                "patient_id": pid,
+                "message_id": self._mid(),
+            }
+        )
+        return {
+            "ok": True,
+            "request": req,
+            "decision": "prepare",
+            "reason": f"Pending request {req['id']} for {r['medication']} sent to the provider_refills queue for approval. Not approved.",
+        }
 
     # ---- appointments ----
 
-    def get_patient_appointments(self, verification_token: str, date: str | None = None, date_from: str | None = None,
-                                 date_to: str | None = None, weekday: str | None = None, provider: str | None = None,
-                                 visit_type: str | None = None) -> dict:
+    def get_patient_appointments(
+        self,
+        verification_token: str,
+        date: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        weekday: str | None = None,
+        provider: str | None = None,
+        visit_type: str | None = None,
+    ) -> dict:
         auth = self._auth(verification_token)
         if not auth:
             return self._no_token()
         wd = WEEKDAY_NAMES.index(weekday.lower()) if weekday and weekday.lower() in WEEKDAY_NAMES else None
         if not (date or date_from):
             date_from = self.store.today.isoformat()
-        appts = scheduling.match_appointments(self.store.appointments, auth["patient_id"], date=date, provider=provider, weekday=wd,
-                                              visit_type=visit_type, date_from=date_from, date_to=date_to)
+        appts = scheduling.match_appointments(
+            self.store.appointments,
+            auth["patient_id"],
+            date=date,
+            provider=provider,
+            weekday=wd,
+            visit_type=visit_type,
+            date_from=date_from,
+            date_to=date_to,
+        )
         return {"ok": True, "appointments": appts, "reason": f"{len(appts)} booked appointment(s) match."}
 
-    def find_available_slots(self, visit_type: str, date_from: str | None = None, date_to: str | None = None,
-                             provider: str | None = None, part_of_day: str | None = None,
-                             verification_token: str | None = None, limit: int = 8) -> dict:
+    def find_available_slots(
+        self,
+        visit_type: str,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        provider: str | None = None,
+        part_of_day: str | None = None,
+        verification_token: str | None = None,
+        limit: int = 8,
+    ) -> dict:
         clinic, today = self.store.clinic, self.store.today
         if visit_type not in clinic["visit_types"]:
             return _refuse(f"Unknown visit type '{visit_type}'. Known: {', '.join(clinic['visit_types'])}.")
@@ -183,15 +242,27 @@ class Tools:
         if not date_from:
             days = next_business_days(today, 2 if visit_type == "sick_visit" else 10, clinic["holidays"])
             date_from, date_to = days[0].isoformat(), days[-1].isoformat()
-            default_note = (" Sick visits default to today and the next business day." if visit_type == "sick_visit"
-                            else " Defaulted to the next 10 business days.")
+            default_note = (
+                " Sick visits default to today and the next business day."
+                if visit_type == "sick_visit"
+                else " Defaulted to the next 10 business days."
+            )
         date_to = date_to or date_from
         if date_from < today.isoformat():
             date_from = today.isoformat()
         auth = self._auth(verification_token)
-        slots = scheduling.find_slots(clinic, self.store.appointments, visit_type, date_from, date_to, provider=provider,
-                                      part_of_day=part_of_day, patient_id=auth["patient_id"] if auth else None,
-                                      now=self.store.now, limit=max(1, min(int(limit), 40)))
+        slots = scheduling.find_slots(
+            clinic,
+            self.store.appointments,
+            visit_type,
+            date_from,
+            date_to,
+            provider=provider,
+            part_of_day=part_of_day,
+            patient_id=auth["patient_id"] if auth else None,
+            now=self.store.now,
+            limit=max(1, min(int(limit), 40)),
+        )
         notes = []
         for d in (date_from, date_to):
             if d in clinic["holidays"]:
@@ -199,9 +270,11 @@ class Tools:
         if provider:
             prov = next((p for p in clinic["providers"] if p["id"] == provider), None)
             for a, b in (prov or {}).get("leave", []):
-                if a <= date_to and b >= date_from:
+                if prov and a <= date_to and b >= date_from:
                     notes.append(f"{prov['name']} is on leave {a} to {b}")
-        reason = f"{len(slots)} free {visit_type} slot(s) between {date_from} and {date_to}" + (f" with {provider}" if provider else "") + "."
+        reason = (
+            f"{len(slots)} free {visit_type} slot(s) between {date_from} and {date_to}" + (f" with {provider}" if provider else "") + "."
+        )
         if notes:
             reason += " Note: " + "; ".join(notes) + "."
         if not business_days(date.fromisoformat(date_from), date.fromisoformat(date_to), clinic["holidays"]):
@@ -238,8 +311,15 @@ class Tools:
             r["appointment"]["message_id"] = self._mid()
         return r
 
-    def reschedule_appointment(self, verification_token: str, new_date: str, new_start: str, appointment_id: str | None = None,
-                               current_date: str | None = None, new_provider: str | None = None) -> dict:
+    def reschedule_appointment(
+        self,
+        verification_token: str,
+        new_date: str,
+        new_start: str,
+        appointment_id: str | None = None,
+        current_date: str | None = None,
+        new_provider: str | None = None,
+    ) -> dict:
         auth = self._auth(verification_token)
         if not auth:
             return self._no_token()
@@ -251,8 +331,14 @@ class Tools:
             appt["message_id"] = self._mid()
         return r
 
-    def cancel_appointment(self, verification_token: str, appointment_id: str | None = None, date: str | None = None,
-                           provider: str | None = None, start: str | None = None) -> dict:
+    def cancel_appointment(
+        self,
+        verification_token: str,
+        appointment_id: str | None = None,
+        date: str | None = None,
+        provider: str | None = None,
+        start: str | None = None,
+    ) -> dict:
         auth = self._auth(verification_token)
         if not auth:
             return self._no_token()
@@ -269,8 +355,13 @@ class Tools:
     def get_clinic_info(self, topic: str | None = None) -> dict:
         c = self.store.clinic
         info = {
-            "clinic_name": c["clinic_name"], "today": c["today"], "timezone": c["timezone"], "hours": c["hours"],
-            "holidays": c["holidays"], "visit_types_minutes": c["visit_types"], "booking_rules": c["booking_rules"],
+            "clinic_name": c["clinic_name"],
+            "today": c["today"],
+            "timezone": c["timezone"],
+            "hours": c["hours"],
+            "holidays": c["holidays"],
+            "visit_types_minutes": c["visit_types"],
+            "booking_rules": c["booking_rules"],
             "providers": [{k: p.get(k) for k in ("id", "name", "role", "languages", "leave")} for p in c["providers"]],
             "routing_queues": c["routing_queues"],
         }
@@ -288,8 +379,15 @@ class Tools:
         if priority not in PRIORITIES:
             return _refuse(f"priority must be one of {PRIORITIES}.")
         auth = self._auth(verification_token)
-        self.store.routes.append({"queue": queue, "priority": priority, "summary": summary,
-                                  "patient_id": auth["patient_id"] if auth else None, "message_id": self._mid()})
+        self.store.routes.append(
+            {
+                "queue": queue,
+                "priority": priority,
+                "summary": summary,
+                "patient_id": auth["patient_id"] if auth else None,
+                "message_id": self._mid(),
+            }
+        )
         return {"ok": True, "reason": f"Routed to {queue} ({priority})."}
 
     def flag_suspicious_instruction(self, excerpt: str, reason: str) -> dict:

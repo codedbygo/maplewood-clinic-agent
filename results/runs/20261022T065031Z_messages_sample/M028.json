@@ -1,0 +1,287 @@
+{
+  "id": "M028",
+  "from_name": "Nora Fitzgerald",
+  "body": "Booking a follow-up with Dr. Okafor on Wednesday the 18th please.",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The message is a straightforward request to book a follow-up appointment with Dr. Okafor on Wednesday the 18th, with no symptoms, side effects, or urgent health concerns mentioned.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P025",
+    "candidate_patient_ids": [
+      "P025"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P025",
+        "candidate_patient_ids": [
+          "P025"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P025",
+          "first_name": "Nora",
+          "full_name": "Nora Fitzgerald",
+          "age": 74,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "OKAFOR",
+          "primary_provider_name": "Dr. James Okafor",
+          "last_visit": "2026-10-15",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Wednesday the 18th"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-18",
+        "end": "2026-11-18",
+        "business_days": [
+          "2026-11-18"
+        ],
+        "label": "2026-11-18",
+        "reason": "'Wednesday the 18th' resolves to 2026-11-18 (2026-11-18), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "date_to": "2026-11-18",
+        "visit_type": "follow_up",
+        "verification_token": "[redacted]",
+        "date_from": "2026-11-18",
+        "provider": "OKAFOR"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [],
+        "reason": "0 free follow_up slot(s) between 2026-11-18 and 2026-11-18 with OKAFOR. Note: Dr. James Okafor is on leave 2026-11-16 to 2026-11-20."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "date_to": "2026-11-18",
+        "visit_type": "follow_up",
+        "verification_token": "[redacted]",
+        "date_from": "2026-11-18"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-18",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-18",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-18",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-18",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-18",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-18",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-18",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-18",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-18 and 2026-11-18."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Nora,\n\nDr. Okafor is on leave from November 16–20, so he doesn't have any openings on Wednesday, November 18.\n\nI do have follow-up slots with other providers that day:\n- Dr. Patel at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n- Nurse Practitioner Kim at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n\nWould you like me to book one of those, or would you prefer to wait until Dr. Okafor is back (the week of November 23)?"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives"
+    ],
+    "emergency": false,
+    "notes": "Dr. Okafor on leave Nov 16-20; offered follow-up slots with Patel and Kim on Nov 18."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 817,
+      "output_tokens": 200,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.54,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6159,
+      "output_tokens": 211,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 18.24,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6362,
+      "output_tokens": 214,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 3.07,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6919,
+      "output_tokens": 287,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.68,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7139,
+      "output_tokens": 305,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.04,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 35.59,
+  "result": {
+    "id": "M028",
+    "patient_id": "P025",
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "offer_alternatives"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Nora,\n\nDr. Okafor is on leave from November 16–20, so he doesn't have any openings on Wednesday, November 18.\n\nI do have follow-up slots with other providers that day:\n- Dr. Patel at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n- Nurse Practitioner Kim at 9:00 AM, 9:20 AM, 9:40 AM, or 10:00 AM\n\nWould you like me to book one of those, or would you prefer to wait until Dr. Okafor is back (the week of November 23)?"
+  }
+}

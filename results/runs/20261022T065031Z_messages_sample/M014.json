@@ -1,0 +1,133 @@
+{
+  "id": "M014",
+  "from_name": "Claire Ellis",
+  "body": "This is Margaret Ellis's daughter. Mom fell this morning and hit her head, she seems confused now. What should we do?",
+  "path": "emergency",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "emergency",
+    "matches": [
+      "head_bump",
+      "head_injury_with_confusion",
+      "new_confusion"
+    ],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "clinical",
+      "third_party"
+    ],
+    "urgency": "emergency",
+    "emergency": true,
+    "clinical_concern": true,
+    "rationale": "The message describes a fall with head injury and confusion ('Mom fell this morning and hit her head, she seems confused now'), which are potential signs of a serious neurological emergency such as intracranial hemorrhage or concussion requiring immediate medical evaluation.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_caregiver",
+    "patient_id": "P017",
+    "candidate_patient_ids": [
+      "P017"
+    ],
+    "relationship": "daughter",
+    "reason": "Sender is the authorised caregiver (daughter) on file for this patient, writing from the caregiver phone on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_caregiver",
+        "patient_id": "P017",
+        "candidate_patient_ids": [
+          "P017"
+        ],
+        "relationship": "daughter",
+        "reason": "Sender is the authorised caregiver (daughter) on file for this patient, writing from the caregiver phone on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "queue": "clinician_urgent",
+        "summary": "POSSIBLE EMERGENCY from Claire Ellis (555-0177, sms). Reason: safety pre-screen: head_bump, head_injury_with_confusion, new_confusion. Message: This is Margaret Ellis's daughter. Mom fell this morning and hit her head, she seems confused now. What should we do?",
+        "priority": "emergency",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to clinician_urgent (emergency)."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message.",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "clinical",
+      "third_party"
+    ],
+    "urgency": "emergency",
+    "actions": [],
+    "emergency": true,
+    "notes": ""
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 824,
+      "output_tokens": 234,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 8.47,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 8.48,
+  "result": {
+    "id": "M014",
+    "patient_id": "P017",
+    "intents": [
+      "clinical",
+      "third_party"
+    ],
+    "urgency": "emergency",
+    "actions": [
+      "escalate_emergency"
+    ],
+    "routed_to": [
+      "clinician_urgent"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "route_to_queue",
+      "draft_reply"
+    ],
+    "reply_draft": "Please call 911 now or go to the nearest emergency department. Our clinical team has been alerted to your message."
+  }
+}

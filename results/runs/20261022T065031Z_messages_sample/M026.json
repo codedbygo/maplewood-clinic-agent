@@ -1,0 +1,319 @@
+{
+  "id": "M026",
+  "from_name": "Jonathan Reyes",
+  "body": "Need escitalopram refilled ASAP, out of pills",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "emergency": false,
+    "clinical_concern": true,
+    "rationale": "Patient requests escitalopram refill ASAP and states they are out of pills, indicating a clinical concern about running out of an important medication.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P016",
+    "candidate_patient_ids": [
+      "P016"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P016",
+        "candidate_patient_ids": [
+          "P016"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P016",
+          "first_name": "Jonathan",
+          "full_name": "Jonathan Reyes",
+          "age": 26,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "KIM",
+          "primary_provider_name": "Sarah Kim, NP",
+          "last_visit": "2025-09-01",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "check_refill_eligibility",
+      "input": {
+        "verification_token": "[redacted]",
+        "medication_query": "escitalopram"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "decision": "needs_visit",
+        "eligible": false,
+        "medication": "Escitalopram 10 mg",
+        "prescriber": "KIM",
+        "run_out_date": "2026-11-09",
+        "earliest_date": "2026-11-02",
+        "reasons": [
+          {
+            "rule": "on_active_list",
+            "passed": true,
+            "detail": "Escitalopram 10 mg is on the active list."
+          },
+          {
+            "rule": "not_controlled",
+            "passed": true,
+            "detail": "Controlled substance: no."
+          },
+          {
+            "rule": "seen_within_12_months",
+            "passed": false,
+            "detail": "Last visit 2025-09-01; must be on or after 2025-11-09."
+          },
+          {
+            "rule": "refills_remaining",
+            "passed": true,
+            "detail": "Refills remaining: 1."
+          },
+          {
+            "rule": "within_7_days_of_run_out",
+            "passed": true,
+            "detail": "Supply runs out 2026-11-09; a request can be prepared from 2026-11-02."
+          }
+        ],
+        "reason": "Last visit was 2025-09-01, more than 12 months ago. Do not prepare the refill; offer an appointment and route to the provider (KIM)."
+      }
+    },
+    {
+      "name": "route_to_queue",
+      "input": {
+        "priority": "urgent",
+        "summary": "Patient Jonathan Reyes (P016) requests escitalopram 10 mg refill ASAP, states out of pills today. Refill check: needs_visit (last visit 2025-09-01 >12 months). Prescriber: KIM. Refills remaining: 1. Run-out date: 2026-11-09.",
+        "queue": "provider_refills",
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Routed to provider_refills (urgent)."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "date_to": "2026-11-13",
+        "verification_token": "[redacted]",
+        "limit": 6,
+        "provider": "KIM",
+        "visit_type": "follow_up",
+        "date_from": "2026-11-09"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "11:00",
+            "end": "11:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "11:20",
+            "end": "11:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "KIM",
+            "date": "2026-11-09",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "6 free follow_up slot(s) between 2026-11-09 and 2026-11-13 with KIM."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "text": "Hi Jonathan,\n\nI've sent your escitalopram 10 mg refill request to Sarah Kim, NP for review. Since your last visit was more than 12 months ago, a follow-up visit is needed before the refill can be approved.\n\nSarah Kim has follow-up openings today (Monday, Nov 9):\n- 10:00 AM\n- 10:20 AM\n- 10:40 AM\n\nLet me know if one of these works, or if you'd prefer a different time. Your provider will review the refill request after the visit.\n\nMaplewood Family Clinic",
+        "language": "en"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [
+      "offer_appointment"
+    ],
+    "emergency": false,
+    "notes": "Refill needs visit (last visit >12 months). Routed to provider_refills urgent. Offered 3 follow-up slots with KIM today."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 812,
+      "output_tokens": 198,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.33,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6043,
+      "output_tokens": 461,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 14.29,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6442,
+      "output_tokens": 326,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.55,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6632,
+      "output_tokens": 298,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 13.08,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7111,
+      "output_tokens": 314,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.29,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7308,
+      "output_tokens": 370,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 9.02,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 51.61,
+  "result": {
+    "id": "M026",
+    "patient_id": "P016",
+    "intents": [
+      "refill",
+      "clinical"
+    ],
+    "urgency": "urgent",
+    "actions": [
+      "route_to_provider",
+      "refill_needs_visit",
+      "offer_appointment"
+    ],
+    "routed_to": [
+      "provider_refills"
+    ],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "check_refill_eligibility",
+      "route_to_queue",
+      "find_available_slots",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Jonathan,\n\nI've sent your escitalopram 10 mg refill request to Sarah Kim, NP for review. Since your last visit was more than 12 months ago, a follow-up visit is needed before the refill can be approved.\n\nSarah Kim has follow-up openings today (Monday, Nov 9):\n- 10:00 AM\n- 10:20 AM\n- 10:40 AM\n\nLet me know if one of these works, or if you'd prefer a different time. Your provider will review the refill request after the visit.\n\nMaplewood Family Clinic"
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "id": "M016",
+  "from_name": "Carlos Mendez",
+  "body": "Hola, necesito una cita para mi chequeo anual. ¿Tienen algo la próxima semana?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "es"
+  },
+  "triage": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The message requests a routine annual checkup appointment for next week, with no symptoms or urgent concerns mentioned.",
+    "language": "es",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P018",
+    "candidate_patient_ids": [
+      "P018"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P018",
+        "candidate_patient_ids": [
+          "P018"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P018",
+          "first_name": "Carlos",
+          "full_name": "Carlos Mendez",
+          "age": 56,
+          "is_minor": false,
+          "preferred_language": "Spanish",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-07-19",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "la próxima semana"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-16",
+        "end": "2026-11-20",
+        "business_days": [
+          "2026-11-16",
+          "2026-11-17",
+          "2026-11-18",
+          "2026-11-19",
+          "2026-11-20"
+        ],
+        "label": "next week",
+        "reason": "'la próxima semana' resolves to 2026-11-16 to 2026-11-20 (next week), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "provider": "PATEL",
+        "date_from": "2026-11-16",
+        "visit_type": "annual_physical",
+        "verification_token": "[redacted]",
+        "date_to": "2026-11-20",
+        "limit": 8
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "10:20",
+            "end": "11:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "13:00",
+            "end": "13:40",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "13:20",
+            "end": "14:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "14:20",
+            "end": "15:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "14:40",
+            "end": "15:20",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "15:00",
+            "end": "15:40",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "16:20",
+            "end": "17:00",
+            "visit_type": "annual_physical"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-17",
+            "start": "09:20",
+            "end": "10:00",
+            "visit_type": "annual_physical"
+          }
+        ],
+        "reason": "8 free annual_physical slot(s) between 2026-11-16 and 2026-11-20 with PATEL."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "visit_type": "annual_physical",
+        "start": "10:20",
+        "provider": "PATEL",
+        "verification_token": "[redacted]",
+        "date": "2026-11-16"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A173",
+          "patient_id": "P018",
+          "provider": "PATEL",
+          "date": "2026-11-16",
+          "start": "10:20",
+          "end": "11:00",
+          "visit_type": "annual_physical",
+          "status": "booked",
+          "message_id": "M016"
+        },
+        "reason": "Booked A173: PATEL annual_physical 2026-11-16 10:20-11:00."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "es",
+        "text": "Hola Carlos, tu chequeo anual está confirmado para el lunes 16 de noviembre a las 10:20 a.m. con la Dra. Maya Patel. Si necesitas cambiar la hora, avísanos. ¡Gracias!"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked annual physical for next week with primary provider Dr. Maya Patel."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 821,
+      "output_tokens": 172,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 2.39,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6194,
+      "output_tokens": 215,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 11.5,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6802,
+      "output_tokens": 206,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.26,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7059,
+      "output_tokens": 161,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 16.15,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7178,
+      "output_tokens": 341,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.23,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 42.57,
+  "result": {
+    "id": "M016",
+    "patient_id": "P018",
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hola Carlos, tu chequeo anual está confirmado para el lunes 16 de noviembre a las 10:20 a.m. con la Dra. Maya Patel. Si necesitas cambiar la hora, avísanos. ¡Gracias!"
+  }
+}

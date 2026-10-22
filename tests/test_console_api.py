@@ -13,22 +13,52 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _script(step, token):
-    return [[tool_use("draft_reply", text="Our hours are 9 to 5.", language="en")],
-            [tool_use("submit_result", intents=["admin"], urgency="routine", actions=["answer_directly"])]][step]
+    return [
+        [tool_use("draft_reply", text="Our hours are 9 to 5.", language="en")],
+        [tool_use("submit_result", intents=["admin"], urgency="routine", actions=["answer_directly"])],
+    ][step]
 
 
 @pytest.fixture
 def results_dir(tmp_path):
     run = tmp_path / "runs" / "R1"
     run.mkdir(parents=True)
-    result = {"id": "M003", "patient_id": "P003", "intents": ["clinical"], "urgency": "emergency", "actions": ["escalate_emergency"],
-              "routed_to": ["clinician_urgent"], "tool_calls": ["verify_sender", "route_to_queue", "draft_reply"], "reply_draft": "Call 911"}
+    result = {
+        "id": "M003",
+        "patient_id": "P003",
+        "intents": ["clinical"],
+        "urgency": "emergency",
+        "actions": ["escalate_emergency"],
+        "routed_to": ["clinician_urgent"],
+        "tool_calls": ["verify_sender", "route_to_queue", "draft_reply"],
+        "reply_draft": "Call 911",
+    }
     (tmp_path / "results_sample.json").write_text(json.dumps([result]))
     (tmp_path / "results_sample.run").write_text(str(run))
-    (run / "M003.json").write_text(json.dumps({"id": "M003", "path": "emergency", "trace": [], "screen": {"tier": "emergency"},
-                                               "guard_violations": [], "latency_s": 0.1, "llm_calls": []}))
-    (run / "final_state.json").write_text(json.dumps({"appointments": [], "routes": [{"queue": "clinician_urgent", "message_id": "M003"}],
-                                                      "refill_requests": [], "flags": [], "drafts": []}))
+    (run / "M003.json").write_text(
+        json.dumps(
+            {
+                "id": "M003",
+                "path": "emergency",
+                "trace": [],
+                "screen": {"tier": "emergency"},
+                "guard_violations": [],
+                "latency_s": 0.1,
+                "llm_calls": [],
+            }
+        )
+    )
+    (run / "final_state.json").write_text(
+        json.dumps(
+            {
+                "appointments": [],
+                "routes": [{"queue": "clinician_urgent", "message_id": "M003"}],
+                "refill_requests": [],
+                "flags": [],
+                "drafts": [],
+            }
+        )
+    )
     (run / "meta.json").write_text(json.dumps({"run_id": "R1", "model": "fake", "effort": "medium", "n": 1, "wall_s": 1.0}))
     (tmp_path / "eval_report.json").write_text(json.dumps({"scores": {"urgency_accuracy": 1.0}}))
     return tmp_path
@@ -36,8 +66,7 @@ def results_dir(tmp_path):
 
 @pytest.fixture
 def client(results_dir):
-    app = create_app(results_dir=results_dir,
-                     llm_factory=lambda: FakeLLM(triage_result=triage(intents=["admin"]), script=_script))
+    app = create_app(results_dir=results_dir, llm_factory=lambda: FakeLLM(triage_result=triage(intents=["admin"]), script=_script))
     with TestClient(app) as c:
         yield c
 

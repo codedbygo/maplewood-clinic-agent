@@ -41,7 +41,9 @@ def test_appointment_filters(tools):
     tok = token_for(tools, "Priya Raman", "priya.raman@example.com")
     assert [a["id"] for a in tools.get_patient_appointments(tok, weekday="Wednesday")["appointments"]] == ["A035"]
     assert tools.get_patient_appointments(tok, date="2026-11-13")["appointments"][0]["id"] == "A064"
-    assert tools.get_patient_appointments(tok, date_from="2026-11-17", date_to="2026-11-17", provider="KIM")["appointments"][0]["id"] == "A087"
+    assert (
+        tools.get_patient_appointments(tok, date_from="2026-11-17", date_to="2026-11-17", provider="KIM")["appointments"][0]["id"] == "A087"
+    )
 
 
 def test_slot_search_refusals_and_notes(tools):

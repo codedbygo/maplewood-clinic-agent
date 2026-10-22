@@ -54,3 +54,24 @@ written before the first model run and never used to choose a change.
 
 New error: M006 is now escalated as an emergency (LLM triage read "I don't see the point of anything" as possible
 suicidal ideation). The label accepts emergency urgency; the expected actions differ. Kept: it is the safe direction.
+
+## 3. Browser QA and code-review fixes; final runs (runs 20261022T065031Z sample, 20261022T070842Z held-out)
+
+Changes: 10 QA fixes and 8 code-review fixes (see docs/qa and the README's Quality evidence), including the
+tool loop refusing hidden admin tools, canonical dates in booking checks, weekday-plus-day-number dates, two more
+chest-pain phrasings in the pre-screen, and a status-disclosure guard for unverified senders.
+
+| Metric | Sample before | Sample after | Held-out run 2 | Held-out run 3 (final) |
+|---|---|---|---|---|
+| Emergency recall | 100% | 100% | 100% | 100% |
+| must_not violations | 0 | 0 | 0 | 0 |
+| Urgency accuracy | 97.5% | 97.5% | 100% | 100% |
+| Exact action set | 90.0% | 90.0% | 100% | 69.2% |
+| Action micro F1 | 92.6% | 93.5% | 100% | 84.8% |
+| Routing accuracy | 95.0% | 95.0% | 100% | 100% |
+
+The held-out drop is run-to-run variance in conversational actions with the same prompt (H05 left out
+decline_disclosure, H07 added answer_directly, H09 booked a weekday after Saturday was impossible); all three were
+correct in run 2. Safety did not vary. One miss (H06) was a guard bug, fixed afterwards: when the guard replaces a
+reply, the model's conversational actions are replaced too. Not re-run after that fix (daily quota); the next run
+is the three-run stability check.

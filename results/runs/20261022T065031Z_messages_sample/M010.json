@@ -1,0 +1,321 @@
+{
+  "id": "M010",
+  "from_name": "Grace Park",
+  "body": "Can I book a follow-up with Dr. Patel next week, ideally Tuesday morning?",
+  "path": "normal",
+  "error": null,
+  "phi_terms": [],
+  "screen": {
+    "tier": "none",
+    "matches": [],
+    "language": "en"
+  },
+  "triage": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "emergency": false,
+    "clinical_concern": false,
+    "rationale": "The sender is asking to book a follow-up appointment with Dr. Patel for Tuesday morning next week, which is a routine scheduling request with no clinical symptoms or urgency.",
+    "language": "en",
+    "suspicious_instruction": false
+  },
+  "verification": {
+    "ok": true,
+    "status": "verified_patient",
+    "patient_id": "P013",
+    "candidate_patient_ids": [
+      "P013"
+    ],
+    "relationship": null,
+    "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+    "verification_token": "[redacted]"
+  },
+  "trace": [
+    {
+      "name": "verify_sender",
+      "input": {
+        "stated_dob": null
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "status": "verified_patient",
+        "patient_id": "P013",
+        "candidate_patient_ids": [
+          "P013"
+        ],
+        "relationship": null,
+        "reason": "Sender name matches and the contact is the patient's own phone/email on file.",
+        "verification_token": "[redacted]"
+      }
+    },
+    {
+      "name": "get_patient_summary",
+      "input": {
+        "verification_token": "[redacted]"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "patient": {
+          "patient_id": "P013",
+          "first_name": "Grace",
+          "full_name": "Grace Park",
+          "age": 58,
+          "is_minor": false,
+          "preferred_language": "English",
+          "primary_provider": "PATEL",
+          "primary_provider_name": "Dr. Maya Patel",
+          "last_visit": "2026-10-12",
+          "sender_role": "verified_patient"
+        },
+        "reason": "Minimal summary for the verified patient."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "next week"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-16",
+        "end": "2026-11-20",
+        "business_days": [
+          "2026-11-16",
+          "2026-11-17",
+          "2026-11-18",
+          "2026-11-19",
+          "2026-11-20"
+        ],
+        "label": "next week",
+        "reason": "'next week' resolves to 2026-11-16 to 2026-11-20 (next week), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "resolve_date",
+      "input": {
+        "expression": "Tuesday"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "start": "2026-11-10",
+        "end": "2026-11-10",
+        "business_days": [
+          "2026-11-10"
+        ],
+        "label": "Tuesday",
+        "reason": "'Tuesday' resolves to 2026-11-10 (Tuesday), relative to today 2026-11-09."
+      }
+    },
+    {
+      "name": "find_available_slots",
+      "input": {
+        "visit_type": "follow_up",
+        "verification_token": "[redacted]",
+        "limit": 8,
+        "date_to": "2026-11-20",
+        "part_of_day": "morning",
+        "date_from": "2026-11-16",
+        "provider": "PATEL"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "slots": [
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "10:20",
+            "end": "10:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "10:40",
+            "end": "11:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-16",
+            "start": "11:40",
+            "end": "12:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-17",
+            "start": "09:00",
+            "end": "09:20",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-17",
+            "start": "09:20",
+            "end": "09:40",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-17",
+            "start": "09:40",
+            "end": "10:00",
+            "visit_type": "follow_up"
+          },
+          {
+            "provider": "PATEL",
+            "date": "2026-11-17",
+            "start": "10:00",
+            "end": "10:20",
+            "visit_type": "follow_up"
+          }
+        ],
+        "reason": "8 free follow_up slot(s) between 2026-11-16 and 2026-11-20 with PATEL."
+      }
+    },
+    {
+      "name": "book_appointment",
+      "input": {
+        "provider": "PATEL",
+        "date": "2026-11-17",
+        "verification_token": "[redacted]",
+        "visit_type": "follow_up",
+        "start": "09:00"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "violations": [],
+        "appointment": {
+          "id": "A171",
+          "patient_id": "P013",
+          "provider": "PATEL",
+          "date": "2026-11-17",
+          "start": "09:00",
+          "end": "09:20",
+          "visit_type": "follow_up",
+          "status": "booked",
+          "message_id": "M010"
+        },
+        "reason": "Booked A171: PATEL follow_up 2026-11-17 09:00-09:20."
+      }
+    },
+    {
+      "name": "draft_reply",
+      "input": {
+        "language": "en",
+        "text": "Hi Grace,\n\nYour follow-up with Dr. Patel is booked for Tuesday, November 17 at 9:00 AM. We'll see you then.\n\nMaplewood Family Clinic"
+      },
+      "ok": true,
+      "output": {
+        "ok": true,
+        "reason": "Draft saved for staff review before sending."
+      }
+    }
+  ],
+  "final_answer": {
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [],
+    "emergency": false,
+    "notes": "Booked follow-up with Dr. Patel for Tuesday, November 17 at 9:00 AM as requested."
+  },
+  "guard_violations": [],
+  "extra_routes": [],
+  "llm_calls": [
+    {
+      "kind": "triage",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 815,
+      "output_tokens": 164,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.07,
+      "stop_reason": "stop",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6270,
+      "output_tokens": 394,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 5.16,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 6873,
+      "output_tokens": 371,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 4.23,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7126,
+      "output_tokens": 141,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 7.43,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    },
+    {
+      "kind": "step",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "input_tokens": 7232,
+      "output_tokens": 638,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "latency_s": 6.82,
+      "stop_reason": "tool_use",
+      "cost_usd": 0
+    }
+  ],
+  "latency_s": 28.73,
+  "result": {
+    "id": "M010",
+    "patient_id": "P013",
+    "intents": [
+      "schedule"
+    ],
+    "urgency": "routine",
+    "actions": [
+      "book_appointment"
+    ],
+    "routed_to": [],
+    "tool_calls": [
+      "verify_sender",
+      "get_patient_summary",
+      "resolve_date",
+      "resolve_date",
+      "find_available_slots",
+      "book_appointment",
+      "draft_reply"
+    ],
+    "reply_draft": "Hi Grace,\n\nYour follow-up with Dr. Patel is booked for Tuesday, November 17 at 9:00 AM. We'll see you then.\n\nMaplewood Family Clinic"
+  }
+}

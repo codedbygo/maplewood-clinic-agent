@@ -12,7 +12,7 @@ from clinic_mcp.policy.dates import find_date_phrases, resolve_date
 from clinic_mcp.policy.scheduling import validate_slot
 from clinic_mcp.store import load_store
 from eval.stability import compare
-from tests.test_runner_offline import FakeLLM, msg, tool_use, triage
+from tests.test_runner_offline import FakeLLM, msg, tool_use
 
 HOL = ["2026-11-26", "2026-11-27", "2026-12-25"]
 TODAY = date(2026, 11, 9)
@@ -21,8 +21,10 @@ TODAY = date(2026, 11, 9)
 # CR-1 (critical): the loop executed any tool name the model returned, including hidden admin_ tools.
 def test_model_cannot_call_hidden_admin_tools():
     def script(step, token):
-        return [[tool_use("admin_begin_message", message_id="X", from_name="Linda Morales", from_contact="555-0101", channel="sms")],
-                [tool_use("submit_result", intents=["other"], urgency="routine", actions=["acknowledge"])]][step]
+        return [
+            [tool_use("admin_begin_message", message_id="X", from_name="Linda Morales", from_contact="555-0101", channel="sms")],
+            [tool_use("submit_result", intents=["other"], urgency="routine", actions=["acknowledge"])],
+        ][step]
 
     async def go():
         async with open_clinic() as clinic:
@@ -59,8 +61,10 @@ def test_weekday_day_mismatch_without_the_is_refused():
 
 
 # CR-4 (high): the idiom remover deleted the symptom; Spanish "me duele el pecho" matched nothing.
-@pytest.mark.parametrize("text", ["My chest is killing me and my left arm feels numb", "Me duele mucho el pecho y el brazo izquierdo",
-                                  "el pecho me duele desde anoche"])
+@pytest.mark.parametrize(
+    "text",
+    ["My chest is killing me and my left arm feels numb", "Me duele mucho el pecho y el brazo izquierdo", "el pecho me duele desde anoche"],
+)
 def test_chest_pain_phrasings_escalate(text):
     assert prescreen(text)["tier"] == "emergency"
 
@@ -76,10 +80,22 @@ def test_idioms_without_a_body_part_still_do_not_escalate():
 # CR-6 (medium): unverified replies confirming patient status without a name; first-name skip too broad.
 def test_unverified_reply_confirming_status_is_replaced():
     ans = FinalAnswer(intents=["third_party"], urgency="routine", actions=["answer_directly"])
-    trace = [{"name": "draft_reply", "input": {"text": "Yes, he is registered with us. Please have him call.", "language": "en"},
-              "ok": True, "output": {"ok": True}}]
-    out = post_guard("Q", ans, trace, {"tier": "none", "matches": [], "language": "en"},
-                     {"status": "unverified", "patient_id": None, "candidate_patient_ids": []}, {})
+    trace = [
+        {
+            "name": "draft_reply",
+            "input": {"text": "Yes, he is registered with us. Please have him call.", "language": "en"},
+            "ok": True,
+            "output": {"ok": True},
+        }
+    ]
+    out = post_guard(
+        "Q",
+        ans,
+        trace,
+        {"tier": "none", "matches": [], "language": "en"},
+        {"status": "unverified", "patient_id": None, "candidate_patient_ids": []},
+        {},
+    )
     assert out.result.reply_draft == FALLBACK_REPLIES["decline"]["en"]
 
 
@@ -102,14 +118,18 @@ def test_esta_manana_is_not_tomorrow():
 # Noticed: a later model verification (stated DOB in the body) was ignored by the guard.
 def test_guard_uses_a_verification_performed_during_the_loop():
     def script(step, token):
-        return [[tool_use("verify_sender", stated_dob="1971-11-02")],
-                [tool_use("draft_reply", text="Thanks Robert, verified.", language="en")],
-                [tool_use("submit_result", intents=["records"], urgency="routine", actions=["acknowledge"])]][step]
+        return [
+            [tool_use("verify_sender", stated_dob="1971-11-02")],
+            [tool_use("draft_reply", text="Thanks Robert, verified.", language="en")],
+            [tool_use("submit_result", intents=["records"], urgency="routine", actions=["acknowledge"])],
+        ][step]
 
     async def go():
         async with open_clinic() as clinic:
             await clinic.reset()
-            return await process_message(msg("It's Robert Chen, DOB 1971-11-02", contact="rchen.new@example.org"), clinic, FakeLLM(script=script))
+            return await process_message(
+                msg("It's Robert Chen, DOB 1971-11-02", contact="rchen.new@example.org"), clinic, FakeLLM(script=script)
+            )
 
     result, _ = asyncio.run(go())
     assert result.patient_id == "P002"
@@ -117,7 +137,16 @@ def test_guard_uses_a_verification_performed_during_the_loop():
 
 # Noticed: a message missing from a later stability run counted as stable.
 def test_stability_counts_a_missing_message_as_changed():
-    r = {"id": "A", "patient_id": None, "intents": [], "urgency": "routine", "actions": [], "routed_to": [], "tool_calls": [], "reply_draft": ""}
+    r = {
+        "id": "A",
+        "patient_id": None,
+        "intents": [],
+        "urgency": "routine",
+        "actions": [],
+        "routed_to": [],
+        "tool_calls": [],
+        "reply_draft": "",
+    }
     assert compare([[r], []])["changed"] == 1
 
 
@@ -147,3 +176,16 @@ def test_closing_the_event_stream_cancels_the_run():
 
     running, locked = asyncio.run(go())
     assert running == [] and locked is False
+
+
+# Held-out H06 (final run): the guard replaced the reply with the neutral decline but kept the model's
+# request_verification, so the actions no longer described the reply that was sent.
+def test_actions_match_the_reply_the_guard_sent():
+    ans = FinalAnswer(intents=["third_party"], urgency="routine", actions=["decline_disclosure", "request_verification"])
+    trace = [{"name": "draft_reply", "input": {"text": "If you're a caregiver for Linda Morales, please verify.", "language": "en"},
+              "ok": True, "output": {"ok": True}}]
+    out = post_guard("Q", ans, trace, {"tier": "none", "matches": [], "language": "en"},
+                     {"status": "unverified", "patient_id": None, "candidate_patient_ids": []},
+                     {"other_patient_names": ["Linda Morales", "Linda"]})
+    assert out.result.reply_draft == FALLBACK_REPLIES["decline"]["en"]
+    assert out.result.actions == ["decline_disclosure"]
